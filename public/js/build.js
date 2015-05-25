@@ -192,7 +192,7 @@
     return {
       templateUrl: "directives/chat/chat.html",
       link: function($scope) {
-        var checkCommands, createMessage, getRooms, joinRoom, listenToMessageNotifications, listenToTopicChange, listenToTyping, setTopic, unreadMessages;
+        var checkCommands, createMessage, getRooms, getTopic, joinRoom, listenToMessageNotifications, listenToTopicChange, listenToTyping, setTopic, unreadMessages;
         $scope.chat_id = "chat-123";
         $scope.room_id = 1;
         $scope.rooms = [];
@@ -225,7 +225,7 @@
           room.messages = 0;
           $scope.currentRoom = room;
           $scope.room_id = room.room_id;
-          setTopic();
+          getTopic();
           return ga('send', 'event', 'rooms', 'setActiveRoom', room.name, room.room_id);
         };
         unreadMessages = 0;
@@ -385,12 +385,14 @@
             chat_id: $scope.chat_id
           });
         };
-        setTopic = function() {
+        getTopic = function() {
           return api.get_topic({
             room_id: $scope.room_id,
             chat_id: $scope.chat_id
           }).then(function(topic) {
-            return $scope.currentRoom.topic = topic != null ? topic.topic : void 0;
+            return $timeout(function() {
+              return $scope.currentRoom.topic = topic != null ? topic.topic : void 0;
+            });
           });
         };
         listenToTopicChange = function() {
