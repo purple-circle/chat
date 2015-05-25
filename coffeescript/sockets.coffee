@@ -9,18 +9,16 @@ module.exports = (server, sessionStore) ->
 
 
   io.on "connection", (socket) ->
-    console.log 'connection of active sessions: ', io.engine.clientsCount
     socket.broadcast.emit "get_online_count", io.engine.clientsCount
-
 
     socket.on "disconnect", ->
       socket.broadcast.emit "get_online_count", io.engine.clientsCount
 
-    socket.on "load_chat_messages", (chat_id) ->
+    socket.on "load_chat_messages_for_room", ({chat_id, room_id}) ->
       chat
-        .load_messages(chat_id)
+        .load_messages_for_room({chat_id, room_id})
         .then (messages) ->
-          socket.emit "load_chat_messages", messages
+          socket.emit "load_chat_messages_for_room", messages
 
 
     socket.on "save_chat_message", (data) ->
@@ -30,9 +28,6 @@ module.exports = (server, sessionStore) ->
           socket.emit "save_chat_message", result
           socket.broadcast.emit "save_chat_message", result
 
-
     socket.on "get_online_count", ->
-      console.log 'Number of active sessions: ', io.engine.clientsCount
       socket.emit "get_online_count", io.engine.clientsCount
       socket.broadcast.emit "get_online_count", io.engine.clientsCount
-

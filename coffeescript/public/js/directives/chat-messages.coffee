@@ -14,24 +14,6 @@ app.directive "messages", ($rootScope, $timeout, $interval, $mdSidenav, $mdBotto
     $scope.youtubeOptions =
       autoplay: true
 
-
-    hashCode = (str) ->
-      hash = 0
-      i = 0
-      while i < str.length
-        hash = str.charCodeAt(i) + (hash << 5) - hash
-        i++
-      hash
-
-
-    intToARGB = (i) ->
-      h = (i >> 24 & 0xFF).toString(16) +
-          (i >> 16 & 0xFF).toString(16) +
-          (i >> 8 & 0xFF).toString(16) +
-          (i & 0xFF).toString(16)
-      h.substring 0, 6
-
-
     $scope.openImage = (item) ->
       ga('send', 'event', 'openImage', $scope.chatId, item.hasImage)
 
@@ -59,7 +41,7 @@ app.directive "messages", ($rootScope, $timeout, $interval, $mdSidenav, $mdBotto
         createdAt: row.created_at
         from: row.from
         is_me: row.sid is yolosid
-        color: intToARGB(hashCode(row.from))
+        color: api.intToARGB(api.hashCode(row.from))
         youtubeId: youtubeId
 
 
@@ -73,12 +55,15 @@ app.directive "messages", ($rootScope, $timeout, $interval, $mdSidenav, $mdBotto
       for message in messages
         processMessage(message)
 
-    getMessages = ->
-      ga('send', 'event', 'messages', 'getMessages', $scope.chatId, $scope.room_id)
+    getMessages = (room_id) ->
       api
-        .load_chat_messages($scope.chatId)
+        .load_chat_messages_for_room({room_id, chat_id: $scope.chatId})
         .then processMessages
 
+
+    $rootScope.$on "getMessages", (event, room_id) ->
+      ga('send', 'event', 'messages', 'getMessages', $scope.chatId, room_id)
+      getMessages(room_id)
 
     listenToMessages = ->
       api
@@ -88,7 +73,6 @@ app.directive "messages", ($rootScope, $timeout, $interval, $mdSidenav, $mdBotto
           $rootScope.$broadcast("message-notification", message.room_id)
 
 
-    getMessages()
     listenToMessages()
 
     $scope.showGridBottomSheet = ($event) ->

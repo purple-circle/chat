@@ -167,12 +167,14 @@ jobs.process "api.getGroup", (job, done) ->
       done(null, result)
     , done
 
-jobs.process "api.load_chat_messages", (job, done) ->
+jobs.process "api.load_chat_messages_for_room", (job, done) ->
   ChatMessages = mongoose.model 'chat_messages'
   ChatMessages
     .find()
     .where('chat_id')
-    .equals(job.data)
+    .equals(job.data.chat_id)
+    .where('room_id')
+    .equals(job.data.room_id)
     .limit(10)
     .sort("-created_at")
     .exec()

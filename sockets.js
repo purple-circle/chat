@@ -10,14 +10,18 @@
       return sessionStore(socket.request, socket.request.res, next);
     });
     return io.on("connection", function(socket) {
-      console.log('connection of active sessions: ', io.engine.clientsCount);
       socket.broadcast.emit("get_online_count", io.engine.clientsCount);
       socket.on("disconnect", function() {
         return socket.broadcast.emit("get_online_count", io.engine.clientsCount);
       });
-      socket.on("load_chat_messages", function(chat_id) {
-        return chat.load_messages(chat_id).then(function(messages) {
-          return socket.emit("load_chat_messages", messages);
+      socket.on("load_chat_messages_for_room", function(arg) {
+        var chat_id, room_id;
+        chat_id = arg.chat_id, room_id = arg.room_id;
+        return chat.load_messages_for_room({
+          chat_id: chat_id,
+          room_id: room_id
+        }).then(function(messages) {
+          return socket.emit("load_chat_messages_for_room", messages);
         });
       });
       socket.on("save_chat_message", function(data) {
@@ -27,7 +31,6 @@
         });
       });
       return socket.on("get_online_count", function() {
-        console.log('Number of active sessions: ', io.engine.clientsCount);
         socket.emit("get_online_count", io.engine.clientsCount);
         return socket.broadcast.emit("get_online_count", io.engine.clientsCount);
       });

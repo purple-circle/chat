@@ -167,10 +167,10 @@
     }, done);
   });
 
-  jobs.process("api.load_chat_messages", function(job, done) {
+  jobs.process("api.load_chat_messages_for_room", function(job, done) {
     var ChatMessages;
     ChatMessages = mongoose.model('chat_messages');
-    return ChatMessages.find().where('chat_id').equals(job.data).limit(10).sort("-created_at").exec().then(function(result) {
+    return ChatMessages.find().where('chat_id').equals(job.data.chat_id).where('room_id').equals(job.data.room_id).limit(10).sort("-created_at").exec().then(function(result) {
       return done(null, result);
     }, done);
   });

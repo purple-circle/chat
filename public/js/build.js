@@ -93,27 +93,12 @@
         chatId: "="
       },
       link: function($scope) {
-        var getMessages, hashCode, intToARGB, listenToMessages, processMessage, processMessages;
+        var getMessages, listenToMessages, processMessage, processMessages;
         $scope.room_id = 1;
         $scope.messages = {};
         $scope.whitespaces = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
         $scope.youtubeOptions = {
           autoplay: true
-        };
-        hashCode = function(str) {
-          var hash, i;
-          hash = 0;
-          i = 0;
-          while (i < str.length) {
-            hash = str.charCodeAt(i) + (hash << 5) - hash;
-            i++;
-          }
-          return hash;
-        };
-        intToARGB = function(i) {
-          var h;
-          h = (i >> 24 & 0xFF).toString(16) + (i >> 16 & 0xFF).toString(16) + (i >> 8 & 0xFF).toString(16) + (i & 0xFF).toString(16);
-          return h.substring(0, 6);
         };
         $scope.openImage = function(item) {
           return ga('send', 'event', 'openImage', $scope.chatId, item.hasImage);
@@ -131,11 +116,11 @@
           possibleUrl = api.stringHasUrl(row.original_message);
           if ((possibleUrl != null ? possibleUrl[0] : void 0) && api.urlIsImage(possibleUrl[0])) {
             api.testImage(possibleUrl[0], function() {
-              var j, len, message, ref, results;
+              var i, len, message, ref, results;
               ref = $scope.messages[row.room_id];
               results = [];
-              for (j = 0, len = ref.length; j < len; j++) {
-                message = ref[j];
+              for (i = 0, len = ref.length; i < len; i++) {
+                message = ref[i];
                 if (message._id === row._id) {
                   results.push(message.hasImage = possibleUrl[0]);
                 }
@@ -151,7 +136,7 @@
             createdAt: row.created_at,
             from: row.from,
             is_me: row.sid === yolosid,
-            color: intToARGB(hashCode(row.from)),
+            color: api.intToARGB(api.hashCode(row.from)),
             youtubeId: youtubeId
           };
           if (!$scope.messages[row.room_id]) {
@@ -160,25 +145,30 @@
           return $scope.messages[row.room_id].push(data);
         };
         processMessages = function(messages) {
-          var j, len, message, results;
+          var i, len, message, results;
           results = [];
-          for (j = 0, len = messages.length; j < len; j++) {
-            message = messages[j];
+          for (i = 0, len = messages.length; i < len; i++) {
+            message = messages[i];
             results.push(processMessage(message));
           }
           return results;
         };
-        getMessages = function() {
-          ga('send', 'event', 'messages', 'getMessages', $scope.chatId, $scope.room_id);
-          return api.load_chat_messages($scope.chatId).then(processMessages);
+        getMessages = function(room_id) {
+          return api.load_chat_messages_for_room({
+            room_id: room_id,
+            chat_id: $scope.chatId
+          }).then(processMessages);
         };
+        $rootScope.$on("getMessages", function(event, room_id) {
+          ga('send', 'event', 'messages', 'getMessages', $scope.chatId, room_id);
+          return getMessages(room_id);
+        });
         listenToMessages = function() {
           return api.socket.on("save_chat_message", function(message) {
             processMessage(message);
             return $rootScope.$broadcast("message-notification", message.room_id);
           });
         };
-        getMessages();
         listenToMessages();
         return $scope.showGridBottomSheet = function($event) {
           ga('send', 'event', 'click', 'showGridBottomSheet', $scope.chatId);
@@ -213,6 +203,12 @@
         $scope.currentGroup = false;
         $scope.setActiveGroup = function(group) {
           var g, i, len, ref;
+          if (!group.$messagesFetched) {
+            $timeout(function() {
+              group.$messagesFetched = true;
+              return $rootScope.$broadcast("getMessages", group.room_id);
+            });
+          }
           group.messages = 0;
           $scope.currentGroup = group;
           ref = $scope.groups;
@@ -418,6 +414,21 @@
       return url.match(youtubeRegexp);
     };
     return {
+      hashCode: function(str) {
+        var hash, i;
+        hash = 0;
+        i = 0;
+        while (i < str.length) {
+          hash = str.charCodeAt(i) + (hash << 5) - hash;
+          i++;
+        }
+        return hash;
+      },
+      intToARGB: function(i) {
+        var h;
+        h = (i >> 24 & 0xFF).toString(16) + (i >> 16 & 0xFF).toString(16) + (i >> 8 & 0xFF).toString(16) + (i & 0xFF).toString(16);
+        return h.substring(0, 6);
+      },
       stringHasUrl: function(str) {
         var url_regex;
         url_regex = /(https?:\/\/[^\s]+)/g;
@@ -467,9 +478,14 @@
         socket.emit("getuser", id);
         return this.on("user");
       },
-      load_chat_messages: function(chat_id) {
-        socket.emit("load_chat_messages", chat_id);
-        return this.on("load_chat_messages");
+      load_chat_messages_for_room: function(arg) {
+        var chat_id, room_id;
+        chat_id = arg.chat_id, room_id = arg.room_id;
+        socket.emit("load_chat_messages_for_room", {
+          chat_id: chat_id,
+          room_id: room_id
+        });
+        return this.on("load_chat_messages_for_room");
       },
       save_chat_messages: function(data) {
         socket.emit("save_chat_message", data);

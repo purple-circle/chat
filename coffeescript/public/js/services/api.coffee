@@ -9,6 +9,21 @@ app.factory 'api', ($q, youtubeEmbedUtils) ->
     url.match(youtubeRegexp)
 
 
+  hashCode: (str) ->
+    hash = 0
+    i = 0
+    while i < str.length
+      hash = str.charCodeAt(i) + (hash << 5) - hash
+      i++
+    hash
+
+  intToARGB: (i) ->
+    h = (i >> 24 & 0xFF).toString(16) +
+        (i >> 16 & 0xFF).toString(16) +
+        (i >> 8 & 0xFF).toString(16) +
+        (i & 0xFF).toString(16)
+    h.substring 0, 6
+
   stringHasUrl: (str) ->
     url_regex = /(https?:\/\/[^\s]+)/g
     str.match url_regex
@@ -57,9 +72,9 @@ app.factory 'api', ($q, youtubeEmbedUtils) ->
     socket.emit("getuser", id)
     this.on("user")
 
-  load_chat_messages: (chat_id) ->
-    socket.emit("load_chat_messages", chat_id)
-    this.on("load_chat_messages")
+  load_chat_messages_for_room: ({chat_id, room_id}) ->
+    socket.emit("load_chat_messages_for_room", {chat_id, room_id})
+    this.on("load_chat_messages_for_room")
 
   save_chat_messages: (data) ->
     socket.emit("save_chat_message", data)

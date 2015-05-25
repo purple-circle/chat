@@ -13,6 +13,11 @@ app.directive "chat", ($rootScope, $timeout, $mdSidenav, $mdBottomSheet, $mdMedi
     $scope.currentGroup = false
 
     $scope.setActiveGroup = (group) ->
+      if !group.$messagesFetched
+        $timeout ->
+          group.$messagesFetched = true
+          $rootScope.$broadcast("getMessages", group.room_id)
+
       group.messages = 0
       $scope.currentGroup = group
       for g in $scope.groups when g.$selected is true
