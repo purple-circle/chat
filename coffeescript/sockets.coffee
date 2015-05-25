@@ -31,6 +31,20 @@ module.exports = (server, sessionStore) ->
           socket.emit "save_chat_message", result
           socket.broadcast.emit "save_chat_message", result
 
+    socket.on "load_topic", (data) ->
+      chat
+        .load_topic(data)
+        .then (result) ->
+          socket.emit "topic", result
+
+    socket.on "save_topic", (data) ->
+      chat
+        .save_topic(data)
+        .then (result) ->
+          socket.emit "topic", result
+          socket.broadcast.emit "topic", result
+
+
     socket.on "get_online_count", ->
       socket.emit "get_online_count", io.engine.clientsCount
       socket.broadcast.emit "get_online_count", io.engine.clientsCount

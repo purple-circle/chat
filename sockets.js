@@ -33,6 +33,17 @@
           return socket.broadcast.emit("save_chat_message", result);
         });
       });
+      socket.on("load_topic", function(data) {
+        return chat.load_topic(data).then(function(result) {
+          return socket.emit("topic", result);
+        });
+      });
+      socket.on("save_topic", function(data) {
+        return chat.save_topic(data).then(function(result) {
+          socket.emit("topic", result);
+          return socket.broadcast.emit("topic", result);
+        });
+      });
       return socket.on("get_online_count", function() {
         socket.emit("get_online_count", io.engine.clientsCount);
         return socket.broadcast.emit("get_online_count", io.engine.clientsCount);

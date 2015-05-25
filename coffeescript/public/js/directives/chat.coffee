@@ -33,6 +33,8 @@ app.directive "chat", ($rootScope, $timeout, $mdSidenav, $mdBottomSheet, $mdMedi
       $scope.currentRoom = room
       $scope.room_id = room.room_id
 
+      setTopic()
+
       ga('send', 'event', 'rooms', 'setActiveRoom', room.name, room.room_id)
 
 
@@ -55,6 +57,12 @@ app.directive "chat", ($rootScope, $timeout, $mdSidenav, $mdBottomSheet, $mdMedi
           if g.room_id is room_id
             g.messages++
 
+    joinRoom = (room_name) ->
+      room_name = room_name.toLowerCase()
+      for room in $scope.rooms when room.name.toLowerCase() is room_name
+        ga('send', 'event', 'joinRoom', $scope.chat_id, room_name)
+        $scope.setActiveRoom(room)
+
     getRooms = ->
       $scope.rooms = chatRooms.get()
       selected_room = $scope.rooms[0]
@@ -68,6 +76,9 @@ app.directive "chat", ($rootScope, $timeout, $mdSidenav, $mdBottomSheet, $mdMedi
 
     createMessage = (data) ->
       if !data.message
+        return
+
+      if checkCommands(data.message)
         return
 
       data.room_id = $scope.room_id
@@ -106,7 +117,6 @@ app.directive "chat", ($rootScope, $timeout, $mdSidenav, $mdBottomSheet, $mdMedi
     $scope.i_am_typing = ->
       api.i_am_typing($scope.from)
 
-
     listenToTyping = ->
       api
         .socket
@@ -132,6 +142,43 @@ app.directive "chat", ($rootScope, $timeout, $mdSidenav, $mdBottomSheet, $mdMedi
       localStorage.setItem "name", $scope.from
 
 
+    checkCommands = (message) ->
+      if message[0] isnt "/"
+        return false
+
+      content = message.split(" ")
+      command = content[0].replace("/", "")
+
+      if command is "topic"
+        setTopic(content.slice(1).join(" "))
+        return true
+
+      if command is "join" or command is "j"
+        joinRoom(content.slice(1).join(" "))
+        return true
+
+      return false
+
+    setTopic = (topic) ->
+      ga('send', 'event', 'setTopic', $scope.chat_id, topic)
+      $scope.currentRoom.topic = topic
+
+      api
+        .set_topic({topic, room_id: $scope.room_id, chat_id: $scope.chat_id})
+
+    setTopic = ->
+      api
+        .get_topic({room_id: $scope.room_id, chat_id: $scope.chat_id})
+        .then (topic) ->
+          $scope.currentRoom.topic = topic?.topic
+
+    listenToTopicChange = ->
+      api
+        .socket
+        .on "topic", (topic) ->
+          $scope.currentRoom.topic = topic?.topic
+
     getRooms()
     listenToMessageNotifications()
     listenToTyping()
+    listenToTopicChange()

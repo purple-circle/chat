@@ -77,7 +77,9 @@
 
       <div class="md-toolbar-tools">
         <h3>
-          <span>Chat: {{currentRoom.name}}</span>
+          <span>{{currentRoom.name}}
+            <span ng-if="currentRoom.topic">- {{currentRoom.topic}}</span>
+          </span>
         </h3>
 
         <div class="md-toolbar-item md-tools" layout="column" layout-gt-md="row">

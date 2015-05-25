@@ -167,6 +167,31 @@ jobs.process "api.getGroup", (job, done) ->
       done(null, result)
     , done
 
+
+jobs.process "api.load_topic", (job, done) ->
+  ChatMessages = mongoose.model 'topics'
+  ChatMessages
+    .findOne()
+    .where('chat_id')
+    .equals(job.data.chat_id)
+    .where('room_id')
+    .equals(job.data.room_id)
+    .limit(1)
+    .sort("-created_at")
+    .exec()
+    .then (result) ->
+      done(null, result)
+    , done
+
+jobs.process "api.save_topic", (job, done) ->
+  Topics = mongoose.model 'topics'
+  topics = new Topics(job.data)
+  topics.save (err) ->
+    if err
+      done(err)
+    else
+      done null, topics
+
 jobs.process "api.load_chat_messages_for_room", (job, done) ->
   ChatMessages = mongoose.model 'chat_messages'
   ChatMessages

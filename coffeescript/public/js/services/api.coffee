@@ -67,6 +67,13 @@ app.factory 'api', ($q, youtubeEmbedUtils) ->
     socket.emit("api_stats")
     this.on("api_stats")
 
+  get_topic: ({chat_id, room_id}) ->
+    socket.emit("load_topic", {chat_id, room_id})
+    this.on("topic")
+
+  set_topic: (data) ->
+    socket.emit("save_topic", data)
+
   get_online_count: ->
     socket.emit("get_online_count")
     this.on("get_online_count")

@@ -8,4 +8,10 @@ chat.save = (data) ->
 chat.load_messages_for_room = ({chat_id, room_id}) ->
   api.createQueue("api.load_chat_messages_for_room", {chat_id, room_id})
 
+chat.load_topic = ({chat_id, room_id}) ->
+  api.createQueue("api.load_topic", {chat_id, room_id})
+
+chat.save_topic = (data) ->
+  api.createQueue("api.save_topic", data)
+
 module.exports = chat

@@ -12,12 +12,21 @@ module.exports = (settings) ->
     created_at: { type: Date, default: Date.now }
   }
 
+  topicSchema = mongoose.Schema {
+    chat_id: 'String'
+    room_id: 'Number'
+    topic: 'String'
+    from: 'String'
+    created_at: { type: Date, default: Date.now }
+  }
+
   apiLogSchema = mongoose.Schema {
     name: 'String'
     created_at: { type: Date, default: Date.now }
   }
 
   mongoose.model 'chat_messages', chatMessageSchema
+  mongoose.model 'topics', topicSchema
   mongoose.model 'api_logs', apiLogSchema
 
 

@@ -192,7 +192,7 @@
     return {
       templateUrl: "directives/chat/chat.html",
       link: function($scope) {
-        var createMessage, getRooms, listenToMessageNotifications, listenToTyping, unreadMessages;
+        var checkCommands, createMessage, getRooms, joinRoom, listenToMessageNotifications, listenToTopicChange, listenToTyping, setTopic, unreadMessages;
         $scope.chat_id = "chat-123";
         $scope.room_id = 1;
         $scope.rooms = [];
@@ -225,6 +225,7 @@
           room.messages = 0;
           $scope.currentRoom = room;
           $scope.room_id = room.room_id;
+          setTopic();
           return ga('send', 'event', 'rooms', 'setActiveRoom', room.name, room.room_id);
         };
         unreadMessages = 0;
@@ -259,6 +260,21 @@
             return results;
           });
         };
+        joinRoom = function(room_name) {
+          var i, len, ref, results, room;
+          room_name = room_name.toLowerCase();
+          ref = $scope.rooms;
+          results = [];
+          for (i = 0, len = ref.length; i < len; i++) {
+            room = ref[i];
+            if (!(room.name.toLowerCase() === room_name)) {
+              continue;
+            }
+            ga('send', 'event', 'joinRoom', $scope.chat_id, room_name);
+            results.push($scope.setActiveRoom(room));
+          }
+          return results;
+        };
         getRooms = function() {
           var i, len, previousRoom, ref, room, selected_room;
           $scope.rooms = chatRooms.get();
@@ -278,6 +294,9 @@
         createMessage = function(data) {
           var possibleUrl;
           if (!data.message) {
+            return;
+          }
+          if (checkCommands(data.message)) {
             return;
           }
           data.room_id = $scope.room_id;
@@ -340,9 +359,49 @@
           ga('send', 'event', 'setUsername', $scope.chat_id, $scope.from);
           return localStorage.setItem("name", $scope.from);
         };
+        checkCommands = function(message) {
+          var command, content;
+          if (message[0] !== "/") {
+            return false;
+          }
+          content = message.split(" ");
+          command = content[0].replace("/", "");
+          if (command === "topic") {
+            setTopic(content.slice(1).join(" "));
+            return true;
+          }
+          if (command === "join" || command === "j") {
+            joinRoom(content.slice(1).join(" "));
+            return true;
+          }
+          return false;
+        };
+        setTopic = function(topic) {
+          ga('send', 'event', 'setTopic', $scope.chat_id, topic);
+          $scope.currentRoom.topic = topic;
+          return api.set_topic({
+            topic: topic,
+            room_id: $scope.room_id,
+            chat_id: $scope.chat_id
+          });
+        };
+        setTopic = function() {
+          return api.get_topic({
+            room_id: $scope.room_id,
+            chat_id: $scope.chat_id
+          }).then(function(topic) {
+            return $scope.currentRoom.topic = topic != null ? topic.topic : void 0;
+          });
+        };
+        listenToTopicChange = function() {
+          return api.socket.on("topic", function(topic) {
+            return $scope.currentRoom.topic = topic != null ? topic.topic : void 0;
+          });
+        };
         getRooms();
         listenToMessageNotifications();
-        return listenToTyping();
+        listenToTyping();
+        return listenToTopicChange();
       }
     };
   }]);
@@ -499,6 +558,18 @@
       api_stats: function() {
         socket.emit("api_stats");
         return this.on("api_stats");
+      },
+      get_topic: function(arg) {
+        var chat_id, room_id;
+        chat_id = arg.chat_id, room_id = arg.room_id;
+        socket.emit("load_topic", {
+          chat_id: chat_id,
+          room_id: room_id
+        });
+        return this.on("topic");
+      },
+      set_topic: function(data) {
+        return socket.emit("save_topic", data);
       },
       get_online_count: function() {
         socket.emit("get_online_count");

@@ -20,6 +20,19 @@
     });
   };
 
+  chat.load_topic = function(arg) {
+    var chat_id, room_id;
+    chat_id = arg.chat_id, room_id = arg.room_id;
+    return api.createQueue("api.load_topic", {
+      chat_id: chat_id,
+      room_id: room_id
+    });
+  };
+
+  chat.save_topic = function(data) {
+    return api.createQueue("api.save_topic", data);
+  };
+
   module.exports = chat;
 
 }).call(this);

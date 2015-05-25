@@ -167,6 +167,27 @@
     }, done);
   });
 
+  jobs.process("api.load_topic", function(job, done) {
+    var ChatMessages;
+    ChatMessages = mongoose.model('topics');
+    return ChatMessages.findOne().where('chat_id').equals(job.data.chat_id).where('room_id').equals(job.data.room_id).limit(1).sort("-created_at").exec().then(function(result) {
+      return done(null, result);
+    }, done);
+  });
+
+  jobs.process("api.save_topic", function(job, done) {
+    var Topics, topics;
+    Topics = mongoose.model('topics');
+    topics = new Topics(job.data);
+    return topics.save(function(err) {
+      if (err) {
+        return done(err);
+      } else {
+        return done(null, topics);
+      }
+    });
+  });
+
   jobs.process("api.load_chat_messages_for_room", function(job, done) {
     var ChatMessages;
     ChatMessages = mongoose.model('chat_messages');
