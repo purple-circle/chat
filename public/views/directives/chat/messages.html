@@ -17,7 +17,12 @@
               <strong style="color: #666;">{{item.from}}</strong><br/>
               <span ng-bind-html="item.message"></span>
 
-              <span ng-if="item.youtubeId" class="youtube">
+              <span ng-if="item.hasImage" class="media-preview">
+                <a href="{{item.hasImage}}" target="_blank"><img ng-src="{{item.hasImage}}"></a>
+              </span>
+
+
+              <span ng-if="item.youtubeId" class="media-preview">
                 <span ng-if="item.videoOpened">
                   <youtube-video video-id="item.youtubeId" player-vars="youtubeOptions" player-width="'100%'" player-height="'200px'"></youtube-video>
                   <a ng-href="https://www.youtube.com/watch?v={{item.youtubeId}}" target="_blank">https://www.youtube.com/watch?v={{item.youtubeId}}</a>

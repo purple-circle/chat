@@ -41,7 +41,15 @@ app.directive "messages", ($rootScope, $timeout, $interval, $mdSidenav, $mdBotto
       if hasYoutubeUrl
         youtubeId = api.getYoutubeIdFromUrl(row.original_message)
 
+      possibleUrl = api.stringHasUrl(row.original_message)
+      if possibleUrl?[0] and api.urlIsImage(possibleUrl[0])
+        api.testImage possibleUrl[0], ->
+          for message in $scope.messages[row.room_id] when message._id is row._id
+            message.hasImage = possibleUrl[0]
+
       data =
+        _id: row._id
+        hasImage: false
         room_id: row.room_id
         message: row.message
         createdAt: row.created_at

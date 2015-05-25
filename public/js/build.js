@@ -119,12 +119,29 @@
           return item.videoOpened = true;
         };
         processMessage = function(row) {
-          var data, hasYoutubeUrl, youtubeId;
+          var data, hasYoutubeUrl, possibleUrl, youtubeId;
           hasYoutubeUrl = api.isYoutubeUrl(row.original_message);
           if (hasYoutubeUrl) {
             youtubeId = api.getYoutubeIdFromUrl(row.original_message);
           }
+          possibleUrl = api.stringHasUrl(row.original_message);
+          if ((possibleUrl != null ? possibleUrl[0] : void 0) && api.urlIsImage(possibleUrl[0])) {
+            api.testImage(possibleUrl[0], function() {
+              var j, len, message, ref, results;
+              ref = $scope.messages[row.room_id];
+              results = [];
+              for (j = 0, len = ref.length; j < len; j++) {
+                message = ref[j];
+                if (message._id === row._id) {
+                  results.push(message.hasImage = possibleUrl[0]);
+                }
+              }
+              return results;
+            });
+          }
           data = {
+            _id: row._id,
+            hasImage: false,
             room_id: row.room_id,
             message: row.message,
             createdAt: row.created_at,
@@ -389,6 +406,36 @@
       return url.match(youtubeRegexp);
     };
     return {
+      stringHasUrl: function(str) {
+        var url_regex;
+        url_regex = /(https?:\/\/[^\s]+)/g;
+        return str.match(url_regex);
+      },
+      urlIsImage: function(url) {
+        return url.match(/\.(jpeg|jpg|gif|png)$/) !== null;
+      },
+      testImage: function(url, callback) {
+        var img, timedOut, timeout, timer;
+        timeout = 5000;
+        timedOut = false;
+        timer = null;
+        img = new Image;
+        img.onerror = img.onabort = function() {
+          if (!timedOut) {
+            return clearTimeout(timer);
+          }
+        };
+        img.onload = function() {
+          if (!timedOut) {
+            clearTimeout(timer);
+            return callback(url);
+          }
+        };
+        img.src = url;
+        return timer = setTimeout(function() {
+          return timedOut = true;
+        }, timeout);
+      },
       socket: socket,
       on: function(event) {
         var deferred;

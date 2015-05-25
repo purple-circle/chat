@@ -8,6 +8,36 @@ app.factory 'api', ($q, youtubeEmbedUtils) ->
       \S*[^\w\s-])([\w-]{11})(?=[^\w-]|$)(?![?=&+%\w.-]*(?:['"][^<>]*>|<\/a>))[?=&+%\w.-]*///ig
     url.match(youtubeRegexp)
 
+
+  stringHasUrl: (str) ->
+    url_regex = /(https?:\/\/[^\s]+)/g
+    str.match url_regex
+
+  urlIsImage: (url) ->
+    url.match(/\.(jpeg|jpg|gif|png)$/) isnt null
+
+  testImage: (url, callback) ->
+    timeout = 5000
+    timedOut = false
+    timer = null
+    img = new Image
+
+    img.onerror = img.onabort = ->
+      if !timedOut
+        clearTimeout timer
+
+    img.onload = ->
+      if !timedOut
+        clearTimeout timer
+        callback url
+
+
+    img.src = url
+    timer = setTimeout ->
+      timedOut = true
+    , timeout
+
+
   socket: socket
 
   on: (event) ->
