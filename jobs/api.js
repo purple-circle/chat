@@ -17,7 +17,8 @@
 
   twitter_text_options = {
     usernameUrlBase: "/profile/",
-    hashtagUrlBase: "/tag/"
+    hashtagUrlBase: "/tag/",
+    targetBlank: true
   };
 
   console.log("api worker running");

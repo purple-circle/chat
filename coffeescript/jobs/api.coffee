@@ -11,6 +11,7 @@ twitter = require('twitter-text')
 twitter_text_options =
   usernameUrlBase: "/profile/"
   hashtagUrlBase: "/tag/"
+  targetBlank: true
 
 console.log "api worker running"
 selectUserFields = '-salt -hash'
