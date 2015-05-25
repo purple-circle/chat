@@ -27,47 +27,45 @@
 
   RedisStore = require('connect-redis')(session);
 
-  if (require("piping")()) {
-    app = express();
-    sessionStore = session({
-      store: new RedisStore(),
-      secret: settings.cookie_secret,
-      resave: true,
-      saveUninitialized: true
-    });
-    app.use(favicon(__dirname + '/public/images/favicons/favicon.ico'));
-    app.use(express["static"](path.join(__dirname, "public")));
-    app.set("views", path.join(__dirname, "views"));
-    app.set("view engine", "ejs");
-    app.use(logger("dev"));
-    app.use(bodyParser.json());
-    app.use(bodyParser.urlencoded({
-      extended: true
-    }));
-    app.use(cookieParser(settings.cookie_secret));
-    app.use(sessionStore);
-    app.use("/", routes);
-    app.use(function(req, res, next) {
-      var err;
-      err = new Error("Not Found");
-      err.status = 404;
-      return next(err);
-    });
-    if (app.get("env") === "development") {
-      app.use(function(err, req, res, next) {
-        var view;
-        view = "error";
-        if (err.status === 404) {
-          view = "error404";
-        }
-        res.status(err.status || 500);
-        return res.render(view, {
-          message: err.message,
-          error: err,
-          stack: err.stack
-        });
-      });
-    }
+  app = express();
+
+  sessionStore = session({
+    store: new RedisStore(),
+    secret: settings.cookie_secret,
+    resave: true,
+    saveUninitialized: true
+  });
+
+  app.use(favicon(__dirname + '/public/images/favicons/favicon.ico'));
+
+  app.use(express["static"](path.join(__dirname, "public")));
+
+  app.set("views", path.join(__dirname, "views"));
+
+  app.set("view engine", "ejs");
+
+  app.use(logger("dev"));
+
+  app.use(bodyParser.json());
+
+  app.use(bodyParser.urlencoded({
+    extended: true
+  }));
+
+  app.use(cookieParser(settings.cookie_secret));
+
+  app.use(sessionStore);
+
+  app.use("/", routes);
+
+  app.use(function(req, res, next) {
+    var err;
+    err = new Error("Not Found");
+    err.status = 404;
+    return next(err);
+  });
+
+  if (app.get("env") === "development") {
     app.use(function(err, req, res, next) {
       var view;
       view = "error";
@@ -81,11 +79,28 @@
         stack: err.stack
       });
     });
-    app.set("port", process.env.PORT || 3000);
-    server = app.listen(app.get("port"), function() {
-      return console.log("Express server listening on port " + server.address().port);
-    });
-    require("./sockets")(server, sessionStore);
   }
+
+  app.use(function(err, req, res, next) {
+    var view;
+    view = "error";
+    if (err.status === 404) {
+      view = "error404";
+    }
+    res.status(err.status || 500);
+    return res.render(view, {
+      message: err.message,
+      error: err,
+      stack: err.stack
+    });
+  });
+
+  app.set("port", process.env.PORT || 3000);
+
+  server = app.listen(app.get("port"), function() {
+    return console.log("Express server listening on port " + server.address().port);
+  });
+
+  require("./sockets")(server, sessionStore);
 
 }).call(this);
