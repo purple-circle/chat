@@ -66,6 +66,12 @@ app.directive "chat", ($rootScope, $timeout, $mdSidenav, $mdBottomSheet, $mdMedi
       data.room_id = $scope.room_id
       data.chat_id = $scope.chat_id
 
+
+      possibleUrl = api.stringHasUrl(data.message)
+      if possibleUrl?[0] and api.urlIsImage(possibleUrl[0])
+        api.testImage possibleUrl[0], ->
+          ga('send', 'event', 'sharedImage', $scope.chat_id, possibleUrl[0])
+
       api.save_chat_messages(data)
 
 

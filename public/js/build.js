@@ -269,11 +269,18 @@
           return $scope.setActiveGroup($scope.groups[0]);
         };
         createMessage = function(data) {
+          var possibleUrl;
           if (!data.message) {
             return;
           }
           data.room_id = $scope.room_id;
           data.chat_id = $scope.chat_id;
+          possibleUrl = api.stringHasUrl(data.message);
+          if ((possibleUrl != null ? possibleUrl[0] : void 0) && api.urlIsImage(possibleUrl[0])) {
+            api.testImage(possibleUrl[0], function() {
+              return ga('send', 'event', 'sharedImage', $scope.chat_id, possibleUrl[0]);
+            });
+          }
           return api.save_chat_messages(data);
         };
         getGroups();
