@@ -1,0 +1,53 @@
+<md-content>
+  <md-list>
+    <md-item ng-repeat="item in messages[group.room_id] | orderBy:'createdAt'">
+      <md-item-content>
+
+        <div class="md-tile-left" ng-if="!item.is_me">
+          <md-button class="md-fab md-primary" aria-label="{{item.from}}" style="background-color: #{{item.color}}; width: 45px; height: 45px;">
+            {{item.from | limitTo:1}}
+          </md-button>
+
+          <!-- <img src="/images/juhq.jpg" class="face" alt="{{item.from}}" ng-click="showGridBottomSheet($event)"> -->
+        </div>
+
+        <div class="md-tile-content">
+          <p>
+            <span class="message" ng-class="{their: item.is_me}">
+              <strong style="color: #666;">{{item.from}}</strong><br/>
+              <span ng-bind-html="item.message"></span>
+
+              <span ng-if="item.youtubeId" class="youtube">
+                <span ng-if="item.videoOpened">
+                  <youtube-video video-id="item.youtubeId" player-vars="youtubeOptions" player-width="'100%'" player-height="'200px'"></youtube-video>
+                  <a ng-href="https://www.youtube.com/watch?v={{item.youtubeId}}" target="_blank">https://www.youtube.com/watch?v={{item.youtubeId}}</a>
+                </span>
+
+                <span ng-if="!item.videoOpened">
+                  <img ng-src="http://img.youtube.com/vi/{{item.youtubeId}}/0.jpg" ng-click="openYoutubeVideo(item)">
+                </span>
+              </span>
+
+              <!-- epic whitespace hack to create random width bubbles -->
+              <span ng-repeat="i in whitespaces">&nbsp;</span>
+
+              <span class="time">{{item.createdAt | date:'HH:mm'}}</span>
+            </span>
+          </p>
+        </div>
+
+        <div class="md-tile-right" ng-if="item.is_me">
+
+          <md-button class="md-fab md-primary" aria-label="{{item.from}}" style="background-color: #{{item.color}}; width: 45px; height: 45px;">
+            {{item.from | limitTo:1}}
+          </md-button>
+
+          <!-- <img src="/images/juhq.jpg" class="face" alt="{{item.from}}"> -->
+        </div>
+
+      </md-item-content>
+    </md-item>
+  </md-list>
+
+  <!-- <pre>{{group | json:2}}</pre> -->
+</md-content>

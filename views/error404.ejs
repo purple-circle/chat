@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="app">
+  <head>
+
+    <title>(&gt;&lt;)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+    <link href="/bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="/css/style.css" rel="stylesheet" />
+    <link href="/css/error404.css" rel="stylesheet" />
+    <script src="/bower_components/jquery/dist/jquery.min.js"></script>
+
+  </head>
+  <body>
+<audio src="https://ia600407.us.archive.org/18/items/SheepSound/SheepSound.ogg"></audio>
+    <div class="scene">
+      <div class="clouds">
+        <div class="cloud-2" data-speed="45000" data-delay="15000"></div>
+        <div class="cloud-3" data-speed="40000"></div>
+        <div class="cloud-4" data-speed="38000" data-delay="20000"></div>
+      </div>
+      <div class="text">
+        <h1 class="error">404</h1>
+
+        <div class="info">
+        The Page you have requested is not found. Maybe it was lost?<br />
+        <a href="/">Have you checked here?</a>
+        </div>
+      </div>
+
+      <div class="sheep">
+        <span class="top">
+          <div class="body"></div>
+          <div class="head">
+            <div class="eye one"></div>
+            <div class="eye two"></div>
+            <div class="ear one"></div>
+            <div class="ear two"></div>
+          </div>
+        </span>
+          <div class="legs">
+          <div class="leg"></div>
+          <div class="leg"></div>
+          <div class="leg"></div>
+          <div class="leg"></div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'xxxx', 'domain.com');
+      ga('send', 'pageview');
+
+
+      $(document).ready(function() {
+        var audio = document.getElementsByTagName("audio")[0];
+        $(".sheep")
+          .on("mouseover", function() {
+            audio.play();
+          })
+          .on("mouseout", function() {
+            audio.pause();
+          });
+      });
+
+    </script>
+
+    <div class="footer-bunny"><span class="purple animate">♡</span>(ू•‧̫•ू⑅)</div>
+  </body>
+</html>
+
+
+<!-- Error 404 page from https://github.com/Graghav/Bleat -->

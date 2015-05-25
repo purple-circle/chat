@@ -1,0 +1,148 @@
+.messages-container {
+  z-index: 1;
+}
+.select-group {
+  cursor: pointer;
+  padding: 5px 5px 4px 5px;
+}
+.select-group.selected {
+  background: #faebd7;
+}
+.select-group.selected:hover {
+  background: #F2E3CE;
+}
+.select-group:hover {
+  background: #f0f8ff;
+}
+.face {
+  border-radius: 50%;
+  width: 60px;
+  margin: 0 10px;
+  box-shadow: 0 1px 0.5px rgba(0, 0, 0, 0.13);
+  border: 3px solid #fff;
+}
+.loader {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 50px;
+  margin-left: -25px;
+  margin-top: -25px;
+}
+.chat-container {
+  height: 500px;
+}
+.message {
+  text-align: left;
+  line-height: 17px;
+  display: inline-block;
+  max-width: 350px;
+  padding: 8px 10px 8px 9px;
+  border-radius: 7.5px;
+  position: relative;
+  background: #f9ffff;
+  box-shadow: 0 1px 0.5px rgba(0, 0, 0, 0.13);
+}
+.message .time {
+  color: rgba(47, 47, 47, 0.5);
+  position: absolute;
+  right: 7px;
+  bottom: 2px;
+  font-size: 11.5px;
+}
+.message:after,
+.message:before {
+  right: 100%;
+  top: 50%;
+  border: solid transparent;
+  content: " ";
+  height: 0;
+  width: 0;
+  position: absolute;
+  pointer-events: none;
+  border-color: transparent;
+}
+.message:after {
+  border-right-color: #f9ffff;
+  border-width: 6px;
+  margin-top: -6px;
+}
+.message:before {
+  border-width: 7px;
+  margin-top: -7px;
+}
+.message.their {
+  float: right;
+  background: #fff7ec;
+}
+.message.their:after,
+.message.their:before {
+  right: 0;
+  left: 100%;
+}
+.message.their:after {
+  border-left-color: #fff7ec;
+  border-right-color: transparent;
+}
+.message .youtube {
+  border-top: 1px solid rgba(137, 137, 137, 0.1);
+  margin-top: 10px;
+  padding-top: 10px;
+  display: block;
+}
+.message .youtube img {
+  cursor: pointer;
+  max-width: 100%;
+  height: 200px;
+}
+.badge {
+  border-radius: 100%;
+  padding: 4px 8px;
+  background: rgba(15, 119, 12, 0.7);
+  color: #fff;
+  font-size: 14px;
+  position: relative;
+  top: -1px;
+  margin-left: 10px;
+}
+@media (min-width: 1100px) {
+  html,
+  body {
+    background-image: -webkit-radial-gradient(#ffff00, #f06d06);
+    background-image: radial-gradient(#ffff00, #f06d06);
+  }
+  md-sidenav {
+    border-radius: 3px 0 0 0;
+  }
+  .messages-container md-toolbar {
+    border-radius: 0 3px 0 0;
+  }
+  .chat-container {
+    max-width: 90%;
+    padding-top: 3%;
+    margin: 0 auto;
+  }
+  .send-message-container {
+    max-width: 90%;
+    margin: 0 auto 20px;
+  }
+  .send-message-container md-content {
+    border-radius: 0 0 3px 3px;
+  }
+}
+@media (max-width: 1100px) {
+  .chat-container {
+    height: 75%;
+    position: absolute;
+    top: 0;
+    bottom: 100px;
+    left: 0;
+    right: 0;
+  }
+  .send-message-container {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+  }
+}

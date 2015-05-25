@@ -1,0 +1,110 @@
+
+<div class="loader" ng-if="!currentGroup">
+  <md-progress-circular class="md-hue-2 md-warn" md-mode="indeterminate"></md-progress-circular>
+</div>
+<div flex layout="row" class="chat-container" ng-show="currentGroup">
+
+  <md-sidenav
+    md-is-locked-open="$mdMedia('gt-md')"
+    class="md-whiteframe-z1"
+    md-component-id="left">
+
+    <md-toolbar class="md-hue-2">
+      <div class="md-toolbar-tools">
+        <h3>
+
+          <battery-level style="fill: #fff; position: relative; top: 4px;"></battery-level>
+          Time: <clock format="HH:mm"></clock>
+
+        </h3>
+      </div>
+    </md-toolbar>
+
+    <md-content flex role="navigation" md-scroll-y>
+
+      <md-input-container flex ng-if="groups.length > 3">
+        <label>Search groups</label>
+        <input placeholder="Search groups" ng-model="$parent.groupSearch.name" type="search">
+      </md-input-container>
+
+      <md-button
+        ng-click="toggleLeft()"
+        class="md-primary"
+        hide-gt-sm>
+        Toggle left
+      </md-button>
+
+      <md-list>
+        <md-item
+          ng-repeat="group in groups | filter:groupSearch"
+          ng-click="setActiveGroup(group)">
+          <md-item-content
+            class="select-group"
+            ng-class="{selected: group.$selected}">
+
+            <div class="md-tile-left">
+              <img ng-src="{{group.icon}}" class="face" alt="{{group.name}}" title="{{group.name}}">
+            </div>
+            <div class="md-tile-content">
+              <h3>{{group.name}} <span ng-if="group.messages" class="badge">{{group.messages}}</span></h3>
+            </div>
+          </md-item-content>
+        </md-item>
+      </md-list>
+
+
+      <!-- // refactor to group directive
+      <md-content class="md-padding">
+        <form ng-submit="createGroup()">
+          <md-input-container flex>
+            <label>Group name</label>
+            <input placeholder="Group name" ng-model="groupName">
+          </md-input-container>
+
+          <md-button class="md-primary md-raised" type="submit">Create group</md-button>
+        </form>
+      </md-content> -->
+
+    </md-content>
+
+  </md-sidenav>
+
+  <div layout="column" role="main" flex class="messages-container">
+    <md-toolbar class="md-default-theme" layout="row">
+      <md-button class="menu" hide-gt-md ng-click="toggleLeft()" aria-label="Show User List">
+        <ng-md-icon icon="menu" style="fill: white"></ng-md-icon>
+      </md-button>
+
+      <div class="md-toolbar-tools">
+        <h3>
+          <span>Chat: {{currentGroup.name}}</span>
+        </h3>
+
+        <div class="md-toolbar-item md-tools" layout="column" layout-gt-md="row">
+          <small>Online: <online-count></online-count></small>
+        </div>
+
+      </div>
+    </md-toolbar>
+    <md-content flex scroll-glue class="md-whiteframe-z1 md-padding" id="content" md-scroll-y>
+      <messages group="currentGroup" chat-id="chat_id" scroll-glue ng-if="currentGroup"></messages>
+    </md-content>
+  </div>
+</div>
+
+<div flex class="send-message-container" ng-show="currentGroup">
+  <form ng-submit="saveMessage()">
+    <md-content flex layout="row" class="md-whiteframe-z1 md-padding">
+      <md-input-container flex="15">
+        <label>Your name</label>
+        <input placeholder="Your message" ng-model="from">
+      </md-input-container>
+      <md-input-container flex>
+        <label>Your message</label>
+        <input placeholder="Your message" ng-model="message">
+      </md-input-container>
+
+      <md-button md-no-ink class="md-primary" type="submit">Send</md-button>
+    </md-content>
+  </form>
+</div>
