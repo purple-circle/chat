@@ -115,7 +115,11 @@
           h = (i >> 24 & 0xFF).toString(16) + (i >> 16 & 0xFF).toString(16) + (i >> 8 & 0xFF).toString(16) + (i & 0xFF).toString(16);
           return h.substring(0, 6);
         };
+        $scope.openImage = function(item) {
+          return ga('send', 'event', 'openImage', $scope.chatId, item.hasImage);
+        };
         $scope.openYoutubeVideo = function(item) {
+          ga('send', 'event', 'openYoutubeVideo', $scope.chatId, item.youtubeId);
           return item.videoOpened = true;
         };
         processMessage = function(row) {
@@ -177,6 +181,7 @@
         getMessages();
         listenToMessages();
         return $scope.showGridBottomSheet = function($event) {
+          ga('send', 'event', 'click', 'showGridBottomSheet', $scope.chatId);
           return $mdBottomSheet.show({
             templateUrl: 'directives/chat/bottom-sheet.html',
             controller: 'GridBottomSheetCtrl',

@@ -32,7 +32,11 @@ app.directive "messages", ($rootScope, $timeout, $interval, $mdSidenav, $mdBotto
       h.substring 0, 6
 
 
+    $scope.openImage = (item) ->
+      ga('send', 'event', 'openImage', $scope.chatId, item.hasImage)
+
     $scope.openYoutubeVideo = (item) ->
+      ga('send', 'event', 'openYoutubeVideo', $scope.chatId, item.youtubeId)
       item.videoOpened = true
 
 
@@ -88,6 +92,7 @@ app.directive "messages", ($rootScope, $timeout, $interval, $mdSidenav, $mdBotto
     listenToMessages()
 
     $scope.showGridBottomSheet = ($event) ->
+      ga('send', 'event', 'click', 'showGridBottomSheet', $scope.chatId)
       $mdBottomSheet
         .show
           templateUrl: 'directives/chat/bottom-sheet.html'
