@@ -6,7 +6,6 @@ app.directive "messages", ($rootScope, $timeout, $interval, $mdSidenav, $mdBotto
     room: "="
     chatId: "="
   link: ($scope) ->
-
     $scope.room_id = 1
 
     $scope.messages = {}

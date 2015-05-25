@@ -241,7 +241,7 @@
           });
         };
         listenToMessageNotifications();
-        $scope.from = (animals.getRandom()) + "-" + (Math.ceil(Math.random() * 100));
+        $scope.from = (typeof localStorage !== "undefined" && localStorage !== null ? localStorage.getItem("name") : void 0) || ((animals.getRandom()) + "-" + (Math.ceil(Math.random() * 100)));
         ga('send', 'event', 'usernames', 'randomName', $scope.from);
         getRooms = function() {
           $scope.rooms = [
@@ -333,8 +333,15 @@
         $scope.toggleLeft = function() {
           return $mdSidenav('left').toggle();
         };
-        return $scope.closeLeft = function() {
+        $scope.closeLeft = function() {
           return $mdSidenav('left').close();
+        };
+        return $scope.setUsername = function() {
+          if (!localStorage) {
+            return false;
+          }
+          ga('send', 'event', 'setUsername', $scope.chat_id, $scope.from);
+          return localStorage.setItem("name", $scope.from);
         };
       }
     };

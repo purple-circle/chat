@@ -39,7 +39,7 @@ app.directive "chat", ($rootScope, $timeout, $mdSidenav, $mdBottomSheet, $mdMedi
     listenToMessageNotifications()
 
 
-    $scope.from = "#{animals.getRandom()}-#{Math.ceil(Math.random()*100)}"
+    $scope.from = localStorage?.getItem("name") || "#{animals.getRandom()}-#{Math.ceil(Math.random()*100)}"
     ga('send', 'event', 'usernames', 'randomName', $scope.from)
 
     getRooms = ->
@@ -136,4 +136,11 @@ app.directive "chat", ($rootScope, $timeout, $mdSidenav, $mdBottomSheet, $mdMedi
 
     $scope.closeLeft = ->
       $mdSidenav('left').close()
+
+    $scope.setUsername = ->
+      if !localStorage
+        return false
+
+      ga('send', 'event', 'setUsername', $scope.chat_id, $scope.from)
+      localStorage.setItem "name", $scope.from
 
