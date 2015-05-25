@@ -179,6 +179,24 @@ app.directive "chat", ($rootScope, $timeout, $mdSidenav, $mdBottomSheet, $mdMedi
         .on "topic", (topic) ->
           $scope.currentRoom.topic = topic?.topic
 
+
+    $scope.selectFile = ->
+      document.getElementById("image-upload").click()
+      document.getElementsByClassName("select-file-container")[0].blur()
+
+    $scope.uploadFile = (element) ->
+      if !element?.files?[0]
+        return
+
+      api
+        .upload_to_imgur(element.files[0])
+        .then (result) ->
+          angular.element(element).val(null)
+
+          $scope.message = result.data.link
+          $scope.saveMessage()
+
+
     getRooms()
     listenToMessageNotifications()
     listenToTyping()

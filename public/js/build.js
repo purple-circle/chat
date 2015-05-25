@@ -400,6 +400,21 @@
             return $scope.currentRoom.topic = topic != null ? topic.topic : void 0;
           });
         };
+        $scope.selectFile = function() {
+          document.getElementById("image-upload").click();
+          return document.getElementsByClassName("select-file-container")[0].blur();
+        };
+        $scope.uploadFile = function(element) {
+          var ref;
+          if (!(element != null ? (ref = element.files) != null ? ref[0] : void 0 : void 0)) {
+            return;
+          }
+          return api.upload_to_imgur(element.files[0]).then(function(result) {
+            angular.element(element).val(null);
+            $scope.message = result.data.link;
+            return $scope.saveMessage();
+          });
+        };
         getRooms();
         listenToMessageNotifications();
         listenToTyping();
@@ -493,7 +508,23 @@
 
   app = angular.module('app');
 
-  app.factory('api', ["$q", "youtubeEmbedUtils", function($q, youtubeEmbedUtils) {
+  app.directive('fileModel', ["$parse", function($parse) {
+    return {
+      restrict: 'A',
+      link: function(scope, element, attrs) {
+        var model, modelSetter;
+        model = $parse(attrs.fileModel);
+        modelSetter = model.assign;
+        return element.bind('change', function() {
+          return scope.$apply(function() {
+            return modelSetter(scope, element[0].files[0]);
+          });
+        });
+      }
+    };
+  }]);
+
+  app.factory('api', ["$q", "$http", "youtubeEmbedUtils", function($q, $http, youtubeEmbedUtils) {
     var getYoutubeUrls, socket;
     socket = io();
     getYoutubeUrls = function(url) {
@@ -601,6 +632,26 @@
       getYoutubeIdFromUrl: function(url) {
         var ref;
         return youtubeEmbedUtils.getIdFromURL((ref = getYoutubeUrls(url)) != null ? ref[0] : void 0);
+      },
+      upload_to_imgur: function(file) {
+        var deferred, fd, xhr;
+        deferred = $q.defer();
+        if (!file || !file.type.match(/image.*/)) {
+          deferred.reject("not image or no file");
+          return deferred.promise;
+        }
+        fd = new FormData();
+        fd.append('image', file);
+        xhr = new XMLHttpRequest();
+        xhr.open('POST', 'https://api.imgur.com/3/image.json');
+        xhr.setRequestHeader('Authorization', 'Client-ID 3631cecbf2bf2cf');
+        xhr.send(fd);
+        xhr.onload = function() {
+          var result;
+          result = JSON.parse(xhr.responseText);
+          return deferred.resolve(result);
+        };
+        return deferred.promise;
       }
     };
   }]);
