@@ -75,7 +75,7 @@
   app = angular.module('app');
 
   app.controller('index', ["$rootScope", "$scope", function($rootScope, $scope) {
-    return $rootScope.page_title = "Home";
+    return $rootScope.page_title = "Chat";
   }]);
 
 }).call(this);
@@ -98,7 +98,7 @@
         $scope.messages = {};
         $scope.whitespaces = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
         $scope.youtubeOptions = {
-          autoplay: true
+          autoplay: false
         };
         $scope.openImage = function(item) {
           return ga('send', 'event', 'openImage', $scope.chatId, item.hasImage);
@@ -189,18 +189,19 @@
 
   app = angular.module('app');
 
-  app.directive("chat", ["$rootScope", "$timeout", "$mdSidenav", "$mdBottomSheet", "$mdMedia", "api", "animals", function($rootScope, $timeout, $mdSidenav, $mdBottomSheet, $mdMedia, api, animals) {
+  app.directive("chat", ["$rootScope", "$timeout", "$mdSidenav", "$mdBottomSheet", "$mdMedia", "api", "tabActive", "animals", "chatRooms", function($rootScope, $timeout, $mdSidenav, $mdBottomSheet, $mdMedia, api, tabActive, animals, chatRooms) {
     return {
       templateUrl: "directives/chat/chat.html",
       link: function($scope) {
-        var createMessage, getRooms, listenToMessageNotifications;
+        var createMessage, getRooms, listenToMessageNotifications, unreadMessages;
         $scope.chat_id = "chat-123";
         $scope.room_id = 1;
         $scope.rooms = [];
-        $scope.users = [];
         $scope.message = '';
-        $scope.currentUser = false;
+        $scope.tabVisible = true;
         $scope.currentRoom = false;
+        $scope.from = (typeof localStorage !== "undefined" && localStorage !== null ? localStorage.getItem("name") : void 0) || ((animals.getRandom()) + "-" + (Math.ceil(Math.random() * 100)));
+        ga('send', 'event', 'usernames', 'randomName', $scope.from);
         $scope.setActiveRoom = function(room) {
           var g, i, len, ref;
           if (!room.$messagesFetched) {
@@ -222,9 +223,23 @@
           $scope.room_id = room.room_id;
           return ga('send', 'event', 'rooms', 'setActiveRoom', room.name, room.room_id);
         };
+        unreadMessages = 0;
+        tabActive.check(function(status) {
+          return $timeout(function() {
+            $scope.tabVisible = status === "hidden";
+            if (!$scope.tabVisible) {
+              unreadMessages = 0;
+              return $rootScope.page_title = "Chat";
+            }
+          });
+        });
         listenToMessageNotifications = function() {
           return $rootScope.$on("message-notification", function(event, room_id) {
             var g, i, len, ref, results;
+            if ($scope.tabVisible) {
+              unreadMessages++;
+              $rootScope.page_title = "(" + unreadMessages + ") Chat";
+            }
             ref = $scope.rooms;
             results = [];
             for (i = 0, len = ref.length; i < len; i++) {
@@ -240,48 +255,8 @@
             return results;
           });
         };
-        listenToMessageNotifications();
-        $scope.from = (typeof localStorage !== "undefined" && localStorage !== null ? localStorage.getItem("name") : void 0) || ((animals.getRandom()) + "-" + (Math.ceil(Math.random() * 100)));
-        ga('send', 'event', 'usernames', 'randomName', $scope.from);
         getRooms = function() {
-          $scope.rooms = [
-            {
-              room_id: 1,
-              name: "Room #1",
-              messages: 0,
-              icon: 'http://i.imgur.com/h18WTm2b.jpg'
-            }, {
-              room_id: 2,
-              name: "Room #2",
-              messages: 0,
-              icon: 'http://i.imgur.com/p8SNOcVb.jpg'
-            }, {
-              room_id: 3,
-              name: "Room #666",
-              messages: 0,
-              icon: 'http://i.imgur.com/CfmbeXib.jpg'
-            }, {
-              room_id: 4,
-              name: "Politics",
-              messages: 0,
-              icon: 'http://i.imgur.com/JxtD1vcb.jpg'
-            }, {
-              room_id: 5,
-              name: "Pictures of cats",
-              messages: 0,
-              icon: 'http://i.imgur.com/RaKwQD7b.jpg'
-            }, {
-              room_id: 6,
-              name: "Best of Youtube",
-              messages: 0,
-              icon: 'http://i.imgur.com/aaVkYvxb.png'
-            }, {
-              room_id: 7,
-              name: "Usersub",
-              messages: 0,
-              icon: 'http://i.imgur.com/YQwZUiJb.gif'
-            }
-          ];
+          $scope.rooms = chatRooms.get();
           return $scope.setActiveRoom($scope.rooms[0]);
         };
         createMessage = function(data) {
@@ -298,20 +273,6 @@
             });
           }
           return api.save_chat_messages(data);
-        };
-        getRooms();
-        $scope.createRoom = function() {
-          var data;
-          if (!$scope.roomName) {
-            return;
-          }
-          return data = {
-            name: $scope.roomName,
-            created_by: $scope.currentUser
-          };
-        };
-        $scope.toggleTimeSpent = function() {
-          return $scope.showTimeSpent = !$scope.showTimeSpent;
         };
         $scope.saveMessage = function() {
           var data;
@@ -336,13 +297,15 @@
         $scope.closeLeft = function() {
           return $mdSidenav('left').close();
         };
-        return $scope.setUsername = function() {
+        $scope.setUsername = function() {
           if (!localStorage) {
             return false;
           }
           ga('send', 'event', 'setUsername', $scope.chat_id, $scope.from);
           return localStorage.setItem("name", $scope.from);
         };
+        getRooms();
+        return listenToMessageNotifications();
       }
     };
   }]);
@@ -528,5 +491,110 @@
       }
     };
   }]);
+
+}).call(this);
+
+(function() {
+  var app;
+
+  app = angular.module('app');
+
+  app.factory('chatRooms', function() {
+    return {
+      get: function() {
+        return [
+          {
+            room_id: 1,
+            name: "Room #1",
+            messages: 0,
+            icon: 'http://i.imgur.com/h18WTm2b.jpg'
+          }, {
+            room_id: 2,
+            name: "Room #2",
+            messages: 0,
+            icon: 'http://i.imgur.com/p8SNOcVb.jpg'
+          }, {
+            room_id: 3,
+            name: "Room #666",
+            messages: 0,
+            icon: 'http://i.imgur.com/CfmbeXib.jpg'
+          }, {
+            room_id: 4,
+            name: "Politics",
+            messages: 0,
+            icon: 'http://i.imgur.com/JxtD1vcb.jpg'
+          }, {
+            room_id: 5,
+            name: "Pictures of cats",
+            messages: 0,
+            icon: 'http://i.imgur.com/RaKwQD7b.jpg'
+          }, {
+            room_id: 6,
+            name: "Best of Youtube",
+            messages: 0,
+            icon: 'http://i.imgur.com/aaVkYvxb.png'
+          }, {
+            room_id: 7,
+            name: "Usersub",
+            messages: 0,
+            icon: 'http://i.imgur.com/YQwZUiJb.gif'
+          }
+        ];
+      }
+    };
+  });
+
+}).call(this);
+
+(function() {
+  var app;
+
+  app = angular.module('app');
+
+  app.factory('tabActive', function() {
+    return {
+      check: function(callback) {
+        var hidden, onchange;
+        hidden = 'hidden';
+        onchange = function(event) {
+          var evt, evtMap, h, v;
+          v = 'visible';
+          h = 'hidden';
+          evtMap = {
+            focus: v,
+            focusin: v,
+            pageshow: v,
+            blur: h,
+            focusout: h,
+            pagehide: h
+          };
+          evt = evt || window.event;
+          if (evt.type in evtMap) {
+            return callback(evtMap[evt.type]);
+          } else {
+            return callback(this[hidden] ? 'hidden' : 'visible');
+          }
+        };
+        if (hidden in document) {
+          document.addEventListener('visibilitychange', onchange);
+        } else if ((hidden = 'mozHidden') in document) {
+          document.addEventListener('mozvisibilitychange', onchange);
+        } else if ((hidden = 'webkitHidden') in document) {
+          document.addEventListener('webkitvisibilitychange', onchange);
+        } else if ((hidden = 'msHidden') in document) {
+          document.addEventListener('msvisibilitychange', onchange);
+        } else if ('onfocusin' in document) {
+          document.onfocusin = document.onfocusout = onchange;
+        } else {
+          window.onpageshow = window.onpagehide = window.onfocus = window.onblur = onchange;
+        }
+        if (document[hidden] !== void 0) {
+          return onchange({
+            type: document[hidden] ? 'blur' : 'focus'
+          });
+        }
+      }
+    };
+  });
 
 }).call(this);

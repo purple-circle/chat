@@ -11,7 +11,7 @@ app.directive "messages", ($rootScope, $timeout, $interval, $mdSidenav, $mdBotto
     $scope.messages = {}
     $scope.whitespaces = [0..15]
     $scope.youtubeOptions =
-      autoplay: true
+      autoplay: false
 
     $scope.openImage = (item) ->
       ga('send', 'event', 'openImage', $scope.chatId, item.hasImage)
