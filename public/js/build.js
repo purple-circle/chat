@@ -192,13 +192,15 @@
     return {
       templateUrl: "directives/chat/chat.html",
       link: function($scope) {
-        var createMessage, getRooms, listenToMessageNotifications, unreadMessages;
+        var createMessage, getRooms, listenToMessageNotifications, listenToTyping, unreadMessages;
         $scope.chat_id = "chat-123";
         $scope.room_id = 1;
         $scope.rooms = [];
         $scope.message = '';
         $scope.tabVisible = true;
         $scope.currentRoom = false;
+        $scope.peopleTyping = [];
+        $scope.peopleTypingTimeout = {};
         $scope.from = (typeof localStorage !== "undefined" && localStorage !== null ? localStorage.getItem("name") : void 0) || ((animals.getRandom()) + "-" + (Math.ceil(Math.random() * 100)));
         ga('send', 'event', 'usernames', 'randomName', $scope.from);
         $scope.setActiveRoom = function(room) {
@@ -311,6 +313,26 @@
         $scope.closeLeft = function() {
           return $mdSidenav('left').close();
         };
+        $scope.i_am_typing = function() {
+          return api.i_am_typing($scope.from);
+        };
+        listenToTyping = function() {
+          return api.socket.on("typing", function(from) {
+            if ($scope.peopleTyping.indexOf(from) === -1) {
+              $scope.peopleTyping.push(from);
+            }
+            if ($scope.peopleTypingTimeout[from]) {
+              $timeout.cancel($scope.peopleTypingTimeout[from]);
+            }
+            return $scope.peopleTypingTimeout[from] = $timeout(function() {
+              var index;
+              index = $scope.peopleTyping.indexOf(from);
+              if (index > -1) {
+                return $scope.peopleTyping.splice(index, 1);
+              }
+            }, 3000);
+          });
+        };
         $scope.setUsername = function() {
           if (!localStorage) {
             return false;
@@ -319,7 +341,8 @@
           return localStorage.setItem("name", $scope.from);
         };
         getRooms();
-        return listenToMessageNotifications();
+        listenToMessageNotifications();
+        return listenToTyping();
       }
     };
   }]);
@@ -469,6 +492,9 @@
         deferred = $q.defer();
         socket.once(event, deferred.resolve);
         return deferred.promise;
+      },
+      i_am_typing: function(from) {
+        return socket.emit("i_am_typing", from);
       },
       api_stats: function() {
         socket.emit("api_stats");

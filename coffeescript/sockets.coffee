@@ -21,6 +21,9 @@ module.exports = (server, sessionStore) ->
           socket.emit "load_chat_messages_for_room", messages
 
 
+    socket.on "i_am_typing", (from) ->
+      socket.broadcast.emit "typing", from
+
     socket.on "save_chat_message", (data) ->
       chat
         .save(data)

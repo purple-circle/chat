@@ -60,6 +60,9 @@ app.factory 'api', ($q, youtubeEmbedUtils) ->
     socket.once event, deferred.resolve
     deferred.promise
 
+  i_am_typing: (from) ->
+    socket.emit("i_am_typing", from)
+
   api_stats: ->
     socket.emit("api_stats")
     this.on("api_stats")

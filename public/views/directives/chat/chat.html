@@ -88,6 +88,18 @@
     </md-toolbar>
     <md-content flex scroll-glue class="md-whiteframe-z1 md-padding" id="content" md-scroll-y>
       <messages room="currentRoom" chat-id="chat_id" scroll-glue ng-if="currentRoom"></messages>
+
+      <div class="typing-container">
+        <small ng-if="peopleTyping.length">
+          <span ng-repeat="person in peopleTyping">
+            {{person}}<span ng-if="!$last">,</span>
+          </span>
+          <span ng-if="peopleTyping.length == 1">is</span>
+          <span ng-if="peopleTyping.length > 1">are</span>
+          typing..
+        </small>
+      </div>
+
     </md-content>
   </div>
 </div>
@@ -101,7 +113,7 @@
       </md-input-container>
       <md-input-container flex>
         <label>Your message</label>
-        <input placeholder="Your message" ng-model="message">
+        <input placeholder="Your message" ng-model="message" ng-change="i_am_typing()">
       </md-input-container>
 
       <md-button md-no-ink class="md-primary" type="submit">Send</md-button>

@@ -24,6 +24,9 @@
           return socket.emit("load_chat_messages_for_room", messages);
         });
       });
+      socket.on("i_am_typing", function(from) {
+        return socket.broadcast.emit("typing", from);
+      });
       socket.on("save_chat_message", function(data) {
         return chat.save(data).then(function(result) {
           socket.emit("save_chat_message", result);

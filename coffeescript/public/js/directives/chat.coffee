@@ -10,6 +10,8 @@ app.directive "chat", ($rootScope, $timeout, $mdSidenav, $mdBottomSheet, $mdMedi
     $scope.tabVisible = true
     $scope.currentRoom = false
 
+    $scope.peopleTyping = []
+    $scope.peopleTypingTimeout = {}
     $scope.from = localStorage?.getItem("name") || "#{animals.getRandom()}-#{Math.ceil(Math.random()*100)}"
     ga('send', 'event', 'usernames', 'randomName', $scope.from)
 
@@ -101,6 +103,27 @@ app.directive "chat", ($rootScope, $timeout, $mdSidenav, $mdBottomSheet, $mdMedi
     $scope.closeLeft = ->
       $mdSidenav('left').close()
 
+    $scope.i_am_typing = ->
+      api.i_am_typing($scope.from)
+
+
+    listenToTyping = ->
+      api
+        .socket
+        .on "typing", (from) ->
+
+          if $scope.peopleTyping.indexOf(from) is -1
+            $scope.peopleTyping.push from
+
+          if $scope.peopleTypingTimeout[from]
+            $timeout.cancel($scope.peopleTypingTimeout[from])
+
+          $scope.peopleTypingTimeout[from] = $timeout ->
+            index = $scope.peopleTyping.indexOf(from)
+            if index > -1
+              $scope.peopleTyping.splice(index, 1)
+          , 3000
+
     $scope.setUsername = ->
       if !localStorage
         return false
@@ -111,3 +134,4 @@ app.directive "chat", ($rootScope, $timeout, $mdSidenav, $mdBottomSheet, $mdMedi
 
     getRooms()
     listenToMessageNotifications()
+    listenToTyping()
