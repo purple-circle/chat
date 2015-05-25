@@ -5,34 +5,33 @@ app.directive "chat", ($rootScope, $timeout, $mdSidenav, $mdBottomSheet, $mdMedi
   link: ($scope) ->
     $scope.chat_id = "chat-123"
     $scope.room_id = 1
-    $scope.groups = []
+    $scope.rooms = []
     $scope.users = []
     $scope.message = ''
 
     $scope.currentUser = false
-    $scope.currentGroup = false
+    $scope.currentRoom = false
 
-    $scope.setActiveGroup = (group) ->
-      if !group.$messagesFetched
+    $scope.setActiveRoom = (room) ->
+      if !room.$messagesFetched
         $timeout ->
-          group.$messagesFetched = true
-          $rootScope.$broadcast("getMessages", group.room_id)
+          room.$messagesFetched = true
+          $rootScope.$broadcast("getMessages", room.room_id)
 
-      group.messages = 0
-      $scope.currentGroup = group
-      for g in $scope.groups when g.$selected is true
+      room.messages = 0
+      $scope.currentRoom = room
+      for g in $scope.rooms when g.$selected is true
         g.$selected = false
 
-      group.$selected = true
-      $scope.room_id = group.room_id
-      ga('send', 'event', 'groups', 'setActiveGroup', group.name, group.room_id)
-
+      room.$selected = true
+      $scope.room_id = room.room_id
+      ga('send', 'event', 'rooms', 'setActiveRoom', room.name, room.room_id)
 
 
     listenToMessageNotifications = ->
       $rootScope.$on "message-notification", (event, room_id) ->
 
-        for g in $scope.groups when g.$selected isnt true
+        for g in $scope.rooms when g.$selected isnt true
           if g.room_id is room_id
             g.messages++
 
@@ -43,8 +42,8 @@ app.directive "chat", ($rootScope, $timeout, $mdSidenav, $mdBottomSheet, $mdMedi
     $scope.from = "#{animals.getRandom()}-#{Math.ceil(Math.random()*100)}"
     ga('send', 'event', 'usernames', 'randomName', $scope.from)
 
-    getGroups = ->
-      $scope.groups = [
+    getRooms = ->
+      $scope.rooms = [
         {
           room_id: 1
           name: "Room #1"
@@ -82,7 +81,7 @@ app.directive "chat", ($rootScope, $timeout, $mdSidenav, $mdBottomSheet, $mdMedi
           icon: 'http://i.imgur.com/YQwZUiJb.gif'
         }
       ]
-      $scope.setActiveGroup($scope.groups[0])
+      $scope.setActiveRoom($scope.rooms[0])
 
     createMessage = (data) ->
       if !data.message
@@ -100,15 +99,15 @@ app.directive "chat", ($rootScope, $timeout, $mdSidenav, $mdBottomSheet, $mdMedi
       api.save_chat_messages(data)
 
 
-    getGroups()
+    getRooms()
 
 
-    $scope.createGroup = ->
-      if !$scope.groupName
+    $scope.createRoom = ->
+      if !$scope.roomName
         return
 
       data =
-        name: $scope.groupName
+        name: $scope.roomName
         created_by: $scope.currentUser
 
 

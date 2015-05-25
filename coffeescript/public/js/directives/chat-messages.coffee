@@ -3,7 +3,7 @@ app = angular.module('app')
 app.directive "messages", ($rootScope, $timeout, $interval, $mdSidenav, $mdBottomSheet, $mdMedia, api) ->
   templateUrl: "directives/chat/messages.html"
   scope:
-    group: "="
+    room: "="
     chatId: "="
   link: ($scope) ->
 

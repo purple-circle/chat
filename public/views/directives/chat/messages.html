@@ -1,6 +1,6 @@
 <md-content>
   <md-list>
-    <md-item ng-repeat="item in messages[group.room_id] | orderBy:'createdAt'">
+    <md-item ng-repeat="item in messages[room.room_id] | orderBy:'createdAt'">
       <md-item-content>
 
         <div class="md-tile-left" ng-if="!item.is_me">
@@ -54,5 +54,4 @@
     </md-item>
   </md-list>
 
-  <!-- <pre>{{group | json:2}}</pre> -->
 </md-content>

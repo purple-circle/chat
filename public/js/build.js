@@ -89,7 +89,7 @@
     return {
       templateUrl: "directives/chat/messages.html",
       scope: {
-        group: "=",
+        room: "=",
         chatId: "="
       },
       link: function($scope) {
@@ -193,39 +193,39 @@
     return {
       templateUrl: "directives/chat/chat.html",
       link: function($scope) {
-        var createMessage, getGroups, listenToMessageNotifications;
+        var createMessage, getRooms, listenToMessageNotifications;
         $scope.chat_id = "chat-123";
         $scope.room_id = 1;
-        $scope.groups = [];
+        $scope.rooms = [];
         $scope.users = [];
         $scope.message = '';
         $scope.currentUser = false;
-        $scope.currentGroup = false;
-        $scope.setActiveGroup = function(group) {
+        $scope.currentRoom = false;
+        $scope.setActiveRoom = function(room) {
           var g, i, len, ref;
-          if (!group.$messagesFetched) {
+          if (!room.$messagesFetched) {
             $timeout(function() {
-              group.$messagesFetched = true;
-              return $rootScope.$broadcast("getMessages", group.room_id);
+              room.$messagesFetched = true;
+              return $rootScope.$broadcast("getMessages", room.room_id);
             });
           }
-          group.messages = 0;
-          $scope.currentGroup = group;
-          ref = $scope.groups;
+          room.messages = 0;
+          $scope.currentRoom = room;
+          ref = $scope.rooms;
           for (i = 0, len = ref.length; i < len; i++) {
             g = ref[i];
             if (g.$selected === true) {
               g.$selected = false;
             }
           }
-          group.$selected = true;
-          $scope.room_id = group.room_id;
-          return ga('send', 'event', 'groups', 'setActiveGroup', group.name, group.room_id);
+          room.$selected = true;
+          $scope.room_id = room.room_id;
+          return ga('send', 'event', 'rooms', 'setActiveRoom', room.name, room.room_id);
         };
         listenToMessageNotifications = function() {
           return $rootScope.$on("message-notification", function(event, room_id) {
             var g, i, len, ref, results;
-            ref = $scope.groups;
+            ref = $scope.rooms;
             results = [];
             for (i = 0, len = ref.length; i < len; i++) {
               g = ref[i];
@@ -243,8 +243,8 @@
         listenToMessageNotifications();
         $scope.from = (animals.getRandom()) + "-" + (Math.ceil(Math.random() * 100));
         ga('send', 'event', 'usernames', 'randomName', $scope.from);
-        getGroups = function() {
-          $scope.groups = [
+        getRooms = function() {
+          $scope.rooms = [
             {
               room_id: 1,
               name: "Room #1",
@@ -282,7 +282,7 @@
               icon: 'http://i.imgur.com/YQwZUiJb.gif'
             }
           ];
-          return $scope.setActiveGroup($scope.groups[0]);
+          return $scope.setActiveRoom($scope.rooms[0]);
         };
         createMessage = function(data) {
           var possibleUrl;
@@ -299,14 +299,14 @@
           }
           return api.save_chat_messages(data);
         };
-        getGroups();
-        $scope.createGroup = function() {
+        getRooms();
+        $scope.createRoom = function() {
           var data;
-          if (!$scope.groupName) {
+          if (!$scope.roomName) {
             return;
           }
           return data = {
-            name: $scope.groupName,
+            name: $scope.roomName,
             created_by: $scope.currentUser
           };
         };

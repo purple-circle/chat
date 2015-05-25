@@ -1,17 +1,17 @@
 .messages-container {
   z-index: 1;
 }
-.select-group {
+.select-room {
   cursor: pointer;
   padding: 5px 5px 4px 5px;
 }
-.select-group.selected {
+.select-room.selected {
   background: #faebd7;
 }
-.select-group.selected:hover {
+.select-room.selected:hover {
   background: #F2E3CE;
 }
-.select-group:hover {
+.select-room:hover {
   background: #f0f8ff;
 }
 .face {
