@@ -94,7 +94,6 @@
       },
       link: function($scope) {
         var getMessages, listenToMessages, processMessage, processMessages;
-        $scope.room_id = 1;
         $scope.messages = {};
         $scope.whitespaces = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
         $scope.youtubeOptions = {
@@ -169,8 +168,7 @@
             return $rootScope.$broadcast("message-notification", message.room_id);
           });
         };
-        listenToMessages();
-        return $scope.showGridBottomSheet = function($event) {
+        $scope.showGridBottomSheet = function($event) {
           ga('send', 'event', 'click', 'showGridBottomSheet', $scope.chatId);
           return $mdBottomSheet.show({
             templateUrl: 'directives/chat/bottom-sheet.html',
@@ -178,6 +176,7 @@
             targetEvent: $event
           });
         };
+        return listenToMessages();
       }
     };
   }]);
@@ -204,14 +203,15 @@
         ga('send', 'event', 'usernames', 'randomName', $scope.from);
         $scope.setActiveRoom = function(room) {
           var g, i, len, ref;
+          if (localStorage) {
+            localStorage.setItem("selected-room", room.room_id);
+          }
           if (!room.$messagesFetched) {
             $timeout(function() {
               room.$messagesFetched = true;
               return $rootScope.$broadcast("getMessages", room.room_id);
             });
           }
-          room.messages = 0;
-          $scope.currentRoom = room;
           ref = $scope.rooms;
           for (i = 0, len = ref.length; i < len; i++) {
             g = ref[i];
@@ -220,6 +220,8 @@
             }
           }
           room.$selected = true;
+          room.messages = 0;
+          $scope.currentRoom = room;
           $scope.room_id = room.room_id;
           return ga('send', 'event', 'rooms', 'setActiveRoom', room.name, room.room_id);
         };
@@ -256,8 +258,20 @@
           });
         };
         getRooms = function() {
+          var i, len, previousRoom, ref, room, selected_room;
           $scope.rooms = chatRooms.get();
-          return $scope.setActiveRoom($scope.rooms[0]);
+          selected_room = $scope.rooms[0];
+          previousRoom = typeof localStorage !== "undefined" && localStorage !== null ? localStorage.getItem("selected-room") : void 0;
+          if (previousRoom) {
+            ref = $scope.rooms;
+            for (i = 0, len = ref.length; i < len; i++) {
+              room = ref[i];
+              if (room.room_id === Number(previousRoom)) {
+                selected_room = room;
+              }
+            }
+          }
+          return $scope.setActiveRoom(selected_room);
         };
         createMessage = function(data) {
           var possibleUrl;

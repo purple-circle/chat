@@ -6,8 +6,6 @@ app.directive "messages", ($rootScope, $timeout, $interval, $mdSidenav, $mdBotto
     room: "="
     chatId: "="
   link: ($scope) ->
-    $scope.room_id = 1
-
     $scope.messages = {}
     $scope.whitespaces = [0..15]
     $scope.youtubeOptions =
@@ -71,9 +69,6 @@ app.directive "messages", ($rootScope, $timeout, $interval, $mdSidenav, $mdBotto
           processMessage(message)
           $rootScope.$broadcast("message-notification", message.room_id)
 
-
-    listenToMessages()
-
     $scope.showGridBottomSheet = ($event) ->
       ga('send', 'event', 'click', 'showGridBottomSheet', $scope.chatId)
       $mdBottomSheet
@@ -82,3 +77,5 @@ app.directive "messages", ($rootScope, $timeout, $interval, $mdSidenav, $mdBotto
           controller: 'GridBottomSheetCtrl'
           targetEvent: $event
 
+
+    listenToMessages()

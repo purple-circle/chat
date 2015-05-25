@@ -14,18 +14,23 @@ app.directive "chat", ($rootScope, $timeout, $mdSidenav, $mdBottomSheet, $mdMedi
     ga('send', 'event', 'usernames', 'randomName', $scope.from)
 
     $scope.setActiveRoom = (room) ->
+      if localStorage
+        localStorage.setItem "selected-room", room.room_id
+
       if !room.$messagesFetched
         $timeout ->
           room.$messagesFetched = true
           $rootScope.$broadcast("getMessages", room.room_id)
 
-      room.messages = 0
-      $scope.currentRoom = room
       for g in $scope.rooms when g.$selected is true
         g.$selected = false
 
       room.$selected = true
+      room.messages = 0
+
+      $scope.currentRoom = room
       $scope.room_id = room.room_id
+
       ga('send', 'event', 'rooms', 'setActiveRoom', room.name, room.room_id)
 
 
@@ -50,7 +55,14 @@ app.directive "chat", ($rootScope, $timeout, $mdSidenav, $mdBottomSheet, $mdMedi
 
     getRooms = ->
       $scope.rooms = chatRooms.get()
-      $scope.setActiveRoom($scope.rooms[0])
+      selected_room = $scope.rooms[0]
+
+      previousRoom = localStorage?.getItem("selected-room")
+      if previousRoom
+        for room in $scope.rooms when room.room_id is Number previousRoom
+          selected_room = room
+
+      $scope.setActiveRoom(selected_room)
 
     createMessage = (data) ->
       if !data.message
