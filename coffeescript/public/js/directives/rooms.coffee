@@ -73,3 +73,4 @@ app.directive "rooms", ($rootScope, $timeout, api, chatRooms) ->
 
 
     getRooms()
+    listenToMessageNotifications()

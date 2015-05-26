@@ -680,7 +680,8 @@
             return joinRoom(room_name);
           });
         };
-        return getRooms();
+        getRooms();
+        return listenToMessageNotifications();
       }
     };
   }]);
