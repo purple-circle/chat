@@ -3,13 +3,13 @@ app = angular.module('app')
 app.directive "rooms", ($rootScope, $timeout, api, chatRooms) ->
   templateUrl: "directives/chat/rooms.html"
   scope:
-    chatId: "@"
+    chatId: "="
   link: ($scope) ->
     $scope.rooms = []
 
     getTopic = (room_id) ->
       api
-        .get_topic({room_id, chat_id: $scope.chat_id})
+        .get_topic({room_id, chat_id: $scope.chatId})
         .then (topic) ->
           $timeout ->
             for room in $scope.rooms when room.room_id is room_id

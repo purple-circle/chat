@@ -85,6 +85,19 @@
 
   app = angular.module('app');
 
+  app.filter("newlines", function() {
+    return function(text) {
+      return text.replace(/\n/g, "<br>");
+    };
+  });
+
+}).call(this);
+
+(function() {
+  var app;
+
+  app = angular.module('app');
+
   app.directive('camera', ["$mdDialog", "api", function($mdDialog, api) {
     return {
       templateUrl: "directives/chat/camera.html",
@@ -575,7 +588,7 @@
     return {
       templateUrl: "directives/chat/rooms.html",
       scope: {
-        chatId: "@"
+        chatId: "="
       },
       link: function($scope) {
         var getRooms, getTopic, joinRoom, listenToMessageNotifications;
@@ -583,7 +596,7 @@
         getTopic = function(room_id) {
           return api.get_topic({
             room_id: room_id,
-            chat_id: $scope.chat_id
+            chat_id: $scope.chatId
           }).then(function(topic) {
             return $timeout(function() {
               var i, len, ref, results, room;
@@ -685,19 +698,6 @@
       }
     };
   }]);
-
-}).call(this);
-
-(function() {
-  var app;
-
-  app = angular.module('app');
-
-  app.filter("newlines", function() {
-    return function(text) {
-      return text.replace(/\n/g, "<br>");
-    };
-  });
 
 }).call(this);
 
