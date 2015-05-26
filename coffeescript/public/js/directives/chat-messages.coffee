@@ -1,6 +1,6 @@
 app = angular.module('app')
 
-app.directive "messages", ($rootScope, $timeout, $interval, $mdSidenav, $mdBottomSheet, $mdMedia, api) ->
+app.directive "messages", ($rootScope, $timeout, $interval, $mdDialog, $mdBottomSheet, $mdMedia, api) ->
   templateUrl: "directives/chat/messages.html"
   scope:
     room: "="
@@ -14,6 +14,12 @@ app.directive "messages", ($rootScope, $timeout, $interval, $mdSidenav, $mdBotto
 
     $scope.openImage = (item) ->
       ga('send', 'event', 'openImage', $scope.chatId, item.hasImage)
+      $mdDialog.show
+        templateUrl: 'directives/chat/image-preview.html'
+        locals:
+          image: item
+        controller: ($scope, image) ->
+          $scope.image = image.hasImage
 
     $scope.openYoutubeVideo = (item) ->
       ga('send', 'event', 'openYoutubeVideo', $scope.chatId, item.youtubeId)

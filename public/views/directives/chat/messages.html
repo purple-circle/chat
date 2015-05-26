@@ -25,7 +25,7 @@
               <span ng-bind-html="item.message"></span>
 
               <span ng-if="item.hasImage" class="media-preview">
-                <a href="{{item.hasImage}}" target="_blank" ng-click="openImage(item)"><img ng-src="{{item.hasImage}}"></a>
+                <img ng-click="openImage(item)" ng-src="{{item.hasImage}}">
               </span>
 
 

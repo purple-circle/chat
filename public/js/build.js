@@ -85,7 +85,7 @@
 
   app = angular.module('app');
 
-  app.directive("messages", ["$rootScope", "$timeout", "$interval", "$mdSidenav", "$mdBottomSheet", "$mdMedia", "api", function($rootScope, $timeout, $interval, $mdSidenav, $mdBottomSheet, $mdMedia, api) {
+  app.directive("messages", ["$rootScope", "$timeout", "$interval", "$mdDialog", "$mdBottomSheet", "$mdMedia", "api", function($rootScope, $timeout, $interval, $mdDialog, $mdBottomSheet, $mdMedia, api) {
     return {
       templateUrl: "directives/chat/messages.html",
       scope: {
@@ -101,7 +101,16 @@
           autoplay: false
         };
         $scope.openImage = function(item) {
-          return ga('send', 'event', 'openImage', $scope.chatId, item.hasImage);
+          ga('send', 'event', 'openImage', $scope.chatId, item.hasImage);
+          return $mdDialog.show({
+            templateUrl: 'directives/chat/image-preview.html',
+            locals: {
+              image: item
+            },
+            controller: ["$scope", "image", function($scope, image) {
+              return $scope.image = image.hasImage;
+            }]
+          });
         };
         $scope.openYoutubeVideo = function(item) {
           ga('send', 'event', 'openYoutubeVideo', $scope.chatId, item.youtubeId);
