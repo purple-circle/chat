@@ -1,0 +1,31 @@
+<md-subheader class="md-sticky-no-effect">
+
+  <div ng-hide="imageTaken">
+    <md-button class="md-raised md-primary" type="button" ng-click="takePhoto()">
+      Smile and take your picture :)
+    </md-button>
+  </div>
+  <div ng-show="imageTaken">
+    Preview your picture.
+    <md-button class="md-raised md-primary" type="button" ng-click="retake()" ng-disabled="sending">
+      Retake
+    </md-button>
+    <md-button class="md-raised md-warn" type="button" ng-click="send()" ng-disabled="sending">
+      Send
+    </md-button>
+    <span ng-if="sending">Sending.. <small>This might take a while..</small></span>
+  </div>
+
+</md-subheader>
+
+<div ng-hide="imageTaken">
+  <div>
+    <video id="video" width="640" height="480" autoplay></video>
+  </div>
+</div>
+
+<div ng-show="imageTaken">
+  <div>
+    <canvas id="canvas" width="640" height="480"></canvas>
+  </div>
+</div>

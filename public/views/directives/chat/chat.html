@@ -74,8 +74,19 @@
       </md-input-container>
 
       <input type="file" id="image-upload" onchange="angular.element(this).scope().uploadFile(this)" />
+
       <md-button type="button" aria-label="Select picture" md-no-ink class="md-primary select-file-container" ng-click="selectFile()">
         <i class="fa fa-file-image-o select-file"></i>
+      </md-button>
+
+      <md-button
+        md-no-ink
+        ng-click="useCamera()"
+        ng-if="cameraSupported"
+        type="button"
+        aria-label="Take picture"
+        class="md-primary">
+        <i class="fa fa-camera select-file"></i>
       </md-button>
 
       <md-button md-no-ink class="md-primary" type="submit">Send</md-button>

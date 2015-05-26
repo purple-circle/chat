@@ -14,6 +14,21 @@ app.factory 'api', ($q, youtubeEmbedUtils, uploadImgur, messageHistory, animals,
   socket: socket
   getYoutubeUrls: getYoutubeUrls
 
+  cameraIsSupported: ->
+    cameraSupported = false
+
+    if navigator.getUserMedia
+     cameraSupported = true
+
+    else if navigator.webkitGetUserMedia
+      cameraSupported = true
+
+    else if navigator.mozGetUserMedia
+      cameraSupported = true
+
+    cameraSupported
+
+
   getUsername: ->
     name = localStorage?.getItem("name") || "#{animals.getRandom()}-#{Math.ceil(Math.random()*100)}"
     ga('send', 'event', 'usernames', 'randomName', name)
@@ -76,5 +91,5 @@ app.factory 'api', ($q, youtubeEmbedUtils, uploadImgur, messageHistory, animals,
   getYoutubeIdFromUrl: (url) ->
     youtubeEmbedUtils.getIdFromURL(getYoutubeUrls(url)?[0])
 
-  upload_to_imgur: (file) ->
-    uploadImgur.upload file
+  upload_to_imgur: (file, options) ->
+    uploadImgur.upload file, options

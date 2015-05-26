@@ -14,7 +14,7 @@
 .select-room:hover {
   background: #f0f8ff;
 }
-md-dialog.md-default-theme {
+md-dialog.md-default-theme.image-preview {
   background: transparent;
 }
 md-dialog img.image-preview {
@@ -34,8 +34,8 @@ md-dialog img.image-preview {
 .select-file {
   font-size: 20px;
   cursor: pointer;
-  padding-left: 20px;
-  padding-right: 20px;
+  padding-left: 10px;
+  padding-right: 10px;
   color: #717171;
 }
 .face {
@@ -58,6 +58,10 @@ md-dialog img.image-preview {
 }
 .chat-container {
   height: 500px;
+}
+camera .md-subheader.md-default-theme {
+  background-color: #dcedc8;
+  margin: 0;
 }
 .message {
   word-wrap: break-word;

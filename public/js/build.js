@@ -85,6 +85,92 @@
 
   app = angular.module('app');
 
+  app.directive('camera', ["$mdDialog", "api", function($mdDialog, api) {
+    return {
+      templateUrl: "directives/chat/camera.html",
+      restrict: 'E',
+      link: function($scope, element, attrs) {
+        var canvas, context, convertCanvasToImage, errBack, start, video, videoObj;
+        $scope.imageTaken = false;
+        canvas = document.getElementById('canvas');
+        context = canvas.getContext('2d');
+        video = document.getElementById('video');
+        videoObj = {
+          'video': true
+        };
+        errBack = function(error) {
+          return console.log('Video capture error: ', error.code);
+        };
+        convertCanvasToImage = function(canvas) {
+          var e, image, picture;
+          image = new Image;
+          try {
+            picture = canvas.toDataURL('image/jpeg', 0.9).split(',')[1];
+          } catch (_error) {
+            e = _error;
+            picture = canvas.toDataURL().split(',')[1];
+          }
+          return picture;
+        };
+        start = function() {
+          if (navigator.getUserMedia) {
+            return navigator.getUserMedia(videoObj, function(stream) {
+              video.stream = stream;
+              video.src = stream;
+              return video.play();
+            }, errBack);
+          } else if (navigator.webkitGetUserMedia) {
+            return navigator.webkitGetUserMedia(videoObj, function(stream) {
+              video.stream = stream;
+              if (window.URL) {
+                video.src = window.URL.createObjectURL(stream);
+              } else {
+                video.src = window.webkitURL.createObjectURL(stream);
+              }
+              return video.play();
+            }, errBack);
+          } else if (navigator.mozGetUserMedia) {
+            return navigator.mozGetUserMedia(videoObj, function(stream) {
+              video.stream = stream;
+              video.src = window.URL.createObjectURL(stream);
+              return video.play();
+            }, errBack);
+          }
+        };
+        $scope.retake = function() {
+          start();
+          return $scope.imageTaken = false;
+        };
+        $scope.send = function() {
+          var image;
+          $scope.sending = true;
+          image = convertCanvasToImage(canvas);
+          return api.upload_to_imgur(image, {
+            canvas: true
+          }).then(function(imgur) {
+            $scope.sending = false;
+            return $mdDialog.hide(imgur);
+          });
+        };
+        $scope.takePhoto = function() {
+          $scope.imageTaken = true;
+          context.drawImage(video, 0, 0, 640, 480);
+          return video.stream.stop();
+        };
+        if (api.cameraIsSupported()) {
+          return start();
+        }
+      }
+    };
+  }]);
+
+}).call(this);
+
+(function() {
+  var app;
+
+  app = angular.module('app');
+
   app.directive("messages", ["$rootScope", "$timeout", "$interval", "$mdDialog", "$mdBottomSheet", "$mdMedia", "api", function($rootScope, $timeout, $interval, $mdDialog, $mdBottomSheet, $mdMedia, api) {
     return {
       templateUrl: "directives/chat/messages.html",
@@ -201,7 +287,7 @@
 
   app = angular.module('app');
 
-  app.directive("chat", ["$rootScope", "$timeout", "$mdSidenav", "api", "tabActive", function($rootScope, $timeout, $mdSidenav, api, tabActive) {
+  app.directive("chat", ["$rootScope", "$timeout", "$mdSidenav", "$mdDialog", "api", "tabActive", function($rootScope, $timeout, $mdSidenav, $mdDialog, api, tabActive) {
     return {
       templateUrl: "directives/chat/chat.html",
       link: function($scope) {
@@ -346,6 +432,16 @@
         listenToTopicChange = function() {
           return api.socket.on("topic", function(topic) {
             return $scope.currentRoom.topic = topic != null ? topic.topic : void 0;
+          });
+        };
+        $scope.cameraSupported = api.cameraIsSupported();
+        $scope.useCamera = function() {
+          ga('send', 'event', 'useCamera', $scope.chat_id, $scope.room_id);
+          return $mdDialog.show({
+            templateUrl: 'directives/chat/camera-dialog.html'
+          }).then(function(result) {
+            $scope.message = result.data.link;
+            return $scope.saveMessage();
           });
         };
         $scope.selectFile = function() {
@@ -639,6 +735,18 @@
       testImage: testImage.test,
       socket: socket,
       getYoutubeUrls: getYoutubeUrls,
+      cameraIsSupported: function() {
+        var cameraSupported;
+        cameraSupported = false;
+        if (navigator.getUserMedia) {
+          cameraSupported = true;
+        } else if (navigator.webkitGetUserMedia) {
+          cameraSupported = true;
+        } else if (navigator.mozGetUserMedia) {
+          cameraSupported = true;
+        }
+        return cameraSupported;
+      },
       getUsername: function() {
         var name;
         name = (typeof localStorage !== "undefined" && localStorage !== null ? localStorage.getItem("name") : void 0) || ((animals.getRandom()) + "-" + (Math.ceil(Math.random() * 100)));
@@ -714,8 +822,8 @@
         var ref;
         return youtubeEmbedUtils.getIdFromURL((ref = getYoutubeUrls(url)) != null ? ref[0] : void 0);
       },
-      upload_to_imgur: function(file) {
-        return uploadImgur.upload(file);
+      upload_to_imgur: function(file, options) {
+        return uploadImgur.upload(file, options);
       }
     };
   }]);
@@ -934,23 +1042,31 @@
     var clientId;
     clientId = "3631cecbf2bf2cf";
     return {
-      upload: function(file) {
+      upload: function(file, options) {
         var deferred, fd, ref, xhr;
+        if (options == null) {
+          options = {};
+        }
         deferred = $q.defer();
         if (!file) {
           deferred.reject("No file");
           return deferred.promise;
         }
-        if (!(file != null ? (ref = file.type) != null ? ref.match(/image.*/) : void 0 : void 0)) {
+        if (!options.canvas && !(file != null ? (ref = file.type) != null ? ref.match(/image.*/) : void 0 : void 0)) {
           deferred.reject("File not image");
           return deferred.promise;
         }
-        fd = new FormData();
-        fd.append("image", file);
         xhr = new XMLHttpRequest();
         xhr.open("POST", "https://api.imgur.com/3/image.json");
         xhr.setRequestHeader("Authorization", "Client-ID " + clientId);
-        xhr.send(fd);
+        if (!options.canvas) {
+          fd = new FormData();
+          fd.append("image", file);
+          xhr.send(fd);
+        }
+        if (options.canvas) {
+          xhr.send(file);
+        }
         xhr.onload = function() {
           var result;
           result = JSON.parse(xhr.responseText);

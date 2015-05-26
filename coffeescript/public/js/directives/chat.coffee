@@ -1,6 +1,6 @@
 app = angular.module('app')
 
-app.directive "chat", ($rootScope, $timeout, $mdSidenav, api, tabActive) ->
+app.directive "chat", ($rootScope, $timeout, $mdSidenav, $mdDialog, api, tabActive) ->
   templateUrl: "directives/chat/chat.html"
   link: ($scope) ->
     $scope.chat_id = "chat-123"
@@ -146,6 +146,17 @@ app.directive "chat", ($rootScope, $timeout, $mdSidenav, api, tabActive) ->
         .on "topic", (topic) ->
           $scope.currentRoom.topic = topic?.topic
 
+
+    $scope.cameraSupported = api.cameraIsSupported()
+
+    $scope.useCamera = ->
+      ga('send', 'event', 'useCamera', $scope.chat_id, $scope.room_id)
+      $mdDialog
+        .show
+          templateUrl: 'directives/chat/camera-dialog.html'
+        .then (result) ->
+          $scope.message = result.data.link
+          $scope.saveMessage()
 
     $scope.selectFile = ->
       document.getElementById("image-upload").click()
