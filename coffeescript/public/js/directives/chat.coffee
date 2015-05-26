@@ -1,6 +1,6 @@
 app = angular.module('app')
 
-app.directive "chat", ($rootScope, $timeout, $mdSidenav, api, tabActive, animals) ->
+app.directive "chat", ($rootScope, $timeout, $mdSidenav, api, tabActive) ->
   templateUrl: "directives/chat/chat.html"
   link: ($scope) ->
     $scope.chat_id = "chat-123"
@@ -12,7 +12,7 @@ app.directive "chat", ($rootScope, $timeout, $mdSidenav, api, tabActive, animals
 
     $scope.peopleTyping = []
     $scope.peopleTypingTimeout = {}
-    $scope.from = localStorage?.getItem("name") || "#{animals.getRandom()}-#{Math.ceil(Math.random()*100)}"
+    $scope.from = api.getUsername()
     ga('send', 'event', 'usernames', 'randomName', $scope.from)
 
 

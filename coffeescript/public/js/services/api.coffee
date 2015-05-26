@@ -1,5 +1,5 @@
 app = angular.module('app')
-app.factory 'api', ($q, youtubeEmbedUtils, uploadImgur, messageHistory) ->
+app.factory 'api', ($q, youtubeEmbedUtils, uploadImgur, messageHistory, animals) ->
   socket = io()
 
   getYoutubeUrls = (url) ->
@@ -10,6 +10,8 @@ app.factory 'api', ($q, youtubeEmbedUtils, uploadImgur, messageHistory) ->
 
   messageHistory: messageHistory
 
+  getUsername: ->
+    localStorage?.getItem("name") || "#{animals.getRandom()}-#{Math.ceil(Math.random()*100)}"
   hashCode: (str) ->
     hash = 0
     i = 0

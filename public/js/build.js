@@ -192,7 +192,7 @@
 
   app = angular.module('app');
 
-  app.directive("chat", ["$rootScope", "$timeout", "$mdSidenav", "api", "tabActive", "animals", function($rootScope, $timeout, $mdSidenav, api, tabActive, animals) {
+  app.directive("chat", ["$rootScope", "$timeout", "$mdSidenav", "api", "tabActive", function($rootScope, $timeout, $mdSidenav, api, tabActive) {
     return {
       templateUrl: "directives/chat/chat.html",
       link: function($scope) {
@@ -204,7 +204,7 @@
         $scope.currentRoom = false;
         $scope.peopleTyping = [];
         $scope.peopleTypingTimeout = {};
-        $scope.from = (typeof localStorage !== "undefined" && localStorage !== null ? localStorage.getItem("name") : void 0) || ((animals.getRandom()) + "-" + (Math.ceil(Math.random() * 100)));
+        $scope.from = api.getUsername();
         ga('send', 'event', 'usernames', 'randomName', $scope.from);
         unreadMessages = 0;
         tabActive.check(function(status) {
@@ -617,7 +617,7 @@
 
   app = angular.module('app');
 
-  app.factory('api', ["$q", "youtubeEmbedUtils", "uploadImgur", "messageHistory", function($q, youtubeEmbedUtils, uploadImgur, messageHistory) {
+  app.factory('api', ["$q", "youtubeEmbedUtils", "uploadImgur", "messageHistory", "animals", function($q, youtubeEmbedUtils, uploadImgur, messageHistory, animals) {
     var getYoutubeUrls, socket;
     socket = io();
     getYoutubeUrls = function(url) {
@@ -627,6 +627,9 @@
     };
     return {
       messageHistory: messageHistory,
+      getUsername: function() {
+        return (typeof localStorage !== "undefined" && localStorage !== null ? localStorage.getItem("name") : void 0) || ((animals.getRandom()) + "-" + (Math.ceil(Math.random() * 100)));
+      },
       hashCode: function(str) {
         var hash, i;
         hash = 0;
