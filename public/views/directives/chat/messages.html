@@ -1,4 +1,11 @@
 <md-content>
+
+  <div class="message-loader" ng-if="!messagesFetched[room.room_id]">
+    <div class="loader">
+      <md-progress-circular class="md-hue-2 md-warn" md-mode="indeterminate"></md-progress-circular>
+    </div>
+  </div>
+
   <md-list>
     <md-item ng-repeat="item in messages[room.room_id] | orderBy:'createdAt'">
       <md-item-content>

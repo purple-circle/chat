@@ -21,6 +21,9 @@
 #image-upload {
   display: none;
 }
+.message-loader {
+  height: 100px;
+}
 .select-file {
   font-size: 20px;
   cursor: pointer;

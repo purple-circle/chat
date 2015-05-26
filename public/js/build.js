@@ -96,6 +96,7 @@
         var getMessages, listenToMessages, processMessage, processMessages;
         $scope.messages = {};
         $scope.whitespaces = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
+        $scope.messagesFetched = {};
         $scope.youtubeOptions = {
           autoplay: false
         };
@@ -143,8 +144,9 @@
           }
           return $scope.messages[row.room_id].push(data);
         };
-        processMessages = function(messages) {
+        processMessages = function(room_id, messages) {
           var i, len, message, results;
+          $scope.messagesFetched[room_id] = true;
           results = [];
           for (i = 0, len = messages.length; i < len; i++) {
             message = messages[i];
@@ -156,7 +158,9 @@
           return api.load_chat_messages_for_room({
             room_id: room_id,
             chat_id: $scope.chatId
-          }).then(processMessages);
+          }).then(function(messages) {
+            return processMessages(room_id, messages);
+          });
         };
         $rootScope.$on("getMessages", function(event, room_id) {
           ga('send', 'event', 'messages', 'getMessages', $scope.chatId, room_id);
@@ -427,9 +431,7 @@
             return $scope.saveMessage();
           });
         };
-        $timeout(function() {
-          return getRooms();
-        }, 4000);
+        getRooms();
         listenToMessageNotifications();
         listenToTyping();
         return listenToTopicChange();

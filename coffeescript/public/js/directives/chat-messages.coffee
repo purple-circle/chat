@@ -8,6 +8,7 @@ app.directive "messages", ($rootScope, $timeout, $interval, $mdSidenav, $mdBotto
   link: ($scope) ->
     $scope.messages = {}
     $scope.whitespaces = [0..15]
+    $scope.messagesFetched = {}
     $scope.youtubeOptions =
       autoplay: false
 
@@ -48,14 +49,17 @@ app.directive "messages", ($rootScope, $timeout, $interval, $mdSidenav, $mdBotto
       $scope.messages[row.room_id].push(data)
 
 
-    processMessages = (messages) ->
+    processMessages = (room_id, messages) ->
+      $scope.messagesFetched[room_id] = true
+
       for message in messages
         processMessage(message)
 
     getMessages = (room_id) ->
       api
         .load_chat_messages_for_room({room_id, chat_id: $scope.chatId})
-        .then processMessages
+        .then (messages) ->
+          processMessages(room_id, messages)
 
 
     $rootScope.$on "getMessages", (event, room_id) ->

@@ -201,10 +201,7 @@ app.directive "chat", ($rootScope, $timeout, $mdSidenav, $mdBottomSheet, $mdMedi
           $scope.saveMessage()
 
 
-    $timeout ->
-      getRooms()
-    , 4000
-
+    getRooms()
     listenToMessageNotifications()
     listenToTyping()
     listenToTopicChange()
