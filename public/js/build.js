@@ -225,7 +225,10 @@
           room.messages = 0;
           $scope.currentRoom = room;
           $scope.room_id = room.room_id;
-          getTopic();
+          if (!room.$topicFetched) {
+            room.$topicFetched = true;
+            getTopic(room.room_id);
+          }
           return ga('send', 'event', 'rooms', 'setActiveRoom', room.name, room.room_id);
         };
         unreadMessages = 0;
@@ -385,13 +388,22 @@
             chat_id: $scope.chat_id
           });
         };
-        getTopic = function() {
+        getTopic = function(room_id) {
           return api.get_topic({
-            room_id: $scope.room_id,
+            room_id: room_id,
             chat_id: $scope.chat_id
           }).then(function(topic) {
             return $timeout(function() {
-              return $scope.currentRoom.topic = topic != null ? topic.topic : void 0;
+              var i, len, ref, results, room;
+              ref = $scope.rooms;
+              results = [];
+              for (i = 0, len = ref.length; i < len; i++) {
+                room = ref[i];
+                if (room.room_id === room_id) {
+                  results.push(room.topic = topic != null ? topic.topic : void 0);
+                }
+              }
+              return results;
             });
           });
         };
@@ -415,7 +427,9 @@
             return $scope.saveMessage();
           });
         };
-        getRooms();
+        $timeout(function() {
+          return getRooms();
+        }, 4000);
         listenToMessageNotifications();
         listenToTyping();
         return listenToTopicChange();

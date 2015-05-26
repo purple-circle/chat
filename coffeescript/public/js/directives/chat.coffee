@@ -33,7 +33,10 @@ app.directive "chat", ($rootScope, $timeout, $mdSidenav, $mdBottomSheet, $mdMedi
       $scope.currentRoom = room
       $scope.room_id = room.room_id
 
-      getTopic()
+
+      if !room.$topicFetched
+        room.$topicFetched = true
+        getTopic(room.room_id)
 
       ga('send', 'event', 'rooms', 'setActiveRoom', room.name, room.room_id)
 
@@ -166,12 +169,13 @@ app.directive "chat", ($rootScope, $timeout, $mdSidenav, $mdBottomSheet, $mdMedi
       api
         .set_topic({topic, room_id: $scope.room_id, chat_id: $scope.chat_id})
 
-    getTopic = ->
+    getTopic = (room_id) ->
       api
-        .get_topic({room_id: $scope.room_id, chat_id: $scope.chat_id})
+        .get_topic({room_id, chat_id: $scope.chat_id})
         .then (topic) ->
           $timeout ->
-            $scope.currentRoom.topic = topic?.topic
+            for room in $scope.rooms when room.room_id is room_id
+              room.topic = topic?.topic
 
     listenToTopicChange = ->
       api
@@ -197,7 +201,10 @@ app.directive "chat", ($rootScope, $timeout, $mdSidenav, $mdBottomSheet, $mdMedi
           $scope.saveMessage()
 
 
-    getRooms()
+    $timeout ->
+      getRooms()
+    , 4000
+
     listenToMessageNotifications()
     listenToTyping()
     listenToTopicChange()
