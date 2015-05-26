@@ -115,7 +115,7 @@
       </md-input-container>
       <md-input-container flex>
         <label>Your message</label>
-        <input placeholder="Your message" ng-model="message" ng-change="i_am_typing()">
+        <input placeholder="Your message" ng-model="message" ng-change="i_am_typing()" keydown="browseHistory(key)">
       </md-input-container>
 
       <input type="file" id="image-upload" onchange="angular.element(this).scope().uploadFile(this)" />

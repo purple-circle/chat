@@ -196,7 +196,7 @@
     return {
       templateUrl: "directives/chat/chat.html",
       link: function($scope) {
-        var checkCommands, createMessage, getRooms, getTopic, joinRoom, listenToMessageNotifications, listenToTopicChange, listenToTyping, setTopic, unreadMessages;
+        var checkCommands, createMessage, getMessageHistory, getRooms, getTopic, globalHistory, historyLocation, joinRoom, listenToMessageNotifications, listenToTopicChange, listenToTyping, saveMessageHistory, setTopic, unreadMessages;
         $scope.chat_id = "chat-123";
         $scope.room_id = 1;
         $scope.rooms = [];
@@ -316,6 +316,51 @@
           }
           return api.save_chat_messages(data);
         };
+        getMessageHistory = function() {
+          var history;
+          history = localStorage.getItem("message-history");
+          if (!history) {
+            return [];
+          }
+          return JSON.parse(history);
+        };
+        globalHistory = getMessageHistory();
+        historyLocation = globalHistory.length;
+        saveMessageHistory = function(message) {
+          var history;
+          if (!localStorage) {
+            return;
+          }
+          history = localStorage.getItem("message-history") || "[]";
+          history = JSON.parse(history);
+          history.push(message);
+          globalHistory = history;
+          historyLocation = history.length;
+          return localStorage.setItem("message-history", JSON.stringify(history));
+        };
+        $scope.browseHistory = function(key) {
+          var last;
+          if (key === "Up") {
+            if (historyLocation < 0) {
+              return;
+            }
+            historyLocation--;
+            if (historyLocation < 0) {
+              historyLocation = 0;
+            }
+            last = globalHistory[historyLocation];
+            $scope.message = last;
+          }
+          if (key === "Down") {
+            if (historyLocation + 1 > globalHistory.length) {
+              $scope.message = '';
+              return;
+            }
+            historyLocation++;
+            last = globalHistory[historyLocation];
+            return $scope.message = last;
+          }
+        };
         $scope.saveMessage = function() {
           var data;
           if (!$scope.message) {
@@ -330,6 +375,7 @@
             from: $scope.from,
             sid: yolosid
           };
+          saveMessageHistory($scope.message);
           $scope.message = '';
           return createMessage(data);
         };
@@ -464,6 +510,32 @@
       }
     };
   }]);
+
+}).call(this);
+
+(function() {
+  var app;
+
+  app = angular.module('app');
+
+  app.directive('keydown', function() {
+    return {
+      restrict: 'A',
+      scope: {
+        callback: "&keydown"
+      },
+      link: function($scope, element, attrs) {
+        return element.bind("keydown", function(event) {
+          if (!(event != null ? event.keyIdentifier : void 0)) {
+            return;
+          }
+          return $scope.callback({
+            key: event.keyIdentifier
+          });
+        });
+      }
+    };
+  });
 
 }).call(this);
 

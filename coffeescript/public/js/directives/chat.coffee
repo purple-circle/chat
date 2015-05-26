@@ -94,6 +94,57 @@ app.directive "chat", ($rootScope, $timeout, $mdSidenav, $mdBottomSheet, $mdMedi
 
       api.save_chat_messages(data)
 
+
+    getMessageHistory = ->
+      history = localStorage.getItem("message-history")
+      if !history
+        return []
+
+      JSON.parse history
+
+    globalHistory = getMessageHistory()
+    historyLocation = globalHistory.length
+
+    saveMessageHistory = (message) ->
+      if !localStorage
+        return
+
+      history = localStorage.getItem("message-history") || "[]"
+      history = JSON.parse(history)
+
+      history.push(message)
+      globalHistory = history
+
+      historyLocation = history.length
+
+      localStorage.setItem("message-history", JSON.stringify(history))
+
+
+    $scope.browseHistory = (key) ->
+      if key is "Up"
+
+        if historyLocation < 0
+          return
+
+        historyLocation--
+
+        if historyLocation < 0
+          historyLocation = 0
+
+        last = globalHistory[historyLocation]
+
+        $scope.message = last
+
+      if key is "Down"
+        if historyLocation + 1 > globalHistory.length
+          $scope.message = ''
+          return
+
+        historyLocation++
+        last = globalHistory[historyLocation]
+        $scope.message = last
+
+
     $scope.saveMessage = ->
       if !$scope.message
         ga('send', 'event', 'messages', 'empty saveMessage', $scope.room_id)
@@ -107,6 +158,8 @@ app.directive "chat", ($rootScope, $timeout, $mdSidenav, $mdBottomSheet, $mdMedi
         message: $scope.message
         from: $scope.from
         sid: yolosid
+
+      saveMessageHistory($scope.message)
 
       $scope.message = ''
       createMessage(data)
