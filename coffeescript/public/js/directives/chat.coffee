@@ -155,6 +155,7 @@ app.directive "chat", ($rootScope, $timeout, $mdSidenav, $mdDialog, api, tabActi
         .show
           templateUrl: 'directives/chat/camera-dialog.html'
         .then (result) ->
+          ga('send', 'event', 'used camera, saved picture', $scope.chat_id, $scope.room_id)
           $scope.message = result.data.link
           $scope.saveMessage()
 

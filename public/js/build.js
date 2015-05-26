@@ -440,6 +440,7 @@
           return $mdDialog.show({
             templateUrl: 'directives/chat/camera-dialog.html'
           }).then(function(result) {
+            ga('send', 'event', 'used camera, saved picture', $scope.chat_id, $scope.room_id);
             $scope.message = result.data.link;
             return $scope.saveMessage();
           });
