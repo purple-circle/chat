@@ -158,6 +158,8 @@ app.directive "chat", ($rootScope, $timeout, $mdSidenav, $mdDialog, api, tabActi
           ga('send', 'event', 'used camera, saved picture', $scope.chat_id, $scope.room_id)
           $scope.message = result.data.link
           $scope.saveMessage()
+        , ->
+          window.camera?.stop()
 
     $scope.selectFile = ->
       document.getElementById("image-upload").click()

@@ -85,19 +85,6 @@
 
   app = angular.module('app');
 
-  app.filter("newlines", function() {
-    return function(text) {
-      return text.replace(/\n/g, "<br>");
-    };
-  });
-
-}).call(this);
-
-(function() {
-  var app;
-
-  app = angular.module('app');
-
   app.directive('camera', ["$mdDialog", "api", function($mdDialog, api) {
     return {
       templateUrl: "directives/chat/camera.html",
@@ -128,12 +115,14 @@
         start = function() {
           if (navigator.getUserMedia) {
             return navigator.getUserMedia(videoObj, function(stream) {
+              window.camera = stream;
               video.stream = stream;
               video.src = stream;
               return video.play();
             }, errBack);
           } else if (navigator.webkitGetUserMedia) {
             return navigator.webkitGetUserMedia(videoObj, function(stream) {
+              window.camera = stream;
               video.stream = stream;
               if (window.URL) {
                 video.src = window.URL.createObjectURL(stream);
@@ -144,6 +133,7 @@
             }, errBack);
           } else if (navigator.mozGetUserMedia) {
             return navigator.mozGetUserMedia(videoObj, function(stream) {
+              window.camera = stream;
               video.stream = stream;
               video.src = window.URL.createObjectURL(stream);
               return video.play();
@@ -456,6 +446,9 @@
             ga('send', 'event', 'used camera, saved picture', $scope.chat_id, $scope.room_id);
             $scope.message = result.data.link;
             return $scope.saveMessage();
+          }, function() {
+            var ref;
+            return (ref = window.camera) != null ? ref.stop() : void 0;
           });
         };
         $scope.selectFile = function() {
@@ -698,6 +691,19 @@
       }
     };
   }]);
+
+}).call(this);
+
+(function() {
+  var app;
+
+  app = angular.module('app');
+
+  app.filter("newlines", function() {
+    return function(text) {
+      return text.replace(/\n/g, "<br>");
+    };
+  });
 
 }).call(this);
 

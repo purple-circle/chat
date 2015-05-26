@@ -31,6 +31,7 @@ app.directive 'camera', ($mdDialog, api) ->
       if navigator.getUserMedia
         # Standard
         navigator.getUserMedia videoObj, (stream) ->
+          window.camera = stream
           video.stream = stream
           video.src = stream
           video.play()
@@ -39,6 +40,7 @@ app.directive 'camera', ($mdDialog, api) ->
       else if navigator.webkitGetUserMedia
         # WebKit-prefixed
         navigator.webkitGetUserMedia videoObj, (stream) ->
+          window.camera = stream
           video.stream = stream
           if window.URL
             video.src = window.URL.createObjectURL(stream)
@@ -50,6 +52,7 @@ app.directive 'camera', ($mdDialog, api) ->
       else if navigator.mozGetUserMedia
         # Firefox-prefixed
         navigator.mozGetUserMedia videoObj, (stream) ->
+          window.camera = stream
           video.stream = stream
           video.src = window.URL.createObjectURL(stream)
           video.play()
