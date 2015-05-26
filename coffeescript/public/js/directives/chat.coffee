@@ -1,11 +1,11 @@
 app = angular.module('app')
 
-app.directive "chat", ($rootScope, $timeout, $mdSidenav, $mdBottomSheet, $mdMedia, api, tabActive, animals, chatRooms) ->
+app.directive "chat", ($rootScope, $timeout, $mdSidenav, api, tabActive, animals) ->
   templateUrl: "directives/chat/chat.html"
   link: ($scope) ->
     $scope.chat_id = "chat-123"
     $scope.room_id = 1
-    $scope.rooms = []
+
     $scope.message = ''
     $scope.tabVisible = true
     $scope.currentRoom = false
@@ -14,31 +14,6 @@ app.directive "chat", ($rootScope, $timeout, $mdSidenav, $mdBottomSheet, $mdMedi
     $scope.peopleTypingTimeout = {}
     $scope.from = localStorage?.getItem("name") || "#{animals.getRandom()}-#{Math.ceil(Math.random()*100)}"
     ga('send', 'event', 'usernames', 'randomName', $scope.from)
-
-    $scope.setActiveRoom = (room) ->
-      if localStorage
-        localStorage.setItem "selected-room", room.room_id
-
-      if !room.$messagesFetched
-        $timeout ->
-          room.$messagesFetched = true
-          $rootScope.$broadcast("getMessages", room.room_id)
-
-      for g in $scope.rooms when g.$selected is true
-        g.$selected = false
-
-      room.$selected = true
-      room.messages = 0
-
-      $scope.currentRoom = room
-      $scope.room_id = room.room_id
-
-
-      if !room.$topicFetched
-        room.$topicFetched = true
-        getTopic(room.room_id)
-
-      ga('send', 'event', 'rooms', 'setActiveRoom', room.name, room.room_id)
 
 
     unreadMessages = 0
@@ -50,35 +25,16 @@ app.directive "chat", ($rootScope, $timeout, $mdSidenav, $mdBottomSheet, $mdMedi
           $rootScope.page_title = "Chat"
 
 
+    # TODO: refactor to service
+    $rootScope.$on "currentRoom", (event, room) ->
+      $scope.currentRoom = room
+      $scope.room_id = room.room_id
+
     listenToMessageNotifications = ->
       $rootScope.$on "message-notification", (event, room_id) ->
         if $scope.tabVisible
           unreadMessages++
           $rootScope.page_title = "(#{unreadMessages}) Chat"
-
-        for g in $scope.rooms when g.$selected isnt true
-          if g.room_id is room_id
-            g.messages++
-
-    joinRoom = (room_name) ->
-      room_name = room_name.toLowerCase()
-      for room in $scope.rooms when room.name.toLowerCase() is room_name
-        ga('send', 'event', 'joinRoom', $scope.chat_id, room_name)
-        $scope.setActiveRoom(room)
-
-    getRooms = ->
-      chatRooms
-        .get()
-        .then (rooms) ->
-          $scope.rooms = rooms
-          selected_room = $scope.rooms[0]
-
-          previousRoom = localStorage?.getItem("selected-room")
-          if previousRoom
-            for room in $scope.rooms when room.room_id is Number previousRoom
-              selected_room = room
-
-          $scope.setActiveRoom(selected_room)
 
     createMessage = (data) ->
       if !data.message
@@ -93,7 +49,7 @@ app.directive "chat", ($rootScope, $timeout, $mdSidenav, $mdBottomSheet, $mdMedi
       possibleUrl = api.stringHasUrl(data.message)
       if possibleUrl?[0] and api.urlIsImage(possibleUrl[0])
         api.testImage possibleUrl[0], ->
-          ga('send', 'event', 'sharedImage', $scope.chat_id, possibleUrl[0])
+          ga('send', 'event', 'sharedImage', data.chat_id, possibleUrl[0])
 
       api.save_chat_messages(data)
 
@@ -215,7 +171,7 @@ app.directive "chat", ($rootScope, $timeout, $mdSidenav, $mdBottomSheet, $mdMedi
         return true
 
       if command is "join" or command is "j"
-        joinRoom(content.slice(1).join(" "))
+        $rootScope.$broadcast("joinRoom", content.slice(1).join(" "))
         return true
 
       return false
@@ -227,13 +183,6 @@ app.directive "chat", ($rootScope, $timeout, $mdSidenav, $mdBottomSheet, $mdMedi
       api
         .set_topic({topic, room_id: $scope.room_id, chat_id: $scope.chat_id})
 
-    getTopic = (room_id) ->
-      api
-        .get_topic({room_id, chat_id: $scope.chat_id})
-        .then (topic) ->
-          $timeout ->
-            for room in $scope.rooms when room.room_id is room_id
-              room.topic = topic?.topic
 
     listenToTopicChange = ->
       api
@@ -259,7 +208,6 @@ app.directive "chat", ($rootScope, $timeout, $mdSidenav, $mdBottomSheet, $mdMedi
           $scope.saveMessage()
 
 
-    getRooms()
     listenToMessageNotifications()
     listenToTyping()
     listenToTopicChange()

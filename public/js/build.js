@@ -192,14 +192,13 @@
 
   app = angular.module('app');
 
-  app.directive("chat", ["$rootScope", "$timeout", "$mdSidenav", "$mdBottomSheet", "$mdMedia", "api", "tabActive", "animals", "chatRooms", function($rootScope, $timeout, $mdSidenav, $mdBottomSheet, $mdMedia, api, tabActive, animals, chatRooms) {
+  app.directive("chat", ["$rootScope", "$timeout", "$mdSidenav", "api", "tabActive", "animals", function($rootScope, $timeout, $mdSidenav, api, tabActive, animals) {
     return {
       templateUrl: "directives/chat/chat.html",
       link: function($scope) {
-        var checkCommands, createMessage, getMessageHistory, getRooms, getTopic, globalHistory, historyLocation, joinRoom, listenToMessageNotifications, listenToTopicChange, listenToTyping, saveMessageHistory, setTopic, unreadMessages;
+        var checkCommands, createMessage, getMessageHistory, globalHistory, historyLocation, listenToMessageNotifications, listenToTopicChange, listenToTyping, saveMessageHistory, setTopic, unreadMessages;
         $scope.chat_id = "chat-123";
         $scope.room_id = 1;
-        $scope.rooms = [];
         $scope.message = '';
         $scope.tabVisible = true;
         $scope.currentRoom = false;
@@ -207,34 +206,6 @@
         $scope.peopleTypingTimeout = {};
         $scope.from = (typeof localStorage !== "undefined" && localStorage !== null ? localStorage.getItem("name") : void 0) || ((animals.getRandom()) + "-" + (Math.ceil(Math.random() * 100)));
         ga('send', 'event', 'usernames', 'randomName', $scope.from);
-        $scope.setActiveRoom = function(room) {
-          var g, i, len, ref;
-          if (localStorage) {
-            localStorage.setItem("selected-room", room.room_id);
-          }
-          if (!room.$messagesFetched) {
-            $timeout(function() {
-              room.$messagesFetched = true;
-              return $rootScope.$broadcast("getMessages", room.room_id);
-            });
-          }
-          ref = $scope.rooms;
-          for (i = 0, len = ref.length; i < len; i++) {
-            g = ref[i];
-            if (g.$selected === true) {
-              g.$selected = false;
-            }
-          }
-          room.$selected = true;
-          room.messages = 0;
-          $scope.currentRoom = room;
-          $scope.room_id = room.room_id;
-          if (!room.$topicFetched) {
-            room.$topicFetched = true;
-            getTopic(room.room_id);
-          }
-          return ga('send', 'event', 'rooms', 'setActiveRoom', room.name, room.room_id);
-        };
         unreadMessages = 0;
         tabActive.check(function(status) {
           return $timeout(function() {
@@ -245,59 +216,16 @@
             }
           });
         });
+        $rootScope.$on("currentRoom", function(event, room) {
+          $scope.currentRoom = room;
+          return $scope.room_id = room.room_id;
+        });
         listenToMessageNotifications = function() {
           return $rootScope.$on("message-notification", function(event, room_id) {
-            var g, i, len, ref, results;
             if ($scope.tabVisible) {
               unreadMessages++;
-              $rootScope.page_title = "(" + unreadMessages + ") Chat";
+              return $rootScope.page_title = "(" + unreadMessages + ") Chat";
             }
-            ref = $scope.rooms;
-            results = [];
-            for (i = 0, len = ref.length; i < len; i++) {
-              g = ref[i];
-              if (g.$selected !== true) {
-                if (g.room_id === room_id) {
-                  results.push(g.messages++);
-                } else {
-                  results.push(void 0);
-                }
-              }
-            }
-            return results;
-          });
-        };
-        joinRoom = function(room_name) {
-          var i, len, ref, results, room;
-          room_name = room_name.toLowerCase();
-          ref = $scope.rooms;
-          results = [];
-          for (i = 0, len = ref.length; i < len; i++) {
-            room = ref[i];
-            if (!(room.name.toLowerCase() === room_name)) {
-              continue;
-            }
-            ga('send', 'event', 'joinRoom', $scope.chat_id, room_name);
-            results.push($scope.setActiveRoom(room));
-          }
-          return results;
-        };
-        getRooms = function() {
-          return chatRooms.get().then(function(rooms) {
-            var i, len, previousRoom, ref, room, selected_room;
-            $scope.rooms = rooms;
-            selected_room = $scope.rooms[0];
-            previousRoom = typeof localStorage !== "undefined" && localStorage !== null ? localStorage.getItem("selected-room") : void 0;
-            if (previousRoom) {
-              ref = $scope.rooms;
-              for (i = 0, len = ref.length; i < len; i++) {
-                room = ref[i];
-                if (room.room_id === Number(previousRoom)) {
-                  selected_room = room;
-                }
-              }
-            }
-            return $scope.setActiveRoom(selected_room);
           });
         };
         createMessage = function(data) {
@@ -313,7 +241,7 @@
           possibleUrl = api.stringHasUrl(data.message);
           if ((possibleUrl != null ? possibleUrl[0] : void 0) && api.urlIsImage(possibleUrl[0])) {
             api.testImage(possibleUrl[0], function() {
-              return ga('send', 'event', 'sharedImage', $scope.chat_id, possibleUrl[0]);
+              return ga('send', 'event', 'sharedImage', data.chat_id, possibleUrl[0]);
             });
           }
           return api.save_chat_messages(data);
@@ -428,7 +356,7 @@
             return true;
           }
           if (command === "join" || command === "j") {
-            joinRoom(content.slice(1).join(" "));
+            $rootScope.$broadcast("joinRoom", content.slice(1).join(" "));
             return true;
           }
           return false;
@@ -440,25 +368,6 @@
             topic: topic,
             room_id: $scope.room_id,
             chat_id: $scope.chat_id
-          });
-        };
-        getTopic = function(room_id) {
-          return api.get_topic({
-            room_id: room_id,
-            chat_id: $scope.chat_id
-          }).then(function(topic) {
-            return $timeout(function() {
-              var i, len, ref, results, room;
-              ref = $scope.rooms;
-              results = [];
-              for (i = 0, len = ref.length; i < len; i++) {
-                room = ref[i];
-                if (room.room_id === room_id) {
-                  results.push(room.topic = topic != null ? topic.topic : void 0);
-                }
-              }
-              return results;
-            });
           });
         };
         listenToTopicChange = function() {
@@ -481,7 +390,6 @@
             return $scope.saveMessage();
           });
         };
-        getRooms();
         listenToMessageNotifications();
         listenToTyping();
         return listenToTopicChange();
@@ -582,6 +490,127 @@
         return api.socket.on("get_online_count", function(result) {
           return element.html(result);
         });
+      }
+    };
+  }]);
+
+}).call(this);
+
+(function() {
+  var app;
+
+  app = angular.module('app');
+
+  app.directive("rooms", ["$rootScope", "$timeout", "api", "chatRooms", function($rootScope, $timeout, api, chatRooms) {
+    return {
+      templateUrl: "directives/chat/rooms.html",
+      scope: {
+        chatId: "@"
+      },
+      link: function($scope) {
+        var getRooms, getTopic, joinRoom, listenToMessageNotifications;
+        $scope.rooms = [];
+        getTopic = function(room_id) {
+          return api.get_topic({
+            room_id: room_id,
+            chat_id: $scope.chat_id
+          }).then(function(topic) {
+            return $timeout(function() {
+              var i, len, ref, results, room;
+              ref = $scope.rooms;
+              results = [];
+              for (i = 0, len = ref.length; i < len; i++) {
+                room = ref[i];
+                if (room.room_id === room_id) {
+                  results.push(room.topic = topic != null ? topic.topic : void 0);
+                }
+              }
+              return results;
+            });
+          });
+        };
+        $scope.setActiveRoom = function(room) {
+          var g, i, len, ref;
+          if (localStorage) {
+            localStorage.setItem("selected-room", room.room_id);
+          }
+          if (!room.$messagesFetched) {
+            $timeout(function() {
+              room.$messagesFetched = true;
+              return $rootScope.$broadcast("getMessages", room.room_id);
+            });
+          }
+          ref = $scope.rooms;
+          for (i = 0, len = ref.length; i < len; i++) {
+            g = ref[i];
+            if (g.$selected === true) {
+              g.$selected = false;
+            }
+          }
+          room.$selected = true;
+          room.messages = 0;
+          $rootScope.$broadcast("currentRoom", room);
+          if (!room.$topicFetched) {
+            room.$topicFetched = true;
+            getTopic(room.room_id);
+          }
+          return ga('send', 'event', 'rooms', 'setActiveRoom', room.name, room.room_id);
+        };
+        listenToMessageNotifications = function() {
+          return $rootScope.$on("message-notification", function(event, room_id) {
+            var g, i, len, ref, results;
+            ref = $scope.rooms;
+            results = [];
+            for (i = 0, len = ref.length; i < len; i++) {
+              g = ref[i];
+              if (g.$selected !== true) {
+                if (g.room_id === room_id) {
+                  results.push(g.messages++);
+                } else {
+                  results.push(void 0);
+                }
+              }
+            }
+            return results;
+          });
+        };
+        joinRoom = function(room_name) {
+          var i, len, ref, results, room;
+          room_name = room_name.toLowerCase();
+          ref = $scope.rooms;
+          results = [];
+          for (i = 0, len = ref.length; i < len; i++) {
+            room = ref[i];
+            if (!(room.name.toLowerCase() === room_name)) {
+              continue;
+            }
+            ga('send', 'event', 'joinRoom', $scope.chat_id, room_name);
+            results.push($scope.setActiveRoom(room));
+          }
+          return results;
+        };
+        getRooms = function() {
+          chatRooms.get().then(function(rooms) {
+            var i, len, previousRoom, ref, room, selected_room;
+            $scope.rooms = rooms;
+            selected_room = $scope.rooms[0];
+            previousRoom = typeof localStorage !== "undefined" && localStorage !== null ? localStorage.getItem("selected-room") : void 0;
+            if (previousRoom) {
+              ref = $scope.rooms;
+              for (i = 0, len = ref.length; i < len; i++) {
+                room = ref[i];
+                if (room.room_id === Number(previousRoom)) {
+                  selected_room = room;
+                }
+              }
+            }
+            return $scope.setActiveRoom(selected_room);
+          });
+          return $rootScope.$on("joinRoom", function(event, room_name) {
+            return joinRoom(room_name);
+          });
+        };
+        return getRooms();
       }
     };
   }]);
