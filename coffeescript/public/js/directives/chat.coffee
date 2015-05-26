@@ -67,15 +67,18 @@ app.directive "chat", ($rootScope, $timeout, $mdSidenav, $mdBottomSheet, $mdMedi
         $scope.setActiveRoom(room)
 
     getRooms = ->
-      $scope.rooms = chatRooms.get()
-      selected_room = $scope.rooms[0]
+      chatRooms
+        .get()
+        .then (rooms) ->
+          $scope.rooms = rooms
+          selected_room = $scope.rooms[0]
 
-      previousRoom = localStorage?.getItem("selected-room")
-      if previousRoom
-        for room in $scope.rooms when room.room_id is Number previousRoom
-          selected_room = room
+          previousRoom = localStorage?.getItem("selected-room")
+          if previousRoom
+            for room in $scope.rooms when room.room_id is Number previousRoom
+              selected_room = room
 
-      $scope.setActiveRoom(selected_room)
+          $scope.setActiveRoom(selected_room)
 
     createMessage = (data) ->
       if !data.message
@@ -134,6 +137,7 @@ app.directive "chat", ($rootScope, $timeout, $mdSidenav, $mdBottomSheet, $mdMedi
         last = globalHistory[historyLocation]
 
         $scope.message = last
+        ga('send', 'event', 'browseHistory', 'Up', $scope.room_id)
 
       if key is "Down"
         if historyLocation + 1 > globalHistory.length
@@ -143,6 +147,7 @@ app.directive "chat", ($rootScope, $timeout, $mdSidenav, $mdBottomSheet, $mdMedi
         historyLocation++
         last = globalHistory[historyLocation]
         $scope.message = last
+        ga('send', 'event', 'browseHistory', 'Down', $scope.room_id)
 
 
     $scope.saveMessage = ->

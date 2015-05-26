@@ -1,7 +1,9 @@
 app = angular.module('app')
-app.factory 'chatRooms', ->
+app.factory 'chatRooms', ($q) ->
   get: ->
-    [
+    deferred = $q.defer()
+
+    rooms = [
       {
         room_id: 1
         name: "Room #1"
@@ -39,3 +41,6 @@ app.factory 'chatRooms', ->
         icon: 'http://i.imgur.com/YQwZUiJb.gif'
       }
     ]
+
+    deferred.resolve rooms
+    deferred.promise

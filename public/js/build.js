@@ -283,20 +283,22 @@
           return results;
         };
         getRooms = function() {
-          var i, len, previousRoom, ref, room, selected_room;
-          $scope.rooms = chatRooms.get();
-          selected_room = $scope.rooms[0];
-          previousRoom = typeof localStorage !== "undefined" && localStorage !== null ? localStorage.getItem("selected-room") : void 0;
-          if (previousRoom) {
-            ref = $scope.rooms;
-            for (i = 0, len = ref.length; i < len; i++) {
-              room = ref[i];
-              if (room.room_id === Number(previousRoom)) {
-                selected_room = room;
+          return chatRooms.get().then(function(rooms) {
+            var i, len, previousRoom, ref, room, selected_room;
+            $scope.rooms = rooms;
+            selected_room = $scope.rooms[0];
+            previousRoom = typeof localStorage !== "undefined" && localStorage !== null ? localStorage.getItem("selected-room") : void 0;
+            if (previousRoom) {
+              ref = $scope.rooms;
+              for (i = 0, len = ref.length; i < len; i++) {
+                room = ref[i];
+                if (room.room_id === Number(previousRoom)) {
+                  selected_room = room;
+                }
               }
             }
-          }
-          return $scope.setActiveRoom(selected_room);
+            return $scope.setActiveRoom(selected_room);
+          });
         };
         createMessage = function(data) {
           var possibleUrl;
@@ -350,6 +352,7 @@
             }
             last = globalHistory[historyLocation];
             $scope.message = last;
+            ga('send', 'event', 'browseHistory', 'Up', $scope.room_id);
           }
           if (key === "Down") {
             if (historyLocation + 1 > globalHistory.length) {
@@ -358,7 +361,8 @@
             }
             historyLocation++;
             last = globalHistory[historyLocation];
-            return $scope.message = last;
+            $scope.message = last;
+            return ga('send', 'event', 'browseHistory', 'Down', $scope.room_id);
           }
         };
         $scope.saveMessage = function() {
@@ -518,6 +522,29 @@
 
   app = angular.module('app');
 
+  app.directive('fileModel', ["$parse", function($parse) {
+    return {
+      restrict: 'A',
+      link: function(scope, element, attrs) {
+        var model, modelSetter;
+        model = $parse(attrs.fileModel);
+        modelSetter = model.assign;
+        return element.bind('change', function() {
+          return scope.$apply(function() {
+            return modelSetter(scope, element[0].files[0]);
+          });
+        });
+      }
+    };
+  }]);
+
+}).call(this);
+
+(function() {
+  var app;
+
+  app = angular.module('app');
+
   app.directive('keydown', function() {
     return {
       restrict: 'A',
@@ -596,23 +623,7 @@
 
   app = angular.module('app');
 
-  app.directive('fileModel', ["$parse", function($parse) {
-    return {
-      restrict: 'A',
-      link: function(scope, element, attrs) {
-        var model, modelSetter;
-        model = $parse(attrs.fileModel);
-        modelSetter = model.assign;
-        return element.bind('change', function() {
-          return scope.$apply(function() {
-            return modelSetter(scope, element[0].files[0]);
-          });
-        });
-      }
-    };
-  }]);
-
-  app.factory('api', ["$q", "$http", "youtubeEmbedUtils", function($q, $http, youtubeEmbedUtils) {
+  app.factory('api', ["$q", "youtubeEmbedUtils", "uploadImgur", function($q, youtubeEmbedUtils, uploadImgur) {
     var getYoutubeUrls, socket;
     socket = io();
     getYoutubeUrls = function(url) {
@@ -722,24 +733,7 @@
         return youtubeEmbedUtils.getIdFromURL((ref = getYoutubeUrls(url)) != null ? ref[0] : void 0);
       },
       upload_to_imgur: function(file) {
-        var deferred, fd, xhr;
-        deferred = $q.defer();
-        if (!file || !file.type.match(/image.*/)) {
-          deferred.reject("not image or no file");
-          return deferred.promise;
-        }
-        fd = new FormData();
-        fd.append('image', file);
-        xhr = new XMLHttpRequest();
-        xhr.open('POST', 'https://api.imgur.com/3/image.json');
-        xhr.setRequestHeader('Authorization', 'Client-ID 3631cecbf2bf2cf');
-        xhr.send(fd);
-        xhr.onload = function() {
-          var result;
-          result = JSON.parse(xhr.responseText);
-          return deferred.resolve(result);
-        };
-        return deferred.promise;
+        return uploadImgur.upload(file);
       }
     };
   }]);
@@ -751,10 +745,12 @@
 
   app = angular.module('app');
 
-  app.factory('chatRooms', function() {
+  app.factory('chatRooms', ["$q", function($q) {
     return {
       get: function() {
-        return [
+        var deferred, rooms;
+        deferred = $q.defer();
+        rooms = [
           {
             room_id: 1,
             name: "Room #1",
@@ -792,9 +788,11 @@
             icon: 'http://i.imgur.com/YQwZUiJb.gif'
           }
         ];
+        deferred.resolve(rooms);
+        return deferred.promise;
       }
     };
-  });
+  }]);
 
 }).call(this);
 
@@ -821,7 +819,7 @@
             pagehide: h
           };
           evt = evt || window.event;
-          if (evt.type in evtMap) {
+          if ((evt != null ? evt.type : void 0) in evtMap) {
             return callback(evtMap[evt.type]);
           } else {
             return callback(this[hidden] ? 'hidden' : 'visible');
@@ -848,5 +846,43 @@
       }
     };
   });
+
+}).call(this);
+
+(function() {
+  var app;
+
+  app = angular.module("app");
+
+  app.factory("uploadImgur", ["$q", function($q) {
+    var clientId;
+    clientId = "3631cecbf2bf2cf";
+    return {
+      upload: function(file) {
+        var deferred, fd, ref, xhr;
+        deferred = $q.defer();
+        if (!file) {
+          deferred.reject("No file");
+          return deferred.promise;
+        }
+        if (!(file != null ? (ref = file.type) != null ? ref.match(/image.*/) : void 0 : void 0)) {
+          deferred.reject("File not image");
+          return deferred.promise;
+        }
+        fd = new FormData();
+        fd.append("image", file);
+        xhr = new XMLHttpRequest();
+        xhr.open("POST", "https://api.imgur.com/3/image.json");
+        xhr.setRequestHeader("Authorization", "Client-ID " + clientId);
+        xhr.send(fd);
+        xhr.onload = function() {
+          var result;
+          result = JSON.parse(xhr.responseText);
+          return deferred.resolve(result);
+        };
+        return deferred.promise;
+      }
+    };
+  }]);
 
 }).call(this);

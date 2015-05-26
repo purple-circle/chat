@@ -20,12 +20,19 @@ RedisStore = require('connect-redis')(session)
 
 app = express()
 
+longCookieIsLong = 302400000000 # about ten years or something
+
 sessionStore = session
   store: new RedisStore()
   secret: settings.cookie_secret
   resave: true
   saveUninitialized: true
+  cookie:
+    secure: true
+    maxAge: longCookieIsLong
 
+app.use cookieParser(settings.cookie_secret)
+app.use sessionStore
 
 app.use favicon(__dirname + '/public/images/favicons/favicon.ico')
 
@@ -33,13 +40,8 @@ app.use favicon(__dirname + '/public/images/favicons/favicon.ico')
 app.use express.static(path.join(__dirname, "public"))
 app.set "views", path.join(__dirname, "views")
 app.set "view engine", "ejs"
-app.use logger("dev")
 app.use bodyParser.json()
 app.use bodyParser.urlencoded(extended: true)
-app.use cookieParser(settings.cookie_secret)
-app.use sessionStore
-
-
 
 
 app.use "/", routes

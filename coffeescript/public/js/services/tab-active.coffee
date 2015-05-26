@@ -16,7 +16,7 @@ app.factory 'tabActive', ->
         pagehide: h
 
       evt = evt or window.event
-      if evt.type of evtMap
+      if evt?.type of evtMap
         callback evtMap[evt.type]
       else
         callback if @[hidden] then 'hidden' else 'visible'

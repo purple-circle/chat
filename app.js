@@ -1,5 +1,5 @@
 (function() {
-  var RedisStore, app, bodyParser, cookieParser, express, favicon, logger, passport, path, routes, server, session, sessionStore, settings;
+  var RedisStore, app, bodyParser, cookieParser, express, favicon, logger, longCookieIsLong, passport, path, routes, server, session, sessionStore, settings;
 
   require('newrelic');
 
@@ -29,12 +29,22 @@
 
   app = express();
 
+  longCookieIsLong = 302400000000;
+
   sessionStore = session({
     store: new RedisStore(),
     secret: settings.cookie_secret,
     resave: true,
-    saveUninitialized: true
+    saveUninitialized: true,
+    cookie: {
+      secure: true,
+      maxAge: longCookieIsLong
+    }
   });
+
+  app.use(cookieParser(settings.cookie_secret));
+
+  app.use(sessionStore);
 
   app.use(favicon(__dirname + '/public/images/favicons/favicon.ico'));
 
@@ -44,17 +54,11 @@
 
   app.set("view engine", "ejs");
 
-  app.use(logger("dev"));
-
   app.use(bodyParser.json());
 
   app.use(bodyParser.urlencoded({
     extended: true
   }));
-
-  app.use(cookieParser(settings.cookie_secret));
-
-  app.use(sessionStore);
 
   app.use("/", routes);
 

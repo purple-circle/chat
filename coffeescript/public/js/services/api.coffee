@@ -1,17 +1,5 @@
 app = angular.module('app')
-
-app.directive 'fileModel', ($parse) ->
-
-  restrict: 'A'
-  link: (scope, element, attrs) ->
-    model = $parse(attrs.fileModel)
-    modelSetter = model.assign
-    element.bind 'change', ->
-      scope.$apply ->
-        modelSetter scope, element[0].files[0]
-
-
-app.factory 'api', ($q, $http, youtubeEmbedUtils) ->
+app.factory 'api', ($q, youtubeEmbedUtils, uploadImgur) ->
   socket = io()
 
   getYoutubeUrls = (url) ->
@@ -110,21 +98,4 @@ app.factory 'api', ($q, $http, youtubeEmbedUtils) ->
     youtubeEmbedUtils.getIdFromURL(getYoutubeUrls(url)?[0])
 
   upload_to_imgur: (file) ->
-    deferred = $q.defer()
-    if !file or !file.type.match(/image.*/)
-      deferred.reject "not image or no file"
-      return deferred.promise
-
-    fd = new FormData()
-    fd.append 'image', file
-
-    xhr = new XMLHttpRequest()
-    xhr.open 'POST', 'https://api.imgur.com/3/image.json'
-    xhr.setRequestHeader 'Authorization', 'Client-ID 3631cecbf2bf2cf'
-    xhr.send fd
-
-    xhr.onload = ->
-      result = JSON.parse(xhr.responseText)
-      deferred.resolve result
-
-    deferred.promise
+    uploadImgur.upload file
