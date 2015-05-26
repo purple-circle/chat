@@ -205,7 +205,6 @@
         $scope.peopleTyping = [];
         $scope.peopleTypingTimeout = {};
         $scope.from = api.getUsername();
-        ga('send', 'event', 'usernames', 'randomName', $scope.from);
         unreadMessages = 0;
         tabActive.check(function(status) {
           return $timeout(function() {
@@ -617,7 +616,7 @@
 
   app = angular.module('app');
 
-  app.factory('api', ["$q", "youtubeEmbedUtils", "uploadImgur", "messageHistory", "animals", function($q, youtubeEmbedUtils, uploadImgur, messageHistory, animals) {
+  app.factory('api', ["$q", "youtubeEmbedUtils", "uploadImgur", "messageHistory", "animals", "testImage", function($q, youtubeEmbedUtils, uploadImgur, messageHistory, animals, testImage) {
     var getYoutubeUrls, socket;
     socket = io();
     getYoutubeUrls = function(url) {
@@ -627,8 +626,15 @@
     };
     return {
       messageHistory: messageHistory,
+      urlIsImage: testImage.urlIsImage,
+      testImage: testImage.test,
+      socket: socket,
+      getYoutubeUrls: getYoutubeUrls,
       getUsername: function() {
-        return (typeof localStorage !== "undefined" && localStorage !== null ? localStorage.getItem("name") : void 0) || ((animals.getRandom()) + "-" + (Math.ceil(Math.random() * 100)));
+        var name;
+        name = (typeof localStorage !== "undefined" && localStorage !== null ? localStorage.getItem("name") : void 0) || ((animals.getRandom()) + "-" + (Math.ceil(Math.random() * 100)));
+        ga('send', 'event', 'usernames', 'randomName', name);
+        return name;
       },
       hashCode: function(str) {
         var hash, i;
@@ -650,32 +656,6 @@
         url_regex = /(https?:\/\/[^\s]+)/g;
         return str.match(url_regex);
       },
-      urlIsImage: function(url) {
-        return url.match(/\.(jpeg|jpg|gif|png)$/) !== null;
-      },
-      testImage: function(url, callback) {
-        var img, timedOut, timeout, timer;
-        timeout = 5000;
-        timedOut = false;
-        timer = null;
-        img = new Image;
-        img.onerror = img.onabort = function() {
-          if (!timedOut) {
-            return clearTimeout(timer);
-          }
-        };
-        img.onload = function() {
-          if (!timedOut) {
-            clearTimeout(timer);
-            return callback(url);
-          }
-        };
-        img.src = url;
-        return timer = setTimeout(function() {
-          return timedOut = true;
-        }, timeout);
-      },
-      socket: socket,
       on: function(event) {
         var deferred;
         deferred = $q.defer();
@@ -705,10 +685,6 @@
         socket.emit("get_online_count");
         return this.on("get_online_count");
       },
-      findUser: function(id) {
-        socket.emit("getuser", id);
-        return this.on("user");
-      },
       load_chat_messages_for_room: function(arg) {
         var chat_id, room_id;
         chat_id = arg.chat_id, room_id = arg.room_id;
@@ -722,7 +698,6 @@
         socket.emit("save_chat_message", data);
         return this.on("save_chat_message");
       },
-      getYoutubeUrls: getYoutubeUrls,
       isYoutubeUrl: function(url) {
         return getYoutubeUrls(url) != null;
       },
@@ -898,6 +873,43 @@
             type: document[hidden] ? 'blur' : 'focus'
           });
         }
+      }
+    };
+  });
+
+}).call(this);
+
+(function() {
+  var app;
+
+  app = angular.module('app');
+
+  app.factory('testImage', function() {
+    return {
+      urlIsImage: function(url) {
+        return url.match(/\.(jpeg|jpg|gif|png)$/) !== null;
+      },
+      test: function(url, callback) {
+        var img, timedOut, timeout, timer;
+        timeout = 5000;
+        timedOut = false;
+        timer = null;
+        img = new Image;
+        img.onerror = img.onabort = function() {
+          if (!timedOut) {
+            return clearTimeout(timer);
+          }
+        };
+        img.onload = function() {
+          if (!timedOut) {
+            clearTimeout(timer);
+            return callback(url);
+          }
+        };
+        img.src = url;
+        return timer = setTimeout(function() {
+          return timedOut = true;
+        }, timeout);
       }
     };
   });

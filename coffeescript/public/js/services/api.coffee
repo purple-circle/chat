@@ -1,5 +1,5 @@
 app = angular.module('app')
-app.factory 'api', ($q, youtubeEmbedUtils, uploadImgur, messageHistory, animals) ->
+app.factory 'api', ($q, youtubeEmbedUtils, uploadImgur, messageHistory, animals, testImage) ->
   socket = io()
 
   getYoutubeUrls = (url) ->
@@ -9,9 +9,16 @@ app.factory 'api', ($q, youtubeEmbedUtils, uploadImgur, messageHistory, animals)
     url.match(youtubeRegexp)
 
   messageHistory: messageHistory
+  urlIsImage: testImage.urlIsImage
+  testImage: testImage.test
+  socket: socket
+  getYoutubeUrls: getYoutubeUrls
 
   getUsername: ->
-    localStorage?.getItem("name") || "#{animals.getRandom()}-#{Math.ceil(Math.random()*100)}"
+    name = localStorage?.getItem("name") || "#{animals.getRandom()}-#{Math.ceil(Math.random()*100)}"
+    ga('send', 'event', 'usernames', 'randomName', name)
+    name
+
   hashCode: (str) ->
     hash = 0
     i = 0
@@ -31,32 +38,6 @@ app.factory 'api', ($q, youtubeEmbedUtils, uploadImgur, messageHistory, animals)
     url_regex = /(https?:\/\/[^\s]+)/g
     str.match url_regex
 
-  urlIsImage: (url) ->
-    url.match(/\.(jpeg|jpg|gif|png)$/) isnt null
-
-  testImage: (url, callback) ->
-    timeout = 5000
-    timedOut = false
-    timer = null
-    img = new Image
-
-    img.onerror = img.onabort = ->
-      if !timedOut
-        clearTimeout timer
-
-    img.onload = ->
-      if !timedOut
-        clearTimeout timer
-        callback url
-
-
-    img.src = url
-    timer = setTimeout ->
-      timedOut = true
-    , timeout
-
-
-  socket: socket
 
   on: (event) ->
     deferred = $q.defer()
@@ -81,10 +62,6 @@ app.factory 'api', ($q, youtubeEmbedUtils, uploadImgur, messageHistory, animals)
     socket.emit("get_online_count")
     this.on("get_online_count")
 
-  findUser: (id) ->
-    socket.emit("getuser", id)
-    this.on("user")
-
   load_chat_messages_for_room: ({chat_id, room_id}) ->
     socket.emit("load_chat_messages_for_room", {chat_id, room_id})
     this.on("load_chat_messages_for_room")
@@ -93,7 +70,6 @@ app.factory 'api', ($q, youtubeEmbedUtils, uploadImgur, messageHistory, animals)
     socket.emit("save_chat_message", data)
     this.on("save_chat_message")
 
-  getYoutubeUrls: getYoutubeUrls
   isYoutubeUrl: (url) ->
     getYoutubeUrls(url)?
 

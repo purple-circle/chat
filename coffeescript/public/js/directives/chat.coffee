@@ -13,8 +13,6 @@ app.directive "chat", ($rootScope, $timeout, $mdSidenav, api, tabActive) ->
     $scope.peopleTyping = []
     $scope.peopleTypingTimeout = {}
     $scope.from = api.getUsername()
-    ga('send', 'event', 'usernames', 'randomName', $scope.from)
-
 
     unreadMessages = 0
     tabActive.check (status) ->
