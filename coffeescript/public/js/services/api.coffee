@@ -1,5 +1,5 @@
 app = angular.module('app')
-app.factory 'api', ($q, youtubeEmbedUtils, uploadImgur) ->
+app.factory 'api', ($q, youtubeEmbedUtils, uploadImgur, messageHistory) ->
   socket = io()
 
   getYoutubeUrls = (url) ->
@@ -8,6 +8,7 @@ app.factory 'api', ($q, youtubeEmbedUtils, uploadImgur) ->
       \S*[^\w\s-])([\w-]{11})(?=[^\w-]|$)(?![?=&+%\w.-]*(?:['"][^<>]*>|<\/a>))[?=&+%\w.-]*///ig
     url.match(youtubeRegexp)
 
+  messageHistory: messageHistory
 
   hashCode: (str) ->
     hash = 0

@@ -54,56 +54,14 @@ app.directive "chat", ($rootScope, $timeout, $mdSidenav, api, tabActive, animals
       api.save_chat_messages(data)
 
 
-    getMessageHistory = ->
-      history = localStorage.getItem("message-history")
-      if !history
-        return []
-
-      JSON.parse history
-
-    globalHistory = getMessageHistory()
-    historyLocation = globalHistory.length
-
-    saveMessageHistory = (message) ->
-      if !localStorage
-        return
-
-      history = localStorage.getItem("message-history") || "[]"
-      history = JSON.parse(history)
-
-      history.push(message)
-      globalHistory = history
-
-      historyLocation = history.length
-
-      localStorage.setItem("message-history", JSON.stringify(history))
-
-
     $scope.browseHistory = (key) ->
       if key is "Up"
-
-        if historyLocation < 0
-          return
-
-        historyLocation--
-
-        if historyLocation < 0
-          historyLocation = 0
-
-        last = globalHistory[historyLocation]
-
-        $scope.message = last
-        ga('send', 'event', 'browseHistory', 'Up', $scope.room_id)
+        message = api.messageHistory.up($scope.room_id)
+        if message
+          $scope.message = message
 
       if key is "Down"
-        if historyLocation + 1 > globalHistory.length
-          $scope.message = ''
-          return
-
-        historyLocation++
-        last = globalHistory[historyLocation]
-        $scope.message = last
-        ga('send', 'event', 'browseHistory', 'Down', $scope.room_id)
+        $scope.message = api.messageHistory.down($scope.room_id)
 
 
     $scope.saveMessage = ->
@@ -120,7 +78,7 @@ app.directive "chat", ($rootScope, $timeout, $mdSidenav, api, tabActive, animals
         from: $scope.from
         sid: yolosid
 
-      saveMessageHistory($scope.message)
+      api.messageHistory.saveMessageHistory($scope.message)
 
       $scope.message = ''
       createMessage(data)

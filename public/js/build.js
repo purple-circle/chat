@@ -196,7 +196,7 @@
     return {
       templateUrl: "directives/chat/chat.html",
       link: function($scope) {
-        var checkCommands, createMessage, getMessageHistory, globalHistory, historyLocation, listenToMessageNotifications, listenToTopicChange, listenToTyping, saveMessageHistory, setTopic, unreadMessages;
+        var checkCommands, createMessage, listenToMessageNotifications, listenToTopicChange, listenToTyping, setTopic, unreadMessages;
         $scope.chat_id = "chat-123";
         $scope.room_id = 1;
         $scope.message = '';
@@ -246,51 +246,16 @@
           }
           return api.save_chat_messages(data);
         };
-        getMessageHistory = function() {
-          var history;
-          history = localStorage.getItem("message-history");
-          if (!history) {
-            return [];
-          }
-          return JSON.parse(history);
-        };
-        globalHistory = getMessageHistory();
-        historyLocation = globalHistory.length;
-        saveMessageHistory = function(message) {
-          var history;
-          if (!localStorage) {
-            return;
-          }
-          history = localStorage.getItem("message-history") || "[]";
-          history = JSON.parse(history);
-          history.push(message);
-          globalHistory = history;
-          historyLocation = history.length;
-          return localStorage.setItem("message-history", JSON.stringify(history));
-        };
         $scope.browseHistory = function(key) {
-          var last;
+          var message;
           if (key === "Up") {
-            if (historyLocation < 0) {
-              return;
+            message = api.messageHistory.up($scope.room_id);
+            if (message) {
+              $scope.message = message;
             }
-            historyLocation--;
-            if (historyLocation < 0) {
-              historyLocation = 0;
-            }
-            last = globalHistory[historyLocation];
-            $scope.message = last;
-            ga('send', 'event', 'browseHistory', 'Up', $scope.room_id);
           }
           if (key === "Down") {
-            if (historyLocation + 1 > globalHistory.length) {
-              $scope.message = '';
-              return;
-            }
-            historyLocation++;
-            last = globalHistory[historyLocation];
-            $scope.message = last;
-            return ga('send', 'event', 'browseHistory', 'Down', $scope.room_id);
+            return $scope.message = api.messageHistory.down($scope.room_id);
           }
         };
         $scope.saveMessage = function() {
@@ -307,7 +272,7 @@
             from: $scope.from,
             sid: yolosid
           };
-          saveMessageHistory($scope.message);
+          api.messageHistory.saveMessageHistory($scope.message);
           $scope.message = '';
           return createMessage(data);
         };
@@ -652,7 +617,7 @@
 
   app = angular.module('app');
 
-  app.factory('api', ["$q", "youtubeEmbedUtils", "uploadImgur", function($q, youtubeEmbedUtils, uploadImgur) {
+  app.factory('api', ["$q", "youtubeEmbedUtils", "uploadImgur", "messageHistory", function($q, youtubeEmbedUtils, uploadImgur, messageHistory) {
     var getYoutubeUrls, socket;
     socket = io();
     getYoutubeUrls = function(url) {
@@ -661,6 +626,7 @@
       return url.match(youtubeRegexp);
     };
     return {
+      messageHistory: messageHistory,
       hashCode: function(str) {
         var hash, i;
         hash = 0;
@@ -822,6 +788,63 @@
       }
     };
   }]);
+
+}).call(this);
+
+(function() {
+  var app;
+
+  app = angular.module("app");
+
+  app.factory("messageHistory", function() {
+    var down, getMessageHistory, globalHistory, historyLocation, saveMessageHistory, up;
+    getMessageHistory = function() {
+      var history;
+      history = localStorage.getItem("message-history");
+      if (!history) {
+        return [];
+      }
+      return JSON.parse(history);
+    };
+    globalHistory = getMessageHistory();
+    historyLocation = globalHistory.length;
+    saveMessageHistory = function(message) {
+      var history;
+      if (!localStorage) {
+        return;
+      }
+      history = localStorage.getItem("message-history") || "[]";
+      history = JSON.parse(history);
+      history.push(message);
+      globalHistory = history;
+      historyLocation = history.length;
+      return localStorage.setItem("message-history", JSON.stringify(history));
+    };
+    up = function(room_id) {
+      if (historyLocation < 0) {
+        return false;
+      }
+      historyLocation--;
+      if (historyLocation < 0) {
+        historyLocation = 0;
+      }
+      ga('send', 'event', 'browseHistory', 'Up', room_id);
+      return globalHistory[historyLocation];
+    };
+    down = function(room_id) {
+      if (historyLocation + 1 > globalHistory.length) {
+        return '';
+      }
+      historyLocation++;
+      ga('send', 'event', 'browseHistory', 'Down', room_id);
+      return globalHistory[historyLocation];
+    };
+    return {
+      saveMessageHistory: saveMessageHistory,
+      up: up,
+      down: down
+    };
+  });
 
 }).call(this);
 

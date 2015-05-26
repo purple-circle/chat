@@ -29,7 +29,7 @@ sessionStore = session
   saveUninitialized: true
   cookie:
     secure: true
-    maxAge: longCookieIsLong
+    maxAge: new Date(Date.now() + longCookieIsLong)
 
 app.use cookieParser(settings.cookie_secret)
 app.use sessionStore
