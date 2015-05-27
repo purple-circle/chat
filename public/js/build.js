@@ -511,6 +511,58 @@
 
   app = angular.module('app');
 
+  app.directive('connectionLost', ["$timeout", "$interval", "$mdToast", "api", function($timeout, $interval, $mdToast, api) {
+    return {
+      restrict: 'E',
+      link: function($scope, element, attrs) {
+        var interval, timeout;
+        interval = null;
+        timeout = null;
+        return api.socket.on('disconnect', function() {
+          var content, toast;
+          content = 'Connection lost, trying to reconnect..';
+          toast = $mdToast.simple().content(content).position('right').hideDelay(0);
+          $mdToast.show(toast);
+          if (interval) {
+            $interval.cancel(interval);
+          }
+          if (timeout) {
+            $timeout.cancel(timeout);
+          }
+          timeout = $timeout(function() {
+            var seconds;
+            seconds = 0;
+            return interval = $interval(function() {
+              var newMessage;
+              seconds++;
+              newMessage = content + " " + seconds + " sec..";
+              return $mdToast.updateContent(newMessage);
+            }, 1000);
+          }, 4000);
+          return api.socket.once('connect', function() {
+            if (interval) {
+              $interval.cancel(interval);
+            }
+            if (timeout) {
+              $timeout.cancel(timeout);
+            }
+            return $mdToast.hide().then(function() {
+              toast = $mdToast.simple().content('Reconnected! Happy chatting :)').position('right');
+              return $mdToast.show(toast);
+            });
+          });
+        });
+      }
+    };
+  }]);
+
+}).call(this);
+
+(function() {
+  var app;
+
+  app = angular.module('app');
+
   app.directive('fileModel', ["$parse", function($parse) {
     return {
       restrict: 'A',
