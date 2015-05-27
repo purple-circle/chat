@@ -2,9 +2,10 @@
   require('newrelic');
 
   module.exports = function(server, sessionStore) {
-    var Q, chat, io;
+    var Q, chat, imgur, io;
     io = require("socket.io").listen(server);
     chat = require("./models/chat");
+    imgur = require("./models/imgur");
     Q = require("q");
     io.use(function(socket, next) {
       return sessionStore(socket.request, socket.request.res, next);
@@ -22,6 +23,11 @@
           room_id: room_id
         }).then(function(messages) {
           return socket.emit("load_chat_messages_for_room", messages);
+        });
+      });
+      socket.on("save_imgur", function(data) {
+        return imgur.save(data).then(function(result) {
+          return console.log("imgur data saved", result);
         });
       });
       socket.on("i_am_typing", function(from) {

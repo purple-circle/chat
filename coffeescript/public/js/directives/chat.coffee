@@ -140,15 +140,27 @@ app.directive "chat", ($rootScope, $timeout, $mdSidenav, $mdDialog, api, tabActi
       api
         .set_topic({topic, room_id: $scope.room_id, chat_id: $scope.chat_id})
 
+    postImage = (imgur) ->
+      data =
+        data: imgur.data
+        chat_id: $scope.chat_id
+        room_id: $scope.room_id
+        sid: yolosid
+
+      api.saveImgurData(data)
+
+      $scope.message = imgur.data.link
+      $scope.saveMessage()
+
     $scope.useCamera = ->
       ga('send', 'event', 'useCamera', $scope.chat_id, $scope.room_id)
       $mdDialog
         .show
           templateUrl: 'directives/chat/camera-dialog.html'
         .then (result) ->
+          postImage(result)
           ga('send', 'event', 'used camera, saved picture', $scope.chat_id, $scope.room_id)
-          $scope.message = result.data.link
-          $scope.saveMessage()
+
         , ->
           window.camera?.stop()
 
@@ -160,13 +172,13 @@ app.directive "chat", ($rootScope, $timeout, $mdSidenav, $mdDialog, api, tabActi
       if !element?.files?[0]
         return
 
+      ga('send', 'event', 'uploaded image', $scope.chat_id, $scope.room_id)
+
       api
         .upload_to_imgur(element.files[0])
         .then (result) ->
+          postImage(result)
           angular.element(element).val(null)
-
-          $scope.message = result.data.link
-          $scope.saveMessage()
 
 
     listenToMessageNotifications()

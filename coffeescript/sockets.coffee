@@ -2,6 +2,7 @@ require('newrelic')
 module.exports = (server, sessionStore) ->
   io = require("socket.io").listen(server)
   chat = require("./models/chat")
+  imgur = require("./models/imgur")
   Q = require("q")
 
   io.use (socket, next) ->
@@ -20,6 +21,11 @@ module.exports = (server, sessionStore) ->
         .then (messages) ->
           socket.emit "load_chat_messages_for_room", messages
 
+    socket.on "save_imgur", (data) ->
+      imgur
+        .save(data)
+        .then (result) ->
+          console.log "imgur data saved", result
 
     socket.on "i_am_typing", (from) ->
       socket.broadcast.emit "typing", from

@@ -28,6 +28,8 @@ app.factory 'api', ($q, youtubeEmbedUtils, uploadImgur, messageHistory, animals,
 
     cameraSupported
 
+  saveImgurData: (data) ->
+    socket.emit("save_imgur", data)
 
   getUsername: ->
     name = localStorage?.getItem("name") || "#{animals.getRandom()}-#{Math.ceil(Math.random()*100)}"

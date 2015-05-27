@@ -294,7 +294,7 @@
     return {
       templateUrl: "directives/chat/chat.html",
       link: function($scope) {
-        var checkCommands, createMessage, listenToMessageNotifications, listenToTyping, setTopic, unreadMessages;
+        var checkCommands, createMessage, listenToMessageNotifications, listenToTyping, postImage, setTopic, unreadMessages;
         $scope.chat_id = "chat-123";
         $scope.room_id = 1;
         $scope.message = '';
@@ -433,14 +433,25 @@
             chat_id: $scope.chat_id
           });
         };
+        postImage = function(imgur) {
+          var data;
+          data = {
+            data: imgur.data,
+            chat_id: $scope.chat_id,
+            room_id: $scope.room_id,
+            sid: yolosid
+          };
+          api.saveImgurData(data);
+          $scope.message = imgur.data.link;
+          return $scope.saveMessage();
+        };
         $scope.useCamera = function() {
           ga('send', 'event', 'useCamera', $scope.chat_id, $scope.room_id);
           return $mdDialog.show({
             templateUrl: 'directives/chat/camera-dialog.html'
           }).then(function(result) {
-            ga('send', 'event', 'used camera, saved picture', $scope.chat_id, $scope.room_id);
-            $scope.message = result.data.link;
-            return $scope.saveMessage();
+            postImage(result);
+            return ga('send', 'event', 'used camera, saved picture', $scope.chat_id, $scope.room_id);
           }, function() {
             var ref;
             return (ref = window.camera) != null ? ref.stop() : void 0;
@@ -455,10 +466,10 @@
           if (!(element != null ? (ref = element.files) != null ? ref[0] : void 0 : void 0)) {
             return;
           }
+          ga('send', 'event', 'uploaded image', $scope.chat_id, $scope.room_id);
           return api.upload_to_imgur(element.files[0]).then(function(result) {
-            angular.element(element).val(null);
-            $scope.message = result.data.link;
-            return $scope.saveMessage();
+            postImage(result);
+            return angular.element(element).val(null);
           });
         };
         listenToMessageNotifications();
@@ -764,6 +775,9 @@
           cameraSupported = true;
         }
         return cameraSupported;
+      },
+      saveImgurData: function(data) {
+        return socket.emit("save_imgur", data);
       },
       getUsername: function() {
         var name;
