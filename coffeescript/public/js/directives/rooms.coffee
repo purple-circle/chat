@@ -15,6 +15,12 @@ app.directive "rooms", ($rootScope, $timeout, api, chatRooms) ->
             for room in $scope.rooms when room.room_id is room_id
               room.topic = topic?.topic
 
+    getSelectedRoom = ->
+      for room in $scope.rooms when room.$selected is true
+        return room
+
+      return false
+
     $scope.setActiveRoom = (room) ->
       if localStorage
         localStorage.setItem "selected-room", room.room_id
@@ -24,8 +30,8 @@ app.directive "rooms", ($rootScope, $timeout, api, chatRooms) ->
           room.$messagesFetched = true
           $rootScope.$broadcast("getMessages", room.room_id)
 
-      for g in $scope.rooms when g.$selected is true
-        g.$selected = false
+      previousSelectedRoom = getSelectedRoom()
+      previousSelectedRoom?.$selected = false
 
       room.$selected = true
       room.messages = 0
@@ -41,11 +47,18 @@ app.directive "rooms", ($rootScope, $timeout, api, chatRooms) ->
       ga('send', 'event', 'rooms', 'setActiveRoom', room.name, room.room_id)
 
 
+    listenToTopicChange = ->
+      api
+        .socket
+        .on "topic", (topic) ->
+          room = getSelectedRoom()
+          room.topic = topic?.topic
+
     listenToMessageNotifications = ->
       $rootScope.$on "message-notification", (event, room_id) ->
-        for g in $scope.rooms when g.$selected isnt true
-          if g.room_id is room_id
-            g.messages++
+        for room in $scope.rooms when room.$selected isnt true
+          if room.room_id is room_id
+            room.messages++
 
     joinRoom = (room_name) ->
       room_name = room_name.toLowerCase()
@@ -74,3 +87,4 @@ app.directive "rooms", ($rootScope, $timeout, api, chatRooms) ->
 
     getRooms()
     listenToMessageNotifications()
+    listenToTopicChange()

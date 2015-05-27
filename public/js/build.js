@@ -294,7 +294,7 @@
     return {
       templateUrl: "directives/chat/chat.html",
       link: function($scope) {
-        var checkCommands, createMessage, listenToMessageNotifications, listenToTopicChange, listenToTyping, setTopic, unreadMessages;
+        var checkCommands, createMessage, listenToMessageNotifications, listenToTyping, setTopic, unreadMessages;
         $scope.chat_id = "chat-123";
         $scope.room_id = 1;
         $scope.message = '';
@@ -303,6 +303,7 @@
         $scope.peopleTyping = [];
         $scope.peopleTypingTimeout = {};
         $scope.from = api.getUsername();
+        $scope.cameraSupported = api.cameraIsSupported();
         unreadMessages = 0;
         tabActive.check(function(status) {
           return $timeout(function() {
@@ -432,12 +433,6 @@
             chat_id: $scope.chat_id
           });
         };
-        listenToTopicChange = function() {
-          return api.socket.on("topic", function(topic) {
-            return $scope.currentRoom.topic = topic != null ? topic.topic : void 0;
-          });
-        };
-        $scope.cameraSupported = api.cameraIsSupported();
         $scope.useCamera = function() {
           ga('send', 'event', 'useCamera', $scope.chat_id, $scope.room_id);
           return $mdDialog.show({
@@ -467,8 +462,7 @@
           });
         };
         listenToMessageNotifications();
-        listenToTyping();
-        return listenToTopicChange();
+        return listenToTyping();
       }
     };
   }]);
@@ -584,7 +578,7 @@
         chatId: "="
       },
       link: function($scope) {
-        var getRooms, getTopic, joinRoom, listenToMessageNotifications;
+        var getRooms, getSelectedRoom, getTopic, joinRoom, listenToMessageNotifications, listenToTopicChange;
         $scope.rooms = [];
         getTopic = function(room_id) {
           return api.get_topic({
@@ -605,8 +599,19 @@
             });
           });
         };
+        getSelectedRoom = function() {
+          var i, len, ref, room;
+          ref = $scope.rooms;
+          for (i = 0, len = ref.length; i < len; i++) {
+            room = ref[i];
+            if (room.$selected === true) {
+              return room;
+            }
+          }
+          return false;
+        };
         $scope.setActiveRoom = function(room) {
-          var g, i, len, ref;
+          var previousSelectedRoom;
           if (localStorage) {
             localStorage.setItem("selected-room", room.room_id);
           }
@@ -616,12 +621,9 @@
               return $rootScope.$broadcast("getMessages", room.room_id);
             });
           }
-          ref = $scope.rooms;
-          for (i = 0, len = ref.length; i < len; i++) {
-            g = ref[i];
-            if (g.$selected === true) {
-              g.$selected = false;
-            }
+          previousSelectedRoom = getSelectedRoom();
+          if (previousSelectedRoom != null) {
+            previousSelectedRoom.$selected = false;
           }
           room.$selected = true;
           room.messages = 0;
@@ -632,16 +634,23 @@
           }
           return ga('send', 'event', 'rooms', 'setActiveRoom', room.name, room.room_id);
         };
+        listenToTopicChange = function() {
+          return api.socket.on("topic", function(topic) {
+            var room;
+            room = getSelectedRoom();
+            return room.topic = topic != null ? topic.topic : void 0;
+          });
+        };
         listenToMessageNotifications = function() {
           return $rootScope.$on("message-notification", function(event, room_id) {
-            var g, i, len, ref, results;
+            var i, len, ref, results, room;
             ref = $scope.rooms;
             results = [];
             for (i = 0, len = ref.length; i < len; i++) {
-              g = ref[i];
-              if (g.$selected !== true) {
-                if (g.room_id === room_id) {
-                  results.push(g.messages++);
+              room = ref[i];
+              if (room.$selected !== true) {
+                if (room.room_id === room_id) {
+                  results.push(room.messages++);
                 } else {
                   results.push(void 0);
                 }
@@ -687,7 +696,8 @@
           });
         };
         getRooms();
-        return listenToMessageNotifications();
+        listenToMessageNotifications();
+        return listenToTopicChange();
       }
     };
   }]);

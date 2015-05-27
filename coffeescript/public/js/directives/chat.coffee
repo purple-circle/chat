@@ -13,6 +13,7 @@ app.directive "chat", ($rootScope, $timeout, $mdSidenav, $mdDialog, api, tabActi
     $scope.peopleTyping = []
     $scope.peopleTypingTimeout = {}
     $scope.from = api.getUsername()
+    $scope.cameraSupported = api.cameraIsSupported()
 
     unreadMessages = 0
     tabActive.check (status) ->
@@ -139,16 +140,6 @@ app.directive "chat", ($rootScope, $timeout, $mdSidenav, $mdDialog, api, tabActi
       api
         .set_topic({topic, room_id: $scope.room_id, chat_id: $scope.chat_id})
 
-
-    listenToTopicChange = ->
-      api
-        .socket
-        .on "topic", (topic) ->
-          $scope.currentRoom.topic = topic?.topic
-
-
-    $scope.cameraSupported = api.cameraIsSupported()
-
     $scope.useCamera = ->
       ga('send', 'event', 'useCamera', $scope.chat_id, $scope.room_id)
       $mdDialog
@@ -180,4 +171,3 @@ app.directive "chat", ($rootScope, $timeout, $mdSidenav, $mdDialog, api, tabActi
 
     listenToMessageNotifications()
     listenToTyping()
-    listenToTopicChange()
