@@ -27,7 +27,7 @@ app.directive "chat", ($rootScope, $timeout, $mdSidenav, $mdDialog, api, tabActi
     # TODO: refactor to service
     $rootScope.$on "currentRoom", (event, room) ->
       $scope.currentRoom = room
-      $scope.room_id = room.room_id
+      $scope.room_id = room._id
 
     listenToMessageNotifications = ->
       $rootScope.$on "message-notification", (event, room_id) ->
@@ -117,15 +117,29 @@ app.directive "chat", ($rootScope, $timeout, $mdSidenav, $mdDialog, api, tabActi
 
 
     create_room = (name) ->
+      imgur_ids = [
+        'h18WTm2b'
+        'p8SNOcVb'
+        'CfmbeXib'
+        'JxtD1vcb'
+        'RaKwQD7b'
+        'aaVkYvxb'
+      ]
+
+      random = imgur_ids[Math.floor(Math.random() * imgur_ids.length)]
+
+      icon = "http://i.imgur.com/#{random}.png"
       data =
         name: name
         chat_id: $scope.chat_id
         sid: yolosid
         created_by: $scope.from
+        icon: icon
 
       api
         .create_room(data)
         .then (result) ->
+          $rootScope.$broadcast("room-created", result)
           console.log "room created", result
 
 

@@ -67,9 +67,9 @@
   });
 
   jobs.process("api.load_topic", function(job, done) {
-    var ChatMessages;
-    ChatMessages = mongoose.model('topics');
-    return ChatMessages.findOne().where('chat_id').equals(job.data.chat_id).where('room_id').equals(job.data.room_id).limit(1).sort("-created_at").exec().then(function(result) {
+    var Topics;
+    Topics = mongoose.model('topics');
+    return Topics.findOne().where('chat_id').equals(job.data.chat_id).where('room_id').equals(job.data.room_id).limit(1).sort("-created_at").exec().then(function(result) {
       return done(null, result);
     }, done);
   });
@@ -132,6 +132,14 @@
         return done(null, room);
       }
     });
+  });
+
+  jobs.process("api.get_rooms", function(job, done) {
+    var Rooms;
+    Rooms = mongoose.model('rooms');
+    return Rooms.find().where('chat_id').equals(job.data.chat_id).exec().then(function(result) {
+      return done(null, result);
+    }, done);
   });
 
 }).call(this);

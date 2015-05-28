@@ -51,6 +51,11 @@
           return socket.broadcast.emit("topic", result);
         });
       });
+      socket.on("load_rooms", function(data) {
+        return rooms.get_rooms(data).then(function(result) {
+          return socket.emit("rooms", result);
+        });
+      });
       socket.on("create_room", function(data) {
         return rooms.create(data).then(function(result) {
           socket.emit("room_created", result);

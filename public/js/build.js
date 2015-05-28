@@ -317,7 +317,7 @@
         });
         $rootScope.$on("currentRoom", function(event, room) {
           $scope.currentRoom = room;
-          return $scope.room_id = room.room_id;
+          return $scope.room_id = room._id;
         });
         listenToMessageNotifications = function() {
           return $rootScope.$on("message-notification", function(event, room_id) {
@@ -409,14 +409,19 @@
           return localStorage.setItem("name", $scope.from);
         };
         create_room = function(name) {
-          var data;
+          var data, icon, imgur_ids, random;
+          imgur_ids = ['h18WTm2b', 'p8SNOcVb', 'CfmbeXib', 'JxtD1vcb', 'RaKwQD7b', 'aaVkYvxb'];
+          random = imgur_ids[Math.floor(Math.random() * imgur_ids.length)];
+          icon = "http://i.imgur.com/" + random + ".png";
           data = {
             name: name,
             chat_id: $scope.chat_id,
             sid: yolosid,
-            created_by: $scope.from
+            created_by: $scope.from,
+            icon: icon
           };
           return api.create_room(data).then(function(result) {
+            $rootScope.$broadcast("room-created", result);
             return console.log("room created", result);
           });
         };
@@ -671,7 +676,7 @@
               results = [];
               for (i = 0, len = ref.length; i < len; i++) {
                 room = ref[i];
-                if (room.room_id === room_id) {
+                if (room._id === room_id) {
                   results.push(room.topic = topic != null ? topic.topic : void 0);
                 }
               }
@@ -693,12 +698,12 @@
         $scope.setActiveRoom = function(room) {
           var previousSelectedRoom;
           if (localStorage) {
-            localStorage.setItem("selected-room", room.room_id);
+            localStorage.setItem("selected-room", room._id);
           }
           if (!room.$messagesFetched) {
             $timeout(function() {
               room.$messagesFetched = true;
-              return $rootScope.$broadcast("getMessages", room.room_id);
+              return $rootScope.$broadcast("getMessages", room._id);
             });
           }
           previousSelectedRoom = getSelectedRoom();
@@ -710,9 +715,9 @@
           $rootScope.$broadcast("currentRoom", room);
           if (!room.$topicFetched) {
             room.$topicFetched = true;
-            getTopic(room.room_id);
+            getTopic(room._id);
           }
-          return ga('send', 'event', 'rooms', 'setActiveRoom', room.name, room.room_id);
+          return ga('send', 'event', 'rooms', 'setActiveRoom', room.name, room._id);
         };
         listenToTopicChange = function() {
           return api.socket.on("topic", function(topic) {
@@ -729,7 +734,7 @@
             for (i = 0, len = ref.length; i < len; i++) {
               room = ref[i];
               if (room.$selected !== true) {
-                if (room.room_id === room_id) {
+                if (room._id === room_id) {
                   results.push(room.messages++);
                 } else {
                   results.push(void 0);
@@ -755,24 +760,31 @@
           return results;
         };
         getRooms = function() {
-          chatRooms.get().then(function(rooms) {
-            var i, len, previousRoom, ref, room, selected_room;
+          chatRooms.get($scope.chatId).then(function(rooms) {
+            var i, j, len, len1, previousRoom, ref, room, selected_room;
+            for (i = 0, len = rooms.length; i < len; i++) {
+              room = rooms[i];
+              room.messages = 0;
+            }
             $scope.rooms = rooms;
             selected_room = $scope.rooms[0];
             previousRoom = typeof localStorage !== "undefined" && localStorage !== null ? localStorage.getItem("selected-room") : void 0;
             if (previousRoom) {
               ref = $scope.rooms;
-              for (i = 0, len = ref.length; i < len; i++) {
-                room = ref[i];
-                if (room.room_id === Number(previousRoom)) {
+              for (j = 0, len1 = ref.length; j < len1; j++) {
+                room = ref[j];
+                if (room._id === previousRoom) {
                   selected_room = room;
                 }
               }
             }
             return $scope.setActiveRoom(selected_room);
           });
-          return $rootScope.$on("joinRoom", function(event, room_name) {
+          $rootScope.$on("joinRoom", function(event, room_name) {
             return joinRoom(room_name);
+          });
+          return $rootScope.$on("room-created", function(event, room) {
+            return $scope.rooms.push(room);
           });
         };
         getRooms();
@@ -807,7 +819,7 @@
     animals = ["Abyssinian", "Affenpinscher", "Akbash", "Akita", "Albatross", "Alligator", "Angelfish", "Ant", "Anteater", "Antelope", "Armadillo", "Avocet", "Axolotl", "Baboon", "Badger", "Balinese", "Bandicoot", "Barb", "Barnacle", "Barracuda", "Bat", "Beagle", "Bear", "Beaver", "Beetle", "Binturong", "Bird", "Birman", "Bison", "Bloodhound", "Bobcat", "Bombay", "Bongo", "Bonobo", "Booby", "Budgerigar", "Buffalo", "Bulldog", "Bullfrog", "Burmese", "Butterfly", "Caiman", "Camel", "Capybara", "Caracal", "Cassowary", "Cat", "Caterpillar", "Catfish", "Centipede", "Chameleon", "Chamois", "Cheetah", "Chicken", "Chihuahua", "Chimpanzee", "Chinchilla", "Chinook", "Chipmunk", "Cichlid", "Coati", "Cockroach", "Collie", "Coral", "Cougar", "Cow", "Coyote", "Crab", "Crane", "Crocodile", "Cuscus", "Cuttlefish", "Dachshund", "Dalmatian", "Deer", "Dhole", "Dingo", "Discus", "Dodo", "Dog", "Dolphin", "Donkey", "Dormouse", "Dragonfly", "Drever", "Duck", "Dugong", "Dunker", "Eagle", "Earwig", "Echidna", "Elephant", "Emu", "Falcon", "Ferret", "Fish", "Flamingo", "Flounder", "Fly", "Fossa", "Fox", "Frigatebird", "Frog", "Gar", "Gecko", "Gerbil", "Gharial", "Gibbon", "Giraffe", "Goat", "Goose", "Gopher", "Gorilla", "Grasshopper", "Eater", "Greyhound", "Grouse", "Guppy", "Hamster", "Hare", "Harrier", "Havanese", "Hedgehog", "Heron", "Himalayan", "Hippopotamus", "Horse", "Human", "Hummingbird", "Hyena", "Ibis", "Iguana", "Impala", "Indri", "Insect", "Jackal", "Jaguar", "Javanese", "Jellyfish", "Kakapo", "Kangaroo", "Kingfisher", "Kiwi", "Koala", "Kudu", "Labradoodle", "Ladybird", "Lemming", "Lemur", "Leopard", "Liger", "Lion", "Lionfish", "Lizard", "Llama", "Lobster", "Lynx", "Macaw", "Magpie", "Maltese", "Manatee", "Mandrill", "Markhor", "Mastiff", "Mayfly", "Meerkat", "Millipede", "Mole", "Molly", "Mongoose", "Mongrel", "Monkey", "Moorhen", "Moose", "Moth", "Mouse", "Mule", "Neanderthal", "Newfoundland", "Newt", "Nightingale", "Numbat", "Ocelot", "Octopus", "Okapi", "Olm", "Opossum", "utan", "Ostrich", "Otter", "Oyster", "Pademelon", "Panther", "Parrot", "Peacock", "Pekingese", "Pelican", "Penguin", "Persian", "Pheasant", "Pig", "Pika", "Pike", "Piranha", "Platypus", "Pointer", "Poodle", "Porcupine", "Possum", "Prawn", "Puffin", "Pug", "Puma", "Quail", "Quetzal", "Quokka", "Quoll", "Rabbit", "Raccoon", "Ragdoll", "Rat", "Rattlesnake", "Reindeer", "Rhinoceros", "Robin", "Rottweiler", "Salamander", "Saola", "Scorpion", "Seahorse", "Seal", "Serval", "Sheep", "Shrimp", "Skunk", "Sloth", "Snail", "Snake", "Snowshoe", "Sparrow", "Sponge", "Squid", "Squirrel", "Starfish", "Stingray", "Stoat", "Swan", "Tang", "Tapir", "Tarsier", "Termite", "Tetra", "Tiffany", "Tiger", "Tortoise", "Toucan", "Tropicbird", "Tuatara", "Turkey", "Uakari", "Uguisu", "Umbrellabird", "Vulture", "Wallaby", "Walrus", "Warthog", "Wasp", "Weasel", "Whippet", "Wildebeest", "Wolf", "Wolverine", "Wombat", "Woodlouse", "Woodpecker", "Wrasse", "Yak", "Zebra", "Zebu", "Zonkey", "Zorse"];
     return {
       getRandom: function() {
-        return animals[Math.ceil(Math.random() * animals.length)];
+        return animals[Math.floor(Math.random() * animals.length)];
       }
     };
   });
@@ -903,6 +915,10 @@
         socket.emit("create_room", data);
         return this.on("room_created");
       },
+      load_rooms: function(data) {
+        socket.emit("load_rooms", data);
+        return this.on("rooms");
+      },
       get_online_count: function() {
         socket.emit("get_online_count");
         return this.on("get_online_count");
@@ -940,51 +956,12 @@
 
   app = angular.module('app');
 
-  app.factory('chatRooms', ["$q", function($q) {
+  app.factory('chatRooms', ["api", function(api) {
     return {
-      get: function() {
-        var deferred, rooms;
-        deferred = $q.defer();
-        rooms = [
-          {
-            room_id: 1,
-            name: "Room #1",
-            messages: 0,
-            icon: 'http://i.imgur.com/h18WTm2b.jpg'
-          }, {
-            room_id: 2,
-            name: "Room #2",
-            messages: 0,
-            icon: 'http://i.imgur.com/p8SNOcVb.jpg'
-          }, {
-            room_id: 3,
-            name: "Room #666",
-            messages: 0,
-            icon: 'http://i.imgur.com/CfmbeXib.jpg'
-          }, {
-            room_id: 4,
-            name: "Politics",
-            messages: 0,
-            icon: 'http://i.imgur.com/JxtD1vcb.jpg'
-          }, {
-            room_id: 5,
-            name: "Pictures of cats",
-            messages: 0,
-            icon: 'http://i.imgur.com/RaKwQD7b.jpg'
-          }, {
-            room_id: 6,
-            name: "Best of Youtube",
-            messages: 0,
-            icon: 'http://i.imgur.com/aaVkYvxb.png'
-          }, {
-            room_id: 7,
-            name: "Usersub",
-            messages: 0,
-            icon: 'http://i.imgur.com/YQwZUiJb.gif'
-          }
-        ];
-        deferred.resolve(rooms);
-        return deferred.promise;
+      get: function(chat_id) {
+        return api.load_rooms({
+          chat_id: chat_id
+        });
       }
     };
   }]);

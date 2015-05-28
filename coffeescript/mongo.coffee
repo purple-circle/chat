@@ -3,7 +3,7 @@ module.exports = (settings) ->
 
   chatMessageSchema = mongoose.Schema {
     chat_id: 'String'
-    room_id: 'Number'
+    room_id: 'ObjectId'
     message: 'String'
     sid: 'String'
     from: 'String'
@@ -14,7 +14,7 @@ module.exports = (settings) ->
 
   topicSchema = mongoose.Schema {
     chat_id: 'String'
-    room_id: 'Number'
+    room_id: 'ObjectId'
     topic: 'String'
     from: 'String'
     created_at: { type: Date, default: Date.now }
@@ -52,7 +52,7 @@ module.exports = (settings) ->
     name: 'String'
     link: 'String'
     chat_id: 'String'
-    room_id: 'Number'
+    room_id: 'ObjectId'
     sid: 'String'
     created_at: { type: Date, default: Date.now }
   }

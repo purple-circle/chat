@@ -51,6 +51,12 @@ module.exports = (server, sessionStore) ->
           socket.emit "topic", result
           socket.broadcast.emit "topic", result
 
+    socket.on "load_rooms", (data) ->
+      rooms
+        .get_rooms(data)
+        .then (result) ->
+          socket.emit "rooms", result
+
     socket.on "create_room", (data) ->
       rooms
         .create(data)

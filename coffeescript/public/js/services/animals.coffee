@@ -284,4 +284,4 @@ app.service "animals", ->
     "Zorse"
   ]
   getRandom: ->
-    animals[Math.ceil(Math.random() * animals.length)]
+    animals[Math.floor(Math.random() * animals.length)]

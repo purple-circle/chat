@@ -12,7 +12,7 @@ app.directive "rooms", ($rootScope, $timeout, api, chatRooms) ->
         .get_topic({room_id, chat_id: $scope.chatId})
         .then (topic) ->
           $timeout ->
-            for room in $scope.rooms when room.room_id is room_id
+            for room in $scope.rooms when room._id is room_id
               room.topic = topic?.topic
 
     getSelectedRoom = ->
@@ -23,12 +23,12 @@ app.directive "rooms", ($rootScope, $timeout, api, chatRooms) ->
 
     $scope.setActiveRoom = (room) ->
       if localStorage
-        localStorage.setItem "selected-room", room.room_id
+        localStorage.setItem "selected-room", room._id
 
       if !room.$messagesFetched
         $timeout ->
           room.$messagesFetched = true
-          $rootScope.$broadcast("getMessages", room.room_id)
+          $rootScope.$broadcast("getMessages", room._id)
 
       previousSelectedRoom = getSelectedRoom()
       previousSelectedRoom?.$selected = false
@@ -42,9 +42,9 @@ app.directive "rooms", ($rootScope, $timeout, api, chatRooms) ->
 
       if !room.$topicFetched
         room.$topicFetched = true
-        getTopic(room.room_id)
+        getTopic(room._id)
 
-      ga('send', 'event', 'rooms', 'setActiveRoom', room.name, room.room_id)
+      ga('send', 'event', 'rooms', 'setActiveRoom', room.name, room._id)
 
 
     listenToTopicChange = ->
@@ -57,7 +57,7 @@ app.directive "rooms", ($rootScope, $timeout, api, chatRooms) ->
     listenToMessageNotifications = ->
       $rootScope.$on "message-notification", (event, room_id) ->
         for room in $scope.rooms when room.$selected isnt true
-          if room.room_id is room_id
+          if room._id is room_id
             room.messages++
 
     joinRoom = (room_name) ->
@@ -68,20 +68,26 @@ app.directive "rooms", ($rootScope, $timeout, api, chatRooms) ->
 
     getRooms = ->
       chatRooms
-        .get()
+        .get($scope.chatId)
         .then (rooms) ->
+          for room in rooms
+            room.messages = 0
+
           $scope.rooms = rooms
           selected_room = $scope.rooms[0]
 
           previousRoom = localStorage?.getItem("selected-room")
           if previousRoom
-            for room in $scope.rooms when room.room_id is Number previousRoom
+            for room in $scope.rooms when room._id is previousRoom
               selected_room = room
 
           $scope.setActiveRoom(selected_room)
 
       $rootScope.$on "joinRoom", (event, room_name) ->
         joinRoom(room_name)
+
+      $rootScope.$on "room-created", (event, room) ->
+        $scope.rooms.push(room)
 
 
 

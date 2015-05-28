@@ -56,8 +56,8 @@ jobs.process "api.save_imgur", (job, done) ->
 
 
 jobs.process "api.load_topic", (job, done) ->
-  ChatMessages = mongoose.model 'topics'
-  ChatMessages
+  Topics = mongoose.model 'topics'
+  Topics
     .findOne()
     .where('chat_id')
     .equals(job.data.chat_id)
@@ -129,3 +129,15 @@ jobs.process "api.create_room", (job, done) ->
       done(err)
     else
       done null, room
+
+
+jobs.process "api.get_rooms", (job, done) ->
+  Rooms = mongoose.model 'rooms'
+  Rooms
+    .find()
+    .where('chat_id')
+    .equals(job.data.chat_id)
+    .exec()
+    .then (result) ->
+      done(null, result)
+    , done
