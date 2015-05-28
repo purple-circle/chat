@@ -90,8 +90,9 @@
       templateUrl: "directives/chat/camera.html",
       restrict: 'E',
       link: function($scope, element, attrs) {
-        var canvas, context, convertCanvasToImage, errBack, start, video, videoObj;
+        var canvas, context, convertCanvasToImage, errBack, setup, start, video, videoObj;
         $scope.imageTaken = false;
+        $scope.readyToTakeImage = false;
         canvas = document.getElementById('canvas');
         context = canvas.getContext('2d');
         video = document.getElementById('video');
@@ -112,31 +113,31 @@
           }
           return picture;
         };
+        setup = function(stream) {
+          window.camera = stream;
+          video.stream = stream;
+          video.play();
+          return $scope.readyToTakeImage = true;
+        };
         start = function() {
           if (navigator.getUserMedia) {
             return navigator.getUserMedia(videoObj, function(stream) {
-              window.camera = stream;
-              video.stream = stream;
               video.src = stream;
-              return video.play();
+              return setup(stream);
             }, errBack);
           } else if (navigator.webkitGetUserMedia) {
             return navigator.webkitGetUserMedia(videoObj, function(stream) {
-              window.camera = stream;
-              video.stream = stream;
               if (window.URL) {
                 video.src = window.URL.createObjectURL(stream);
               } else {
                 video.src = window.webkitURL.createObjectURL(stream);
               }
-              return video.play();
+              return setup(stream);
             }, errBack);
           } else if (navigator.mozGetUserMedia) {
             return navigator.mozGetUserMedia(videoObj, function(stream) {
-              window.camera = stream;
-              video.stream = stream;
               video.src = window.URL.createObjectURL(stream);
-              return video.play();
+              return setup(stream);
             }, errBack);
           }
         };

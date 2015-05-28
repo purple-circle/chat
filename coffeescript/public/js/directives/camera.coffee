@@ -4,6 +4,7 @@ app.directive 'camera', ($mdDialog, api) ->
   restrict: 'E'
   link: ($scope, element, attrs) ->
     $scope.imageTaken = false
+    $scope.readyToTakeImage = false
 
     # Grab elements, create settings, etc.
     canvas = document.getElementById('canvas')
@@ -25,37 +26,36 @@ app.directive 'camera', ($mdDialog, api) ->
 
       picture
 
+    setup = (stream) ->
+      window.camera = stream
+      video.stream = stream
+      video.play()
+      $scope.readyToTakeImage = true
 
     start = ->
       # Put video listeners into place
       if navigator.getUserMedia
         # Standard
         navigator.getUserMedia videoObj, (stream) ->
-          window.camera = stream
-          video.stream = stream
           video.src = stream
-          video.play()
+          setup(stream)
         , errBack
 
       else if navigator.webkitGetUserMedia
         # WebKit-prefixed
         navigator.webkitGetUserMedia videoObj, (stream) ->
-          window.camera = stream
-          video.stream = stream
           if window.URL
             video.src = window.URL.createObjectURL(stream)
           else
             video.src = window.webkitURL.createObjectURL(stream)
-          video.play()
+          setup(stream)
         , errBack
 
       else if navigator.mozGetUserMedia
         # Firefox-prefixed
         navigator.mozGetUserMedia videoObj, (stream) ->
-          window.camera = stream
-          video.stream = stream
           video.src = window.URL.createObjectURL(stream)
-          video.play()
+          setup(stream)
         , errBack
 
 

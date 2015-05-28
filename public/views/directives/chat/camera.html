@@ -1,4 +1,4 @@
-<md-subheader class="md-sticky-no-effect">
+<md-subheader class="md-sticky-no-effect" ng-show="readyToTakeImage">
 
   <div ng-hide="imageTaken">
     <md-button class="md-raised md-primary" type="button" ng-click="takePhoto()">
@@ -19,13 +19,9 @@
 </md-subheader>
 
 <div ng-hide="imageTaken">
-  <div>
-    <video id="video" width="640" height="480" autoplay></video>
-  </div>
+  <video id="video" width="640" height="480" autoplay></video>
 </div>
 
 <div ng-show="imageTaken">
-  <div>
-    <canvas id="canvas" width="640" height="480"></canvas>
-  </div>
+  <canvas id="canvas" width="640" height="480"></canvas>
 </div>
