@@ -358,11 +358,17 @@
         };
         $scope.saveMessage = function() {
           var data;
+          $scope.focusUsername = false;
+          $scope.focusMessage = false;
           if (!$scope.from) {
+            api.notification.set('Please set a username');
+            $scope.focusUsername = true;
             ga('send', 'event', 'messages', 'empty username', $scope.room_id);
             return;
           }
           if (!$scope.message) {
+            api.notification.set('No empty messages :<');
+            $scope.focusMessage = true;
             ga('send', 'event', 'messages', 'empty saveMessage', $scope.room_id);
             return;
           }
@@ -536,25 +542,27 @@
 
   app = angular.module('app');
 
-  app.directive('connectionLost', ["$timeout", "$interval", "$mdToast", "api", function($timeout, $interval, $mdToast, api) {
+  app.directive('connectionLost', ["$timeout", "$interval", "api", function($timeout, $interval, api) {
     return {
       restrict: 'E',
       link: function($scope, element, attrs) {
-        var interval, timeout;
+        var checkIntervalsAndTimeouts, interval, timeout;
         interval = null;
         timeout = null;
-        return api.socket.on('disconnect', function() {
-          var content, toast;
-          ga('send', 'event', 'connection', 'disconnect');
-          content = 'Connection lost, trying to reconnect..';
-          toast = $mdToast.simple().content(content).position('right').hideDelay(0);
-          $mdToast.show(toast);
+        checkIntervalsAndTimeouts = function() {
           if (interval) {
             $interval.cancel(interval);
           }
           if (timeout) {
-            $timeout.cancel(timeout);
+            return $timeout.cancel(timeout);
           }
+        };
+        return api.socket.on('disconnect', function() {
+          var content;
+          ga('send', 'event', 'connection', 'disconnect');
+          content = 'Connection lost, trying to reconnect..';
+          api.notification.set(content, true);
+          checkIntervalsAndTimeouts();
           timeout = $timeout(function() {
             var seconds;
             seconds = 0;
@@ -562,19 +570,13 @@
               var newMessage;
               seconds++;
               newMessage = content + " " + seconds + " sec..";
-              return $mdToast.updateContent(newMessage);
+              return api.notification.update(newMessage);
             }, 1000);
           }, 4000);
           return api.socket.once('connect', function() {
-            if (interval) {
-              $interval.cancel(interval);
-            }
-            if (timeout) {
-              $timeout.cancel(timeout);
-            }
-            return $mdToast.hide().then(function() {
-              toast = $mdToast.simple().content('Reconnected! Happy chatting :)').position('right');
-              $mdToast.show(toast);
+            checkIntervalsAndTimeouts();
+            return api.notification.hide().then(function() {
+              api.notification.set('Reconnected! Happy chatting :)');
               return ga('send', 'event', 'connection', 'reconnect');
             });
           });
@@ -826,6 +828,29 @@
 
   app = angular.module('app');
 
+  app.directive('setFocus', function() {
+    return {
+      restrict: 'A',
+      scope: {
+        focus: "=setFocus"
+      },
+      link: function($scope, elem, attr) {
+        return $scope.$watch('focus', function() {
+          if ($scope.focus) {
+            return elem[0].focus();
+          }
+        });
+      }
+    };
+  });
+
+}).call(this);
+
+(function() {
+  var app;
+
+  app = angular.module('app');
+
   app.filter("newlines", function() {
     return function(text) {
       return text.replace(/\n/g, "<br>");
@@ -856,7 +881,7 @@
 
   app = angular.module('app');
 
-  app.factory('api', ["$q", "youtubeEmbedUtils", "uploadImgur", "messageHistory", "animals", "testImage", function($q, youtubeEmbedUtils, uploadImgur, messageHistory, animals, testImage) {
+  app.factory('api', ["$q", "youtubeEmbedUtils", "uploadImgur", "messageHistory", "animals", "testImage", "notification", function($q, youtubeEmbedUtils, uploadImgur, messageHistory, animals, testImage, notification) {
     var getYoutubeUrls, socket;
     socket = io();
     getYoutubeUrls = function(url) {
@@ -870,6 +895,7 @@
       testImage: testImage.test,
       socket: socket,
       getYoutubeUrls: getYoutubeUrls,
+      notification: notification,
       cameraIsSupported: function() {
         var cameraSupported;
         cameraSupported = false;
@@ -1047,6 +1073,32 @@
       down: down
     };
   });
+
+}).call(this);
+
+(function() {
+  var app;
+
+  app = angular.module('app');
+
+  app.factory('notification', ["$mdToast", function($mdToast) {
+    return {
+      hide: function() {
+        return $mdToast.hide();
+      },
+      update: function(message) {
+        return $mdToast.updateContent(message);
+      },
+      set: function(message, hideDelay) {
+        var toast;
+        toast = $mdToast.simple().content(message).position('right');
+        if (hideDelay) {
+          toast.hideDelay(0);
+        }
+        return $mdToast.show(toast);
+      }
+    };
+  }]);
 
 }).call(this);
 

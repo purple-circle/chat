@@ -1,5 +1,5 @@
 app = angular.module('app')
-app.factory 'api', ($q, youtubeEmbedUtils, uploadImgur, messageHistory, animals, testImage) ->
+app.factory 'api', ($q, youtubeEmbedUtils, uploadImgur, messageHistory, animals, testImage, notification) ->
   socket = io()
 
   getYoutubeUrls = (url) ->
@@ -13,6 +13,7 @@ app.factory 'api', ($q, youtubeEmbedUtils, uploadImgur, messageHistory, animals,
   testImage: testImage.test
   socket: socket
   getYoutubeUrls: getYoutubeUrls
+  notification: notification
 
   cameraIsSupported: ->
     cameraSupported = false

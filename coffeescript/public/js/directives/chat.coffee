@@ -63,11 +63,18 @@ app.directive "chat", ($rootScope, $timeout, $mdSidenav, $mdDialog, api, tabActi
 
 
     $scope.saveMessage = ->
+      $scope.focusUsername = false
+      $scope.focusMessage = false
+
       if !$scope.from
+        api.notification.set('Please set a username')
+        $scope.focusUsername = true
         ga('send', 'event', 'messages', 'empty username', $scope.room_id)
         return
 
       if !$scope.message
+        api.notification.set('No empty messages :<')
+        $scope.focusMessage = true
         ga('send', 'event', 'messages', 'empty saveMessage', $scope.room_id)
         return
 
