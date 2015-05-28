@@ -3,8 +3,7 @@ app = angular.module('app')
 app.directive "chat", ($rootScope, $timeout, $mdSidenav, $mdDialog, api, tabActive) ->
   templateUrl: "directives/chat/chat.html"
   link: ($scope) ->
-    $scope.chat_id = "chat-123"
-    $scope.room_id = 1
+    $scope.chatId = "chat-123"
 
     $scope.message = ''
     $scope.tabVisible = true
@@ -43,7 +42,7 @@ app.directive "chat", ($rootScope, $timeout, $mdSidenav, $mdDialog, api, tabActi
         return
 
       data.room_id = $scope.room_id
-      data.chat_id = $scope.chat_id
+      data.chat_id = $scope.chatId
 
       possibleUrl = api.stringHasUrl(data.message)
       if possibleUrl?[0] and api.urlIsImage(possibleUrl[0])
@@ -71,7 +70,7 @@ app.directive "chat", ($rootScope, $timeout, $mdSidenav, $mdDialog, api, tabActi
       ga('send', 'event', 'messages', 'saveMessage', $scope.room_id)
 
       data =
-        chat_id: $scope.chat_id
+        chat_id: $scope.chatId
         room_id: $scope.room_id
         message: $scope.message
         from: $scope.from
@@ -112,7 +111,7 @@ app.directive "chat", ($rootScope, $timeout, $mdSidenav, $mdDialog, api, tabActi
       if !localStorage
         return false
 
-      ga('send', 'event', 'setUsername', $scope.chat_id, $scope.from)
+      ga('send', 'event', 'setUsername', $scope.chatId, $scope.from)
       localStorage.setItem "name", $scope.from
 
 
@@ -131,7 +130,7 @@ app.directive "chat", ($rootScope, $timeout, $mdSidenav, $mdDialog, api, tabActi
       icon = "http://i.imgur.com/#{random}.png"
       data =
         name: name
-        chat_id: $scope.chat_id
+        chat_id: $scope.chatId
         sid: yolosid
         created_by: $scope.from
         icon: icon
@@ -139,8 +138,8 @@ app.directive "chat", ($rootScope, $timeout, $mdSidenav, $mdDialog, api, tabActi
       api
         .create_room(data)
         .then (result) ->
+          ga('send', 'event', 'createdRoom', $scope.chatId, result.name)
           $rootScope.$broadcast("room-created", result)
-          console.log "room created", result
 
 
     checkCommands = (message) ->
@@ -165,16 +164,16 @@ app.directive "chat", ($rootScope, $timeout, $mdSidenav, $mdDialog, api, tabActi
       return false
 
     setTopic = (topic) ->
-      ga('send', 'event', 'setTopic', $scope.chat_id, topic)
+      ga('send', 'event', 'setTopic', $scope.chatId, topic)
       $scope.currentRoom.topic = topic
 
       api
-        .set_topic({topic, room_id: $scope.room_id, chat_id: $scope.chat_id})
+        .set_topic({topic, room_id: $scope.room_id, chat_id: $scope.chatId})
 
     postImage = (imgur) ->
       data =
         data: imgur.data
-        chat_id: $scope.chat_id
+        chat_id: $scope.chatId
         room_id: $scope.room_id
         sid: yolosid
 
@@ -184,13 +183,13 @@ app.directive "chat", ($rootScope, $timeout, $mdSidenav, $mdDialog, api, tabActi
       $scope.saveMessage()
 
     $scope.useCamera = ->
-      ga('send', 'event', 'useCamera', $scope.chat_id, $scope.room_id)
+      ga('send', 'event', 'useCamera', $scope.chatId, $scope.room_id)
       $mdDialog
         .show
           templateUrl: 'directives/chat/camera-dialog.html'
         .then (result) ->
           postImage(result)
-          ga('send', 'event', 'used camera, saved picture', $scope.chat_id, $scope.room_id)
+          ga('send', 'event', 'used camera, saved picture', $scope.chatId, $scope.room_id)
 
         , ->
           window.camera?.stop()
@@ -203,7 +202,7 @@ app.directive "chat", ($rootScope, $timeout, $mdSidenav, $mdDialog, api, tabActi
       if !element?.files?[0]
         return
 
-      ga('send', 'event', 'uploaded image', $scope.chat_id, $scope.room_id)
+      ga('send', 'event', 'uploaded image', $scope.chatId, $scope.room_id)
 
       api
         .upload_to_imgur(element.files[0])

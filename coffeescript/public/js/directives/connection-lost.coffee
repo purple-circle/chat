@@ -8,6 +8,7 @@ app.directive 'connectionLost', ($timeout, $interval, $mdToast, api) ->
     api
       .socket
       .on 'disconnect', ->
+        ga('send', 'event', 'connection', 'disconnect')
         content = 'Connection lost, trying to reconnect..'
         toast = $mdToast
           .simple()
@@ -48,4 +49,5 @@ app.directive 'connectionLost', ($timeout, $interval, $mdToast, api) ->
                 .position('right')
 
               $mdToast.show(toast)
+              ga('send', 'event', 'connection', 'reconnect')
 

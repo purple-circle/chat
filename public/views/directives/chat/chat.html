@@ -21,7 +21,7 @@
       </div>
     </md-toolbar>
 
-    <rooms chat-id="chat_id"></room>
+    <rooms chat-id="chatId"></room>
 
   </md-sidenav>
 
@@ -39,13 +39,13 @@
         </h3>
 
         <div class="md-toolbar-item md-tools" layout="column" layout-gt-md="row">
-          <small>Online: <online-count></online-count></small>
+          <small>Online: <online-count chat-id="chatId"></online-count></small>
         </div>
 
       </div>
     </md-toolbar>
     <md-content flex scroll-glue class="md-whiteframe-z1 md-padding" id="content" md-scroll-y>
-      <messages room="currentRoom" chat-id="chat_id" scroll-glue ng-if="currentRoom"></messages>
+      <messages room="currentRoom" chat-id="chatId" scroll-glue ng-if="currentRoom"></messages>
 
       <div class="typing-container">
         <small ng-if="peopleTyping.length">

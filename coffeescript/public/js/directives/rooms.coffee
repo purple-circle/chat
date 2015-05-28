@@ -63,7 +63,7 @@ app.directive "rooms", ($rootScope, $timeout, api, chatRooms) ->
     joinRoom = (room_name) ->
       room_name = room_name.toLowerCase()
       for room in $scope.rooms when room.name.toLowerCase() is room_name
-        ga('send', 'event', 'joinRoom', $scope.chat_id, room_name)
+        ga('send', 'event', 'joinRoom', $scope.chatId, room_name)
         $scope.setActiveRoom(room)
 
     createFirstRoom = ->
@@ -87,6 +87,7 @@ app.directive "rooms", ($rootScope, $timeout, api, chatRooms) ->
       api
         .create_room(data)
         .then (result) ->
+          ga('send', 'event', 'createFirstRoom', $scope.chatId, result.name)
           getRooms()
 
     getRooms = ->
