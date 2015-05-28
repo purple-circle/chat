@@ -358,6 +358,10 @@
         };
         $scope.saveMessage = function() {
           var data;
+          if (!$scope.from) {
+            ga('send', 'event', 'messages', 'empty username', $scope.room_id);
+            return;
+          }
           if (!$scope.message) {
             ga('send', 'event', 'messages', 'empty saveMessage', $scope.room_id);
             return;
