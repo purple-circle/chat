@@ -663,7 +663,7 @@
         chatId: "="
       },
       link: function($scope) {
-        var getRooms, getSelectedRoom, getTopic, joinRoom, listenToMessageNotifications, listenToTopicChange;
+        var createFirstRoom, getRooms, getSelectedRoom, getTopic, joinRoom, listenToMessageNotifications, listenToTopicChange;
         $scope.rooms = [];
         getTopic = function(room_id) {
           return api.get_topic({
@@ -759,9 +759,27 @@
           }
           return results;
         };
+        createFirstRoom = function() {
+          var data, icon, imgur_ids, random;
+          imgur_ids = ['h18WTm2b', 'p8SNOcVb', 'CfmbeXib', 'JxtD1vcb', 'RaKwQD7b', 'aaVkYvxb'];
+          random = imgur_ids[Math.floor(Math.random() * imgur_ids.length)];
+          icon = "http://i.imgur.com/" + random + ".png";
+          data = {
+            name: "Room #1",
+            chat_id: $scope.chatId,
+            icon: icon
+          };
+          return api.create_room(data).then(function(result) {
+            return getRooms();
+          });
+        };
         getRooms = function() {
           chatRooms.get($scope.chatId).then(function(rooms) {
             var i, j, len, len1, previousRoom, ref, room, selected_room;
+            if (rooms.length === 0) {
+              createFirstRoom();
+              return;
+            }
             for (i = 0, len = rooms.length; i < len; i++) {
               room = rooms[i];
               room.messages = 0;

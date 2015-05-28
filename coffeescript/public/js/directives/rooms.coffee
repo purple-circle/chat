@@ -66,10 +66,37 @@ app.directive "rooms", ($rootScope, $timeout, api, chatRooms) ->
         ga('send', 'event', 'joinRoom', $scope.chat_id, room_name)
         $scope.setActiveRoom(room)
 
+    createFirstRoom = ->
+      imgur_ids = [
+        'h18WTm2b'
+        'p8SNOcVb'
+        'CfmbeXib'
+        'JxtD1vcb'
+        'RaKwQD7b'
+        'aaVkYvxb'
+      ]
+
+      random = imgur_ids[Math.floor(Math.random() * imgur_ids.length)]
+
+      icon = "http://i.imgur.com/#{random}.png"
+      data =
+        name: "Room #1"
+        chat_id: $scope.chatId
+        icon: icon
+
+      api
+        .create_room(data)
+        .then (result) ->
+          getRooms()
+
     getRooms = ->
       chatRooms
         .get($scope.chatId)
         .then (rooms) ->
+          if rooms.length is 0
+            createFirstRoom()
+            return
+
           for room in rooms
             room.messages = 0
 
