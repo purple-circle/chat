@@ -75,14 +75,14 @@
   });
 
   jobs.process("api.save_topic", function(job, done) {
-    var Topics, topics;
+    var Topics, topic;
     Topics = mongoose.model('topics');
-    topics = new Topics(job.data);
-    return topics.save(function(err) {
+    topic = new Topics(job.data);
+    return topic.save(function(err) {
       if (err) {
         return done(err);
       } else {
-        return done(null, topics);
+        return done(null, topic);
       }
     });
   });
@@ -117,6 +117,19 @@
         return done(err);
       } else {
         return done(null, message);
+      }
+    });
+  });
+
+  jobs.process("api.create_room", function(job, done) {
+    var Rooms, room;
+    Rooms = mongoose.model('rooms');
+    room = new Rooms(job.data);
+    return room.save(function(err) {
+      if (err) {
+        return done(err);
+      } else {
+        return done(null, room);
       }
     });
   });

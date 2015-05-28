@@ -75,6 +75,10 @@ app.factory 'api', ($q, youtubeEmbedUtils, uploadImgur, messageHistory, animals,
   set_topic: (data) ->
     socket.emit("save_topic", data)
 
+  create_room: (data) ->
+    socket.emit("create_room", data)
+    this.on("room_created")
+
   get_online_count: ->
     socket.emit("get_online_count")
     this.on("get_online_count")

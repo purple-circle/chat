@@ -2,9 +2,10 @@
   require('newrelic');
 
   module.exports = function(server, sessionStore) {
-    var Q, chat, imgur, io;
+    var Q, chat, imgur, io, rooms;
     io = require("socket.io").listen(server);
     chat = require("./models/chat");
+    rooms = require("./models/rooms");
     imgur = require("./models/imgur");
     Q = require("q");
     io.use(function(socket, next) {
@@ -48,6 +49,12 @@
         return chat.save_topic(data).then(function(result) {
           socket.emit("topic", result);
           return socket.broadcast.emit("topic", result);
+        });
+      });
+      socket.on("create_room", function(data) {
+        return rooms.create(data).then(function(result) {
+          socket.emit("room_created", result);
+          return socket.broadcast.emit("room_created", result);
         });
       });
       return socket.on("get_online_count", function() {

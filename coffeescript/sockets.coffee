@@ -2,6 +2,7 @@ require('newrelic')
 module.exports = (server, sessionStore) ->
   io = require("socket.io").listen(server)
   chat = require("./models/chat")
+  rooms = require("./models/rooms")
   imgur = require("./models/imgur")
   Q = require("q")
 
@@ -49,6 +50,13 @@ module.exports = (server, sessionStore) ->
         .then (result) ->
           socket.emit "topic", result
           socket.broadcast.emit "topic", result
+
+    socket.on "create_room", (data) ->
+      rooms
+        .create(data)
+        .then (result) ->
+          socket.emit "room_created", result
+          socket.broadcast.emit "room_created", result
 
 
     socket.on "get_online_count", ->

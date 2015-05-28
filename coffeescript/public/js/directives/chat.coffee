@@ -116,6 +116,19 @@ app.directive "chat", ($rootScope, $timeout, $mdSidenav, $mdDialog, api, tabActi
       localStorage.setItem "name", $scope.from
 
 
+    create_room = (name) ->
+      data =
+        name: name
+        chat_id: $scope.chat_id
+        sid: yolosid
+        created_by: $scope.from
+
+      api
+        .create_room(data)
+        .then (result) ->
+          console.log "room created", result
+
+
     checkCommands = (message) ->
       if message[0] isnt "/"
         return false
@@ -129,6 +142,10 @@ app.directive "chat", ($rootScope, $timeout, $mdSidenav, $mdDialog, api, tabActi
 
       if command is "join" or command is "j"
         $rootScope.$broadcast("joinRoom", content.slice(1).join(" "))
+        return true
+
+      if command is "create"
+        create_room(content.slice(1).join(" "))
         return true
 
       return false

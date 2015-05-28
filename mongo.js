@@ -1,6 +1,6 @@
 (function() {
   module.exports = function(settings) {
-    var apiLogSchema, chatMessageSchema, db, imgurSchema, mongoose, topicSchema;
+    var apiLogSchema, chatMessageSchema, db, imgurSchema, mongoose, roomSchema, topicSchema;
     mongoose = require('mongoose');
     chatMessageSchema = mongoose.Schema({
       chat_id: 'String',
@@ -20,6 +20,17 @@
       room_id: 'Number',
       topic: 'String',
       from: 'String',
+      created_at: {
+        type: Date,
+        "default": Date.now
+      }
+    });
+    roomSchema = mongoose.Schema({
+      chat_id: 'String',
+      name: 'String',
+      created_by: 'String',
+      sid: 'String',
+      icon: 'String',
       created_at: {
         type: Date,
         "default": Date.now
@@ -64,6 +75,7 @@
     });
     mongoose.model('chat_messages', chatMessageSchema);
     mongoose.model('topics', topicSchema);
+    mongoose.model('rooms', roomSchema);
     mongoose.model('imgur', imgurSchema);
     mongoose.model('api_logs', apiLogSchema);
     db = mongoose.connection;

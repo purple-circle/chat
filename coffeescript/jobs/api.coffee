@@ -72,12 +72,12 @@ jobs.process "api.load_topic", (job, done) ->
 
 jobs.process "api.save_topic", (job, done) ->
   Topics = mongoose.model 'topics'
-  topics = new Topics(job.data)
-  topics.save (err) ->
+  topic = new Topics(job.data)
+  topic.save (err) ->
     if err
       done(err)
     else
-      done null, topics
+      done null, topic
 
 jobs.process "api.load_chat_messages_for_room", (job, done) ->
   ChatMessages = mongoose.model 'chat_messages'
@@ -121,4 +121,11 @@ jobs.process "api.save_chat_message", (job, done) ->
       done null, message
 
 
-
+jobs.process "api.create_room", (job, done) ->
+  Rooms = mongoose.model 'rooms'
+  room = new Rooms(job.data)
+  room.save (err) ->
+    if err
+      done(err)
+    else
+      done null, room

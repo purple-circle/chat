@@ -295,7 +295,7 @@
     return {
       templateUrl: "directives/chat/chat.html",
       link: function($scope) {
-        var checkCommands, createMessage, listenToMessageNotifications, listenToTyping, postImage, setTopic, unreadMessages;
+        var checkCommands, createMessage, create_room, listenToMessageNotifications, listenToTyping, postImage, setTopic, unreadMessages;
         $scope.chat_id = "chat-123";
         $scope.room_id = 1;
         $scope.message = '';
@@ -408,6 +408,18 @@
           ga('send', 'event', 'setUsername', $scope.chat_id, $scope.from);
           return localStorage.setItem("name", $scope.from);
         };
+        create_room = function(name) {
+          var data;
+          data = {
+            name: name,
+            chat_id: $scope.chat_id,
+            sid: yolosid,
+            created_by: $scope.from
+          };
+          return api.create_room(data).then(function(result) {
+            return console.log("room created", result);
+          });
+        };
         checkCommands = function(message) {
           var command, content;
           if (message[0] !== "/") {
@@ -421,6 +433,10 @@
           }
           if (command === "join" || command === "j") {
             $rootScope.$broadcast("joinRoom", content.slice(1).join(" "));
+            return true;
+          }
+          if (command === "create") {
+            create_room(content.slice(1).join(" "));
             return true;
           }
           return false;
@@ -882,6 +898,10 @@
       },
       set_topic: function(data) {
         return socket.emit("save_topic", data);
+      },
+      create_room: function(data) {
+        socket.emit("create_room", data);
+        return this.on("room_created");
       },
       get_online_count: function() {
         socket.emit("get_online_count");
