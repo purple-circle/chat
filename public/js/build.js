@@ -453,6 +453,12 @@
             create_room(content.slice(1).join(" "));
             return true;
           }
+          if (command === "help") {
+            $mdDialog.show({
+              templateUrl: 'directives/chat/help.html'
+            });
+            return true;
+          }
           return false;
         };
         setTopic = function(topic) {

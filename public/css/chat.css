@@ -43,7 +43,7 @@ md-dialog img.image-preview {
   width: 60px;
   margin: 0 10px;
   box-shadow: 0 1px 0.5px rgba(0, 0, 0, 0.13);
-  border: 3px solid #fff;
+  border: 3px solid #ffffff;
 }
 .loader {
   position: absolute;
@@ -63,15 +63,30 @@ camera .md-subheader.md-default-theme {
   background-color: #dcedc8;
   margin: 0;
 }
-.message {
+.help-container {
+  padding: 10px 20px 10px 20px;
+  min-width: 600px;
+}
+.help-container code {
   word-wrap: break-word;
   text-align: left;
   line-height: 17px;
   display: inline-block;
-  max-width: 350px;
+  position: relative;
   padding: 8px 10px 8px 9px;
   border-radius: 7.5px;
+  background: #f9ffff;
+  box-shadow: 0 1px 0.5px rgba(0, 0, 0, 0.13);
+}
+.message {
+  max-width: 350px;
+  word-wrap: break-word;
+  text-align: left;
+  line-height: 17px;
+  display: inline-block;
   position: relative;
+  padding: 8px 10px 8px 9px;
+  border-radius: 7.5px;
   background: #f9ffff;
   box-shadow: 0 1px 0.5px rgba(0, 0, 0, 0.13);
 }
@@ -131,7 +146,7 @@ camera .md-subheader.md-default-theme {
   border-radius: 100%;
   padding: 4px 8px;
   background: rgba(15, 119, 12, 0.7);
-  color: #fff;
+  color: #ffffff;
   font-size: 14px;
   position: relative;
   top: -1px;

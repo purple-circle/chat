@@ -172,6 +172,12 @@ app.directive "chat", ($rootScope, $timeout, $mdSidenav, $mdDialog, api, tabActi
         create_room(content.slice(1).join(" "))
         return true
 
+      if command is "help"
+        $mdDialog
+          .show
+            templateUrl: 'directives/chat/help.html'
+        return true
+
       return false
 
     setTopic = (topic) ->
