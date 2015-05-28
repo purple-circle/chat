@@ -37,7 +37,6 @@
     resave: true,
     saveUninitialized: true,
     cookie: {
-      secure: true,
       maxAge: new Date(Date.now() + longCookieIsLong)
     }
   });
