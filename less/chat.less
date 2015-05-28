@@ -88,10 +88,6 @@ md-dialog {
   height: 100px;
 }
 
-.chat-container {
-  height: 500px;
-}
-
 camera {
   .md-subheader.md-default-theme {
     background-color: @camera-header-background;
@@ -207,10 +203,11 @@ camera {
     }
   }
 
-  @max-width: 90%;
+  @max-width: 95%;
   .chat-container {
+    height: 500px;
     max-width: @max-width;
-    padding-top: 3%;
+    padding-top: 2%;
     margin: 0 auto;
   }
   .send-message-container {
@@ -226,7 +223,6 @@ camera {
 @media (max-width: 1099px) {
   // chat-container is a hack
   .chat-container {
-    height: 75%;
     position: absolute;
     top: 0;
     bottom: 100px;
