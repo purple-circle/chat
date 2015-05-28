@@ -141,6 +141,9 @@
             }, errBack);
           }
         };
+        $scope.cancel = function() {
+          return $mdDialog.cancel();
+        };
         $scope.retake = function() {
           start();
           return $scope.imageTaken = false;

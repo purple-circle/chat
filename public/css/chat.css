@@ -56,6 +56,10 @@ md-dialog img.image-preview {
 .message-loader {
   height: 100px;
 }
+camera .camera-cancel {
+  float: right;
+  margin-right: 25px;
+}
 camera .md-subheader.md-default-theme {
   background-color: #dcedc8;
   margin: 0;

@@ -58,6 +58,8 @@ app.directive 'camera', ($mdDialog, api) ->
           setup(stream)
         , errBack
 
+    $scope.cancel = ->
+      $mdDialog.cancel()
 
     $scope.retake = ->
       start()

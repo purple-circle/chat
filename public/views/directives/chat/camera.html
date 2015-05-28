@@ -13,6 +13,9 @@
     <md-button class="md-raised md-warn" type="button" ng-click="send()" ng-disabled="sending">
       Send
     </md-button>
+    <md-button class="md-accent md-raised md-hue-3 camera-cancel" type="button" ng-click="cancel()" ng-disabled="sending">
+      Cancel
+    </md-button>
     <span ng-if="sending">Sending.. <small>This might take a while..</small></span>
   </div>
 
