@@ -14,7 +14,7 @@
 
   <md-list>
     <md-item
-      ng-repeat="room in rooms | filter:roomSearch"
+      ng-repeat="room in rooms | filter:roomSearch | orderBy:'-messages'"
       ng-click="setActiveRoom(room)">
       <md-item-content
         class="select-room"
