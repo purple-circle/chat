@@ -7,58 +7,58 @@
   </div>
 
   <md-list>
-    <md-item ng-repeat="item in messages[room._id] | orderBy:'createdAt'">
-      <md-item-content>
 
-        <div class="md-tile-left" ng-if="!item.is_me">
-          <md-button class="md-fab md-primary" aria-label="{{item.from}}" style="background-color: #{{item.color}}; width: 45px; height: 45px;">
-            {{item.from | limitTo:1}}
-          </md-button>
+    <md-list-item
+      class="chat-messages"
+      ng-repeat="item in messages[room._id] | orderBy:'createdAt'">
 
-          <!-- <img src="http://i.imgur.com/p8SNOcVb.jpg" class="face" alt="{{item.from}}" ng-click="showGridBottomSheet($event)"> -->
-        </div>
-
-        <div class="md-tile-content">
-          <p>
-            <span class="message" ng-class="{their: item.is_me}">
-              <strong style="color: #666;">{{item.from}}</strong><br/>
-              <span ng-bind-html="item.message"></span>
-
-              <span ng-if="item.hasImage" class="media-preview">
-                <img ng-click="openImage(item)" ng-src="{{item.hasImage}}">
-              </span>
+      <md-button
+        class="md-fab avatar"
+        aria-label="{{item.from}}"
+        style="background-color: #{{item.color}};"
+        ng-if="!item.is_me">
+        {{item.from | limitTo:1}}
+      </md-button>
 
 
-              <span ng-if="item.youtubeId" class="media-preview">
-                <span ng-if="item.videoOpened">
-                  <youtube-video video-id="item.youtubeId" player-vars="youtubeOptions" player-width="'100%'" player-height="'200px'"></youtube-video>
-                  <a ng-href="https://www.youtube.com/watch?v={{item.youtubeId}}" target="_blank">https://www.youtube.com/watch?v={{item.youtubeId}}</a>
-                </span>
+      <p>
+        <span class="message" ng-class="{their: item.is_me}">
+          <strong style="color: #666;">{{item.from}}</strong><br/>
+          <span ng-bind-html="item.message"></span>
 
-                <span ng-if="!item.videoOpened">
-                  <img ng-src="http://img.youtube.com/vi/{{item.youtubeId}}/0.jpg" ng-click="openYoutubeVideo(item)">
-                </span>
-              </span>
+          <span ng-if="item.hasImage" class="media-preview">
+            <img ng-click="openImage(item)" ng-src="{{item.hasImage}}">
+          </span>
 
-              <!-- epic whitespace hack to create random width bubbles -->
-              <span ng-repeat="i in whitespaces">&nbsp;</span>
-
-              <span class="time">{{item.createdAt | date:'HH:mm'}}</span>
+          <span ng-if="item.youtubeId" class="media-preview">
+            <span ng-if="item.videoOpened">
+              <youtube-video video-id="item.youtubeId" player-vars="youtubeOptions" player-width="'100%'" player-height="'200px'"></youtube-video>
+              <a ng-href="https://www.youtube.com/watch?v={{item.youtubeId}}" target="_blank">https://www.youtube.com/watch?v={{item.youtubeId}}</a>
             </span>
-          </p>
-        </div>
 
-        <div class="md-tile-right" ng-if="item.is_me">
+            <span ng-if="!item.videoOpened">
+              <img ng-src="http://img.youtube.com/vi/{{item.youtubeId}}/0.jpg" ng-click="openYoutubeVideo(item)">
+            </span>
+          </span>
 
-          <md-button class="md-fab md-primary" aria-label="{{item.from}}" style="background-color: #{{item.color}}; width: 45px; height: 45px;">
-            {{item.from | limitTo:1}}
-          </md-button>
+          <!-- epic whitespace hack to create random width bubbles -->
+          <span ng-repeat="i in whitespaces">&nbsp;</span>
 
-          <!-- <img src="http://i.imgur.com/p8SNOcVb.jpg" class="face" alt="{{item.from}}"> -->
-        </div>
+          <span class="time">{{item.createdAt | date:'HH:mm'}}</span>
+        </span>
+      </p>
 
-      </md-item-content>
-    </md-item>
+
+      <md-button
+        class="md-fab avatar"
+        aria-label="{{item.from}}"
+        style="background-color: #{{item.color}};"
+        ng-if="item.is_me">
+        {{item.from | limitTo:1}}
+      </md-button>
+
+
+    </md-list-item>
   </md-list>
 
 </md-content>

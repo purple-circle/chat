@@ -21,29 +21,39 @@
       </div>
     </md-toolbar>
 
-    <rooms chat-id="chatId"></room>
+    <rooms chat-id="chatId"></rooms>
 
   </md-sidenav>
 
-  <div layout="column" role="main" flex class="messages-container">
-    <md-toolbar class="md-default-theme" layout="row">
-      <md-button class="menu" hide-gt-md ng-click="toggleLeft()" aria-label="Show User List">
-        <ng-md-icon icon="menu" style="fill: white"></ng-md-icon>
-      </md-button>
 
+
+
+  <div layout="column" role="main" flex class="messages-container">
+
+    <md-toolbar>
       <div class="md-toolbar-tools">
-        <h3>
+
+        <md-button
+          hide-gt-md
+          ng-click="toggleLeft()"
+          class="md-icon-button"
+          aria-label="Rooms"></md-button>
+
+        <h2>
+
           <span>{{currentRoom.name}}
             <span ng-if="currentRoom.topic">- {{currentRoom.topic}}</span>
           </span>
-        </h3>
 
-        <div class="md-toolbar-item md-tools" layout="column" layout-gt-md="row">
-          <small>Online: <online-count chat-id="chatId"></online-count></small>
-        </div>
+        </h2>
 
+        <span flex></span>
+        <small>Online: <online-count chat-id="chatId"></online-count></small>
       </div>
     </md-toolbar>
+
+
+
     <md-content flex scroll-glue class="md-whiteframe-z1 md-padding" id="content" md-scroll-y>
       <messages room="currentRoom" chat-id="chatId" scroll-glue ng-if="currentRoom"></messages>
 
@@ -67,16 +77,21 @@
     <md-content flex layout="row" class="md-whiteframe-z1 md-padding">
       <md-input-container flex="15">
         <label>Your name</label>
-        <input placeholder="Your message" ng-model="from" set-focus="focusUsername" ng-change="setUsername()">
+        <input ng-model="from" set-focus="focusUsername" ng-change="setUsername()">
       </md-input-container>
       <md-input-container flex>
         <label>Your message</label>
-        <input placeholder="Your message" ng-model="message" ng-change="i_am_typing()" keydown="browseHistory(key)">
+        <input ng-model="message" ng-change="i_am_typing()" keydown="browseHistory(key)">
       </md-input-container>
 
       <input type="file" id="image-upload" onchange="angular.element(this).scope().uploadFile(this)" />
 
-      <md-button type="button" aria-label="Select picture" md-no-ink class="md-primary select-file-container" ng-click="selectFile()">
+      <md-button
+        type="button"
+        aria-label="Select picture"
+        md-no-ink
+        class="message-tools select-file-container"
+        ng-click="selectFile()">
         <i class="fa fa-file-image-o select-file"></i>
       </md-button>
 
@@ -85,12 +100,13 @@
         ng-click="useCamera()"
         ng-if="cameraSupported"
         type="button"
-        aria-label="Take picture"
-        class="md-primary">
+        class="message-tools"
+        aria-label="Take picture">
         <i class="fa fa-camera select-file"></i>
       </md-button>
 
       <md-button md-no-ink class="md-primary" type="submit">Send</md-button>
+
     </md-content>
   </form>
 </div>
