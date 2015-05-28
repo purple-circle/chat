@@ -162,7 +162,7 @@ camera .md-subheader.md-default-theme {
     border-radius: 0 0 3px 3px;
   }
 }
-@media (max-width: 1100px) {
+@media (max-width: 1099px) {
   .chat-container {
     height: 75%;
     position: absolute;
