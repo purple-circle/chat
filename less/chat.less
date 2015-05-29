@@ -227,6 +227,19 @@ camera {
   margin-left: 10px;
 }
 
+.chat-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+}
+.send-message-container {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
 
 @media (min-width: 1100px) {
   html, body {
@@ -249,11 +262,11 @@ camera {
 
   @max-width: 95%;
   .chat-container {
-    height: 500px;
+    bottom: 120px;
     max-width: @max-width;
-    padding-top: 2%;
-    margin: 0 auto;
+    margin: 20px auto 0;
   }
+
   .send-message-container {
     max-width: @max-width;
     margin: 0 auto 20px;
@@ -266,17 +279,7 @@ camera {
 
 @media (max-width: 1099px) {
   .chat-container {
-    position: absolute;
-    top: 0;
     bottom: 100px;
-    left: 0;
-    right: 0;
-  }
-  .send-message-container {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
   }
 }
 
