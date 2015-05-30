@@ -333,45 +333,24 @@
 
   app = angular.module('app');
 
-  app.directive("chat", ["$rootScope", "$timeout", "$mdSidenav", "$mdDialog", "api", "tabActive", function($rootScope, $timeout, $mdSidenav, $mdDialog, api, tabActive) {
+  app.directive("chat", ["$rootScope", "$mdSidenav", function($rootScope, $mdSidenav) {
     return {
       templateUrl: "directives/chat/chat.html",
       scope: {
         chatId: "="
       },
       link: function($scope) {
-        var listenToMessageNotifications, unreadMessages;
-        $scope.tabVisible = true;
         $scope.currentRoom = false;
-        unreadMessages = 0;
-        tabActive.check(function(status) {
-          return $timeout(function() {
-            $scope.tabVisible = status === "hidden";
-            if (!$scope.tabVisible) {
-              unreadMessages = 0;
-              return $rootScope.page_title = "Chat";
-            }
-          });
-        });
         $rootScope.$on("currentRoom", function(event, room) {
           $scope.currentRoom = room;
           return $scope.roomId = room._id;
         });
-        listenToMessageNotifications = function() {
-          return $rootScope.$on("message-notification", function(event, room_id) {
-            if ($scope.tabVisible) {
-              unreadMessages++;
-              return $rootScope.page_title = "(" + unreadMessages + ") Chat";
-            }
-          });
-        };
         $scope.toggleLeft = function() {
           return $mdSidenav('left').toggle();
         };
-        $scope.closeLeft = function() {
+        return $scope.closeLeft = function() {
           return $mdSidenav('left').close();
         };
-        return listenToMessageNotifications();
       }
     };
   }]);
@@ -933,6 +912,36 @@
       templateUrl: 'directives/chat/sidenav.html'
     };
   });
+
+}).call(this);
+
+(function() {
+  var app;
+
+  app = angular.module('app');
+
+  app.directive("titleNotifier", ["$rootScope", "tabActive", function($rootScope, tabActive) {
+    return {
+      link: function($scope) {
+        var tabVisible, unreadMessages;
+        tabVisible = true;
+        unreadMessages = 0;
+        tabActive.check(function(status) {
+          tabVisible = status === "hidden";
+          if (!tabVisible) {
+            unreadMessages = 0;
+            return $rootScope.page_title = "Chat";
+          }
+        });
+        return $rootScope.$on("message-notification", function(event, room_id) {
+          if (tabVisible) {
+            unreadMessages++;
+            return $rootScope.page_title = "(" + unreadMessages + ") Chat";
+          }
+        });
+      }
+    };
+  }]);
 
 }).call(this);
 
