@@ -23,10 +23,7 @@ module.exports = (server, sessionStore) ->
           socket.emit "load_chat_messages_for_room", messages
 
     socket.on "save_imgur", (data) ->
-      imgur
-        .save(data)
-        .then (result) ->
-          console.log "imgur data saved", result
+      imgur.save(data)
 
     socket.on "i_am_typing", (from) ->
       socket.broadcast.emit "typing", from

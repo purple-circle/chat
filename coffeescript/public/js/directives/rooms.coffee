@@ -1,6 +1,6 @@
 app = angular.module('app')
 
-app.directive "rooms", ($rootScope, $timeout, api, chatRooms) ->
+app.directive "rooms", ($rootScope, $timeout, $state, $stateParams, api, chatRooms) ->
   templateUrl: "directives/chat/rooms.html"
   scope:
     chatId: "="
@@ -45,6 +45,9 @@ app.directive "rooms", ($rootScope, $timeout, api, chatRooms) ->
         getTopic(room._id)
 
       ga('send', 'event', 'rooms', 'setActiveRoom', room.name, room._id)
+
+      # if room._id isnt $stateParams.room_id
+      #   $state.transitionTo "root.index.room", room_id: room._id
 
 
     listenToTopicChange = ->

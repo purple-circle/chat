@@ -1,0 +1,20 @@
+
+  <div class="md-toolbar-tools">
+
+    <md-button
+      hide-gt-md
+      ng-click="toggleLeft()"
+      class="md-icon-button"
+      aria-label="Rooms"></md-button>
+
+    <h2>
+
+      <span>{{currentRoom.name}}
+        <span ng-if="currentRoom.topic">- {{currentRoom.topic}}</span>
+      </span>
+
+    </h2>
+
+    <span flex></span>
+    <small>Online: <online-count chat-id="chatId"></online-count></small>
+  </div>

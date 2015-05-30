@@ -14,13 +14,22 @@ app = angular.module('app', [
 app.config ($stateProvider, $locationProvider) ->
   $locationProvider.html5Mode(true)
   $stateProvider
-    .state 'index',
+    .state 'root',
       url: '/'
+      abstract: true
+      template: '<ui-view/>'
+
+    .state 'root.index',
+      url: ''
       templateUrl: 'index.html'
       controller: 'index'
 
+    .state 'root.index.room',
+      url: 'room/:room_id'
+      controller: 'index.room'
+
 app.run ($rootScope) ->
-  $rootScope.page_title = "(><)"
+  $rootScope.page_title = "Loading chat.."
 
   $rootScope.$on '$stateChangeStart', (event, toState) ->
     ga('send', 'pageview', toState.url)

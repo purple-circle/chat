@@ -27,9 +27,7 @@
         });
       });
       socket.on("save_imgur", function(data) {
-        return imgur.save(data).then(function(result) {
-          return console.log("imgur data saved", result);
-        });
+        return imgur.save(data);
       });
       socket.on("i_am_typing", function(from) {
         return socket.broadcast.emit("typing", from);

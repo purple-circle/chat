@@ -1,6 +1,11 @@
 .messages-container {
   z-index: 1;
 }
+battery-level {
+  fill: #ffffff;
+  position: relative;
+  top: 4px;
+}
 .md-button {
   min-width: 20px;
 }

@@ -1,12 +1,12 @@
 (function() {
   "use strict";
-  var express, router;
+  var express, indexPage, router;
 
   express = require("express");
 
   router = express.Router();
 
-  router.get("/", function(req, res) {
+  indexPage = function(req, res) {
     var cssBuildModified, cssBuildStats, fs, jsBuildModified, jsBuildStats;
     fs = require("fs");
     jsBuildStats = fs.statSync("public/js/build.js");
@@ -18,6 +18,14 @@
       jsBuildModified: jsBuildModified,
       cssBuildModified: cssBuildModified
     });
+  };
+
+  router.get("/", function(req, res) {
+    return indexPage(req, res);
+  });
+
+  router.get("/room/*", function(req, res) {
+    return indexPage(req, res);
   });
 
   router.get("*", function(req, res) {

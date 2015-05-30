@@ -1,0 +1,39 @@
+
+<div flex class="send-message-container" ng-show="currentRoom">
+  <form ng-submit="saveMessage()">
+    <md-content flex layout="row" class="md-whiteframe-z1 md-padding">
+      <md-input-container flex="15">
+        <label>Name</label>
+        <input ng-model="from" set-focus="focusUsername" ng-change="setUsername()">
+      </md-input-container>
+      <md-input-container flex>
+        <label>Your message</label>
+        <input ng-model="message" ng-change="i_am_typing()" keydown="browseHistory(key)">
+      </md-input-container>
+
+      <input type="file" id="image-upload" onchange="angular.element(this).scope().uploadFile(this)" />
+
+      <md-button
+        type="button"
+        aria-label="Select picture"
+        md-no-ink
+        class="message-tools select-file-container"
+        ng-click="selectFile()">
+        <i class="fa fa-file-image-o select-file"></i>
+      </md-button>
+
+      <md-button
+        md-no-ink
+        ng-click="useCamera()"
+        ng-if="cameraSupported"
+        type="button"
+        class="message-tools"
+        aria-label="Take picture">
+        <i class="fa fa-camera select-file"></i>
+      </md-button>
+
+      <md-button md-no-ink class="md-primary" type="submit">Send</md-button>
+
+    </md-content>
+  </form>
+</div>

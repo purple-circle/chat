@@ -12,6 +12,9 @@ app.directive "messages", ($rootScope, $timeout, $interval, $mdDialog, $mdBottom
     $scope.youtubeOptions =
       autoplay: false
 
+    $scope.peopleTyping = []
+    $scope.peopleTypingTimeout = {}
+
     $scope.openImage = (item) ->
       ga('send', 'event', 'openImage', $scope.chatId, item.hasImage)
       $mdDialog.show
@@ -87,5 +90,22 @@ app.directive "messages", ($rootScope, $timeout, $interval, $mdDialog, $mdBottom
           controller: 'GridBottomSheetCtrl'
           targetEvent: $event
 
+    listenToTyping = ->
+      api
+        .socket
+        .on "typing", (from) ->
+
+          if $scope.peopleTyping.indexOf(from) is -1
+            $scope.peopleTyping.push from
+
+          if $scope.peopleTypingTimeout[from]
+            $timeout.cancel($scope.peopleTypingTimeout[from])
+
+          $scope.peopleTypingTimeout[from] = $timeout ->
+            index = $scope.peopleTyping.indexOf(from)
+            if index > -1
+              $scope.peopleTyping.splice(index, 1)
+          , 3000
 
     listenToMessages()
+    listenToTyping()

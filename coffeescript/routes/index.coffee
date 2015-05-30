@@ -3,7 +3,7 @@ express = require("express")
 
 router = express.Router()
 
-router.get "/", (req, res) ->
+indexPage = (req, res) ->
   fs = require("fs")
   jsBuildStats = fs.statSync("public/js/build.js")
   jsBuildModified = new Date(jsBuildStats.mtime).getTime()
@@ -17,6 +17,11 @@ router.get "/", (req, res) ->
     cssBuildModified
   }
 
+router.get "/", (req, res) ->
+  indexPage req, res
+
+router.get "/room/*", (req, res) ->
+  indexPage req, res
 
 router.get "*", (req, res) ->
   res.redirect "/"

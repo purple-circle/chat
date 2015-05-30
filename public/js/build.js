@@ -6,15 +6,22 @@
 
   app.config(["$stateProvider", "$locationProvider", function($stateProvider, $locationProvider) {
     $locationProvider.html5Mode(true);
-    return $stateProvider.state('index', {
+    return $stateProvider.state('root', {
       url: '/',
+      abstract: true,
+      template: '<ui-view/>'
+    }).state('root.index', {
+      url: '',
       templateUrl: 'index.html',
       controller: 'index'
+    }).state('root.index.room', {
+      url: 'room/:room_id',
+      controller: 'index.room'
     });
   }]);
 
   app.run(["$rootScope", function($rootScope) {
-    $rootScope.page_title = "(><)";
+    $rootScope.page_title = "Loading chat..";
     return $rootScope.$on('$stateChangeStart', function(event, toState) {
       return ga('send', 'pageview', toState.url);
     });
@@ -75,7 +82,19 @@
   app = angular.module('app');
 
   app.controller('index', ["$rootScope", "$scope", function($rootScope, $scope) {
-    return $rootScope.page_title = "Chat";
+    $rootScope.page_title = "Chat";
+    return $scope.chatId = "chat-123";
+  }]);
+
+}).call(this);
+
+(function() {
+  var app;
+
+  app = angular.module('app');
+
+  app.controller('index.room', ["$rootScope", "$scope", "$stateParams", function($rootScope, $scope, $stateParams) {
+    return $scope.roomId = $stateParams.room_id;
   }]);
 
 }).call(this);
@@ -186,13 +205,15 @@
         chatId: "="
       },
       link: function($scope) {
-        var getMessages, listenToMessages, processMessage, processMessages;
+        var getMessages, listenToMessages, listenToTyping, processMessage, processMessages;
         $scope.messages = {};
         $scope.whitespaces = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
         $scope.messagesFetched = {};
         $scope.youtubeOptions = {
           autoplay: false
         };
+        $scope.peopleTyping = [];
+        $scope.peopleTypingTimeout = {};
         $scope.openImage = function(item) {
           ga('send', 'event', 'openImage', $scope.chatId, item.hasImage);
           return $mdDialog.show({
@@ -282,120 +303,6 @@
             targetEvent: $event
           });
         };
-        return listenToMessages();
-      }
-    };
-  }]);
-
-}).call(this);
-
-(function() {
-  var app;
-
-  app = angular.module('app');
-
-  app.directive("chat", ["$rootScope", "$timeout", "$mdSidenav", "$mdDialog", "api", "tabActive", function($rootScope, $timeout, $mdSidenav, $mdDialog, api, tabActive) {
-    return {
-      templateUrl: "directives/chat/chat.html",
-      link: function($scope) {
-        var checkCommands, createMessage, create_room, listenToMessageNotifications, listenToTyping, postImage, setTopic, unreadMessages;
-        $scope.chatId = "chat-123";
-        $scope.message = '';
-        $scope.tabVisible = true;
-        $scope.currentRoom = false;
-        $scope.peopleTyping = [];
-        $scope.peopleTypingTimeout = {};
-        $scope.from = api.getUsername();
-        $scope.cameraSupported = api.cameraIsSupported();
-        unreadMessages = 0;
-        tabActive.check(function(status) {
-          return $timeout(function() {
-            $scope.tabVisible = status === "hidden";
-            if (!$scope.tabVisible) {
-              unreadMessages = 0;
-              return $rootScope.page_title = "Chat";
-            }
-          });
-        });
-        $rootScope.$on("currentRoom", function(event, room) {
-          $scope.currentRoom = room;
-          return $scope.room_id = room._id;
-        });
-        listenToMessageNotifications = function() {
-          return $rootScope.$on("message-notification", function(event, room_id) {
-            if ($scope.tabVisible) {
-              unreadMessages++;
-              return $rootScope.page_title = "(" + unreadMessages + ") Chat";
-            }
-          });
-        };
-        createMessage = function(data) {
-          var possibleUrl;
-          if (!data.message) {
-            return;
-          }
-          if (checkCommands(data.message)) {
-            return;
-          }
-          data.room_id = $scope.room_id;
-          data.chat_id = $scope.chatId;
-          possibleUrl = api.stringHasUrl(data.message);
-          if ((possibleUrl != null ? possibleUrl[0] : void 0) && api.urlIsImage(possibleUrl[0])) {
-            api.testImage(possibleUrl[0], function() {
-              return ga('send', 'event', 'sharedImage', data.chat_id, possibleUrl[0]);
-            });
-          }
-          return api.save_chat_messages(data);
-        };
-        $scope.browseHistory = function(key) {
-          var message;
-          if (key === "Up") {
-            message = api.messageHistory.up($scope.room_id);
-            if (message) {
-              $scope.message = message;
-            }
-          }
-          if (key === "Down") {
-            return $scope.message = api.messageHistory.down($scope.room_id);
-          }
-        };
-        $scope.saveMessage = function() {
-          var data;
-          $scope.focusUsername = false;
-          $scope.focusMessage = false;
-          if (!$scope.from) {
-            api.notification.set('Please set a username');
-            $scope.focusUsername = true;
-            ga('send', 'event', 'messages', 'empty username', $scope.room_id);
-            return;
-          }
-          if (!$scope.message) {
-            api.notification.set('No empty messages :<');
-            $scope.focusMessage = true;
-            ga('send', 'event', 'messages', 'empty saveMessage', $scope.room_id);
-            return;
-          }
-          ga('send', 'event', 'messages', 'saveMessage', $scope.room_id);
-          data = {
-            chat_id: $scope.chatId,
-            room_id: $scope.room_id,
-            message: $scope.message,
-            from: $scope.from,
-            sid: yolosid
-          };
-          api.messageHistory.saveMessageHistory($scope.message);
-          $scope.message = '';
-          return createMessage(data);
-        };
-        $scope.toggleLeft = function() {
-          return $mdSidenav('left').toggle();
-        };
-        $scope.closeLeft = function() {
-          return $mdSidenav('left').close();
-        };
-        $scope.i_am_typing = function() {
-          return api.i_am_typing($scope.from);
-        };
         listenToTyping = function() {
           return api.socket.on("typing", function(from) {
             if ($scope.peopleTyping.indexOf(from) === -1) {
@@ -413,107 +320,58 @@
             }, 3000);
           });
         };
-        $scope.setUsername = function() {
-          if (!localStorage) {
-            return false;
-          }
-          ga('send', 'event', 'setUsername', $scope.chatId, $scope.from);
-          return localStorage.setItem("name", $scope.from);
-        };
-        create_room = function(name) {
-          var data, icon, imgur_ids, random;
-          imgur_ids = ['h18WTm2b', 'p8SNOcVb', 'CfmbeXib', 'JxtD1vcb', 'RaKwQD7b', 'aaVkYvxb'];
-          random = imgur_ids[Math.floor(Math.random() * imgur_ids.length)];
-          icon = "http://i.imgur.com/" + random + ".png";
-          data = {
-            name: name,
-            chat_id: $scope.chatId,
-            sid: yolosid,
-            created_by: $scope.from,
-            icon: icon
-          };
-          return api.create_room(data).then(function(result) {
-            ga('send', 'event', 'createdRoom', $scope.chatId, result.name);
-            return $rootScope.$broadcast("room-created", result);
-          });
-        };
-        checkCommands = function(message) {
-          var command, content;
-          if (message[0] !== "/") {
-            return false;
-          }
-          content = message.split(" ");
-          command = content[0].replace("/", "");
-          if (command === "topic") {
-            setTopic(content.slice(1).join(" "));
-            return true;
-          }
-          if (command === "join" || command === "j") {
-            $rootScope.$broadcast("joinRoom", content.slice(1).join(" "));
-            return true;
-          }
-          if (command === "create") {
-            create_room(content.slice(1).join(" "));
-            return true;
-          }
-          if (command === "help") {
-            $mdDialog.show({
-              templateUrl: 'directives/chat/help.html'
-            });
-            return true;
-          }
-          return false;
-        };
-        setTopic = function(topic) {
-          ga('send', 'event', 'setTopic', $scope.chatId, topic);
-          $scope.currentRoom.topic = topic;
-          return api.set_topic({
-            topic: topic,
-            room_id: $scope.room_id,
-            chat_id: $scope.chatId
-          });
-        };
-        postImage = function(imgur) {
-          var data;
-          data = {
-            data: imgur.data,
-            chat_id: $scope.chatId,
-            room_id: $scope.room_id,
-            sid: yolosid
-          };
-          api.saveImgurData(data);
-          $scope.message = imgur.data.link;
-          return $scope.saveMessage();
-        };
-        $scope.useCamera = function() {
-          ga('send', 'event', 'useCamera', $scope.chatId, $scope.room_id);
-          return $mdDialog.show({
-            templateUrl: 'directives/chat/camera-dialog.html'
-          }).then(function(result) {
-            postImage(result);
-            return ga('send', 'event', 'used camera, saved picture', $scope.chatId, $scope.room_id);
-          }, function() {
-            var ref;
-            return (ref = window.camera) != null ? ref.stop() : void 0;
-          });
-        };
-        $scope.selectFile = function() {
-          document.getElementById("image-upload").click();
-          return document.getElementsByClassName("select-file-container")[0].blur();
-        };
-        $scope.uploadFile = function(element) {
-          var ref;
-          if (!(element != null ? (ref = element.files) != null ? ref[0] : void 0 : void 0)) {
-            return;
-          }
-          ga('send', 'event', 'uploaded image', $scope.chatId, $scope.room_id);
-          return api.upload_to_imgur(element.files[0]).then(function(result) {
-            postImage(result);
-            return angular.element(element).val(null);
-          });
-        };
-        listenToMessageNotifications();
+        listenToMessages();
         return listenToTyping();
+      }
+    };
+  }]);
+
+}).call(this);
+
+(function() {
+  var app;
+
+  app = angular.module('app');
+
+  app.directive("chat", ["$rootScope", "$timeout", "$mdSidenav", "$mdDialog", "api", "tabActive", function($rootScope, $timeout, $mdSidenav, $mdDialog, api, tabActive) {
+    return {
+      templateUrl: "directives/chat/chat.html",
+      scope: {
+        chatId: "="
+      },
+      link: function($scope) {
+        var listenToMessageNotifications, unreadMessages;
+        $scope.tabVisible = true;
+        $scope.currentRoom = false;
+        unreadMessages = 0;
+        tabActive.check(function(status) {
+          return $timeout(function() {
+            $scope.tabVisible = status === "hidden";
+            if (!$scope.tabVisible) {
+              unreadMessages = 0;
+              return $rootScope.page_title = "Chat";
+            }
+          });
+        });
+        $rootScope.$on("currentRoom", function(event, room) {
+          $scope.currentRoom = room;
+          return $scope.roomId = room._id;
+        });
+        listenToMessageNotifications = function() {
+          return $rootScope.$on("message-notification", function(event, room_id) {
+            if ($scope.tabVisible) {
+              unreadMessages++;
+              return $rootScope.page_title = "(" + unreadMessages + ") Chat";
+            }
+          });
+        };
+        $scope.toggleLeft = function() {
+          return $mdSidenav('left').toggle();
+        };
+        $scope.closeLeft = function() {
+          return $mdSidenav('left').close();
+        };
+        return listenToMessageNotifications();
       }
     };
   }]);
@@ -650,6 +508,212 @@
 
   app = angular.module('app');
 
+  app.directive('loader', function() {
+    return {
+      restrict: 'E',
+      scope: {
+        currentRoom: '='
+      },
+      templateUrl: 'directives/chat/loader.html'
+    };
+  });
+
+}).call(this);
+
+(function() {
+  var app;
+
+  app = angular.module('app');
+
+  app.directive('messageForm', ["$rootScope", "$timeout", "$mdSidenav", "$mdDialog", "api", "tabActive", function($rootScope, $timeout, $mdSidenav, $mdDialog, api, tabActive) {
+    return {
+      restrict: 'E',
+      scope: {
+        chatId: '=',
+        roomId: '=',
+        currentRoom: '='
+      },
+      templateUrl: 'directives/chat/message-form.html',
+      link: function($scope) {
+        var checkCommands, createMessage, create_room, postImage, setTopic;
+        $rootScope.$on("currentRoom", function(event, room) {
+          $scope.currentRoom = room;
+          return $scope.roomId = room._id;
+        });
+        $scope.message = '';
+        $scope.from = api.getUsername();
+        $scope.cameraSupported = api.cameraIsSupported();
+        createMessage = function(data) {
+          var possibleUrl;
+          if (!data.message) {
+            return;
+          }
+          if (checkCommands(data.message)) {
+            return;
+          }
+          data.room_id = $scope.roomId;
+          data.chat_id = $scope.chatId;
+          possibleUrl = api.stringHasUrl(data.message);
+          if ((possibleUrl != null ? possibleUrl[0] : void 0) && api.urlIsImage(possibleUrl[0])) {
+            api.testImage(possibleUrl[0], function() {
+              return ga('send', 'event', 'sharedImage', data.chat_id, possibleUrl[0]);
+            });
+          }
+          return api.save_chat_messages(data);
+        };
+        $scope.browseHistory = function(key) {
+          var message;
+          if (key === "Up") {
+            message = api.messageHistory.up($scope.roomId);
+            if (message) {
+              $scope.message = message;
+            }
+          }
+          if (key === "Down") {
+            return $scope.message = api.messageHistory.down($scope.roomId);
+          }
+        };
+        $scope.saveMessage = function() {
+          var data;
+          $scope.focusUsername = false;
+          $scope.focusMessage = false;
+          if (!$scope.from) {
+            api.notification.set('Please set a username');
+            $scope.focusUsername = true;
+            ga('send', 'event', 'messages', 'empty username', $scope.roomId);
+            return;
+          }
+          if (!$scope.message) {
+            api.notification.set('No empty messages :<');
+            $scope.focusMessage = true;
+            ga('send', 'event', 'messages', 'empty saveMessage', $scope.roomId);
+            return;
+          }
+          ga('send', 'event', 'messages', 'saveMessage', $scope.roomId);
+          data = {
+            chat_id: $scope.chatId,
+            room_id: $scope.roomId,
+            message: $scope.message,
+            from: $scope.from,
+            sid: yolosid
+          };
+          api.messageHistory.saveMessageHistory($scope.message);
+          $scope.message = '';
+          return createMessage(data);
+        };
+        $scope.i_am_typing = function() {
+          return api.i_am_typing($scope.from);
+        };
+        $scope.setUsername = function() {
+          if (!localStorage) {
+            return false;
+          }
+          ga('send', 'event', 'setUsername', $scope.chatId, $scope.from);
+          return localStorage.setItem("name", $scope.from);
+        };
+        create_room = function(name) {
+          var data, icon, imgur_ids, random;
+          imgur_ids = ['h18WTm2b', 'p8SNOcVb', 'CfmbeXib', 'JxtD1vcb', 'RaKwQD7b', 'aaVkYvxb'];
+          random = imgur_ids[Math.floor(Math.random() * imgur_ids.length)];
+          icon = "http://i.imgur.com/" + random + ".png";
+          data = {
+            name: name,
+            chat_id: $scope.chatId,
+            sid: yolosid,
+            created_by: $scope.from,
+            icon: icon
+          };
+          return api.create_room(data).then(function(result) {
+            ga('send', 'event', 'createdRoom', $scope.chatId, result.name);
+            return $rootScope.$broadcast("room-created", result);
+          });
+        };
+        checkCommands = function(message) {
+          var command, content;
+          if (message[0] !== "/") {
+            return false;
+          }
+          content = message.split(" ");
+          command = content[0].replace("/", "");
+          if (command === "topic") {
+            setTopic(content.slice(1).join(" "));
+            return true;
+          }
+          if (command === "join" || command === "j") {
+            $rootScope.$broadcast("joinRoom", content.slice(1).join(" "));
+            return true;
+          }
+          if (command === "create") {
+            create_room(content.slice(1).join(" "));
+            return true;
+          }
+          if (command === "help") {
+            $mdDialog.show({
+              templateUrl: 'directives/chat/help.html'
+            });
+            return true;
+          }
+          return false;
+        };
+        setTopic = function(topic) {
+          ga('send', 'event', 'setTopic', $scope.chatId, topic);
+          $scope.currentRoom.topic = topic;
+          return api.set_topic({
+            topic: topic,
+            room_id: $scope.roomId,
+            chat_id: $scope.chatId
+          });
+        };
+        postImage = function(imgur) {
+          var data;
+          data = {
+            data: imgur.data,
+            chat_id: $scope.chatId,
+            room_id: $scope.roomId,
+            sid: yolosid
+          };
+          api.saveImgurData(data);
+          $scope.message = imgur.data.link;
+          return $scope.saveMessage();
+        };
+        $scope.useCamera = function() {
+          ga('send', 'event', 'useCamera', $scope.chatId, $scope.roomId);
+          return $mdDialog.show({
+            templateUrl: 'directives/chat/camera-dialog.html'
+          }).then(function(result) {
+            postImage(result);
+            return ga('send', 'event', 'used camera, saved picture', $scope.chatId, $scope.roomId);
+          }, function() {
+            var ref;
+            return (ref = window.camera) != null ? ref.stop() : void 0;
+          });
+        };
+        $scope.selectFile = function() {
+          document.getElementById("image-upload").click();
+          return document.getElementsByClassName("select-file-container")[0].blur();
+        };
+        return $scope.uploadFile = function(element) {
+          var ref;
+          if (!(element != null ? (ref = element.files) != null ? ref[0] : void 0 : void 0)) {
+            return;
+          }
+          ga('send', 'event', 'uploaded image', $scope.chatId, $scope.roomId);
+          return api.upload_to_imgur(element.files[0]).then(function(result) {
+            postImage(result);
+            return angular.element(element).val(null);
+          });
+        };
+      }
+    };
+  }]);
+
+}).call(this);
+
+(function() {
+  var app;
+
+  app = angular.module('app');
+
   app.directive('onlineCount', ["$timeout", "api", function($timeout, api) {
     return {
       restrict: 'E',
@@ -673,7 +737,7 @@
 
   app = angular.module('app');
 
-  app.directive("rooms", ["$rootScope", "$timeout", "api", "chatRooms", function($rootScope, $timeout, api, chatRooms) {
+  app.directive("rooms", ["$rootScope", "$timeout", "$state", "$stateParams", "api", "chatRooms", function($rootScope, $timeout, $state, $stateParams, api, chatRooms) {
     return {
       templateUrl: "directives/chat/rooms.html",
       scope: {
@@ -850,6 +914,41 @@
           }
         });
       }
+    };
+  });
+
+}).call(this);
+
+(function() {
+  var app;
+
+  app = angular.module('app');
+
+  app.directive('sidenav', function() {
+    return {
+      restrict: 'E',
+      scope: {
+        chatId: '='
+      },
+      templateUrl: 'directives/chat/sidenav.html'
+    };
+  });
+
+}).call(this);
+
+(function() {
+  var app;
+
+  app = angular.module('app');
+
+  app.directive('toolbar', function() {
+    return {
+      restrict: 'E',
+      scope: {
+        chatId: '=',
+        currentRoom: '='
+      },
+      templateUrl: 'directives/chat/toolbar.html'
     };
   });
 
