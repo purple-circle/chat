@@ -59,51 +59,6 @@
 
   app = angular.module('app');
 
-  app.controller('GridBottomSheetCtrl', ["$scope", "$mdBottomSheet", function($scope, $mdBottomSheet) {
-    $scope.items = [
-      {
-        name: 'Yolo',
-        icon: 'twitter'
-      }
-    ];
-    return $scope.listItemClick = function($index) {
-      var clickedItem;
-      clickedItem = $scope.items[$index];
-      $mdBottomSheet.hide(clickedItem);
-      return console.log("clickedItem", clickedItem);
-    };
-  }]);
-
-}).call(this);
-
-(function() {
-  var app;
-
-  app = angular.module('app');
-
-  app.controller('index', ["$rootScope", "$scope", function($rootScope, $scope) {
-    $rootScope.page_title = "Chat";
-    return $scope.chatId = "chat-123";
-  }]);
-
-}).call(this);
-
-(function() {
-  var app;
-
-  app = angular.module('app');
-
-  app.controller('index.room', ["$rootScope", "$scope", "$stateParams", function($rootScope, $scope, $stateParams) {
-    return $scope.roomId = $stateParams.room_id;
-  }]);
-
-}).call(this);
-
-(function() {
-  var app;
-
-  app = angular.module('app');
-
   app.directive('camera', ["$mdDialog", "api", function($mdDialog, api) {
     return {
       templateUrl: "directives/chat/camera.html",
@@ -604,7 +559,8 @@
           };
           return api.create_room(data).then(function(result) {
             ga('send', 'event', 'createdRoom', $scope.chatId, result.name);
-            return $rootScope.$broadcast("room-created", result);
+            $rootScope.$broadcast("room-created", result);
+            return checkCommands("/join " + result.name);
           });
         };
         checkCommands = function(message) {
@@ -963,19 +919,6 @@
         currentRoom: '='
       },
       templateUrl: 'directives/chat/toolbar.html'
-    };
-  });
-
-}).call(this);
-
-(function() {
-  var app;
-
-  app = angular.module('app');
-
-  app.filter("newlines", function() {
-    return function(text) {
-      return text.replace(/\n/g, "<br>");
     };
   });
 
@@ -1357,5 +1300,63 @@
       }
     };
   }]);
+
+}).call(this);
+
+(function() {
+  var app;
+
+  app = angular.module('app');
+
+  app.controller('GridBottomSheetCtrl', ["$scope", "$mdBottomSheet", function($scope, $mdBottomSheet) {
+    $scope.items = [
+      {
+        name: 'Yolo',
+        icon: 'twitter'
+      }
+    ];
+    return $scope.listItemClick = function($index) {
+      var clickedItem;
+      clickedItem = $scope.items[$index];
+      $mdBottomSheet.hide(clickedItem);
+      return console.log("clickedItem", clickedItem);
+    };
+  }]);
+
+}).call(this);
+
+(function() {
+  var app;
+
+  app = angular.module('app');
+
+  app.controller('index', ["$rootScope", "$scope", function($rootScope, $scope) {
+    $rootScope.page_title = "Chat";
+    return $scope.chatId = "chat-123";
+  }]);
+
+}).call(this);
+
+(function() {
+  var app;
+
+  app = angular.module('app');
+
+  app.controller('index.room', ["$rootScope", "$scope", "$stateParams", function($rootScope, $scope, $stateParams) {
+    return $scope.roomId = $stateParams.room_id;
+  }]);
+
+}).call(this);
+
+(function() {
+  var app;
+
+  app = angular.module('app');
+
+  app.filter("newlines", function() {
+    return function(text) {
+      return text.replace(/\n/g, "<br>");
+    };
+  });
 
 }).call(this);

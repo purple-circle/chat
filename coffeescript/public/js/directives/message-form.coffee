@@ -113,6 +113,7 @@ app.directive 'messageForm', ($rootScope, $timeout, $mdSidenav, $mdDialog, api, 
         .then (result) ->
           ga('send', 'event', 'createdRoom', $scope.chatId, result.name)
           $rootScope.$broadcast("room-created", result)
+          checkCommands("/join #{result.name}")
 
 
     checkCommands = (message) ->
