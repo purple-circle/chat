@@ -46,8 +46,8 @@ app.directive "rooms", ($rootScope, $timeout, $state, $stateParams, api, chatRoo
 
       ga('send', 'event', 'rooms', 'setActiveRoom', room.name, room._id)
 
-      # if room._id isnt $stateParams.room_id
-      #   $state.transitionTo "root.index.room", room_id: room._id
+      if room._id isnt $stateParams.room_id
+        $state.transitionTo "root.index.room", room_id: room._id
 
 
     listenToTopicChange = ->

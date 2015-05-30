@@ -777,7 +777,12 @@
             room.$topicFetched = true;
             getTopic(room._id);
           }
-          return ga('send', 'event', 'rooms', 'setActiveRoom', room.name, room._id);
+          ga('send', 'event', 'rooms', 'setActiveRoom', room.name, room._id);
+          if (room._id !== $stateParams.room_id) {
+            return $state.transitionTo("root.index.room", {
+              room_id: room._id
+            });
+          }
         };
         listenToTopicChange = function() {
           return api.socket.on("topic", function(topic) {
