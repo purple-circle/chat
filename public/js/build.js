@@ -59,51 +59,6 @@
 
   app = angular.module('app');
 
-  app.controller('GridBottomSheetCtrl', ["$scope", "$mdBottomSheet", function($scope, $mdBottomSheet) {
-    $scope.items = [
-      {
-        name: 'Yolo',
-        icon: 'twitter'
-      }
-    ];
-    return $scope.listItemClick = function($index) {
-      var clickedItem;
-      clickedItem = $scope.items[$index];
-      $mdBottomSheet.hide(clickedItem);
-      return console.log("clickedItem", clickedItem);
-    };
-  }]);
-
-}).call(this);
-
-(function() {
-  var app;
-
-  app = angular.module('app');
-
-  app.controller('index', ["$rootScope", "$scope", function($rootScope, $scope) {
-    $rootScope.page_title = "Chat";
-    return $scope.chatId = "chat-123";
-  }]);
-
-}).call(this);
-
-(function() {
-  var app;
-
-  app = angular.module('app');
-
-  app.controller('index.room', ["$rootScope", "$scope", "$stateParams", function($rootScope, $scope, $stateParams) {
-    return $scope.roomId = $stateParams.room_id;
-  }]);
-
-}).call(this);
-
-(function() {
-  var app;
-
-  app = angular.module('app');
-
   app.directive('camera', ["$mdDialog", "api", function($mdDialog, api) {
     return {
       templateUrl: "directives/chat/camera.html",
@@ -249,7 +204,17 @@
           return false;
         };
         processMessage = function(row) {
-          var data, hasYoutubeUrl, notify_user, possibleUrls, ref, youtubeId;
+          var data, hasYoutubeUrl, i, len, message, notify_user, possibleUrls, ref, ref1, youtubeId;
+          if (!$scope.messages[row.room_id]) {
+            $scope.messages[row.room_id] = [];
+          }
+          ref = $scope.messages[row.room_id];
+          for (i = 0, len = ref.length; i < len; i++) {
+            message = ref[i];
+            if (message._id === row._id) {
+              return false;
+            }
+          }
           hasYoutubeUrl = api.isYoutubeUrl(row.original_message);
           if (hasYoutubeUrl) {
             youtubeId = api.getYoutubeIdFromUrl(row.original_message);
@@ -257,11 +222,11 @@
           possibleUrls = api.stringHasUrl(row.original_message);
           if ((possibleUrls != null ? possibleUrls[0] : void 0) && api.urlIsImage(possibleUrls[0])) {
             api.testImage(possibleUrls[0], function() {
-              var i, len, message, ref, results;
-              ref = $scope.messages[row.room_id];
+              var j, len1, ref1, results;
+              ref1 = $scope.messages[row.room_id];
               results = [];
-              for (i = 0, len = ref.length; i < len; i++) {
-                message = ref[i];
+              for (j = 0, len1 = ref1.length; j < len1; j++) {
+                message = ref1[j];
                 if (message._id === row._id) {
                   results.push(message.images = possibleUrls);
                 }
@@ -269,7 +234,7 @@
               return results;
             });
           }
-          notify_user = checkUserMentions(row != null ? (ref = row.metadata) != null ? ref.user_mentions : void 0 : void 0, row.from);
+          notify_user = checkUserMentions(row != null ? (ref1 = row.metadata) != null ? ref1.user_mentions : void 0 : void 0, row.from);
           if (notify_user) {
             if (new Date(row.created_at).getTime() > messagesOpened) {
               $rootScope.$broadcast("tab-beep");
@@ -288,21 +253,23 @@
             notify_user: notify_user,
             page: row.page
           };
-          if (!$scope.messages[row.room_id]) {
-            $scope.messages[row.room_id] = [];
-          }
           return $scope.messages[row.room_id].push(data);
         };
         processMessages = function(room_id, messages, page_number) {
-          var i, len, message, results;
+          var i, len, message;
           $scope.messagesFetched[room_id] = true;
-          results = [];
           for (i = 0, len = messages.length; i < len; i++) {
             message = messages[i];
             message.page = page_number;
-            results.push(processMessage(message));
+            processMessage(message);
           }
-          return results;
+          if (page_number > 0) {
+            return $timeout(function() {
+              var last_message, ref, ref1;
+              last_message = messages.length - 1;
+              return (ref = document.getElementsByClassName("page-" + page_number)) != null ? (ref1 = ref[last_message]) != null ? ref1.scrollIntoView() : void 0 : void 0;
+            });
+          }
         };
         getMessages = function(room_id, page_number) {
           return api.load_chat_messages_for_room({
@@ -310,13 +277,6 @@
             chat_id: $scope.chatId,
             page: page_number
           }).then(function(messages) {
-            if (page_number > 0) {
-              $timeout(function() {
-                var last_message, ref, ref1;
-                last_message = messages.length - 1;
-                return (ref = document.getElementsByClassName("page-" + page_number)) != null ? (ref1 = ref[last_message]) != null ? ref1.scrollIntoView() : void 0 : void 0;
-              });
-            }
             return processMessages(room_id, messages, page_number);
           });
         };
@@ -393,7 +353,6 @@
           return $mdSidenav('left').close();
         };
         return $scope.loadMore = function() {
-          console.log("loading more", $scope.roomId);
           return $rootScope.$broadcast("load-more-messages", $scope.roomId);
         };
       }
@@ -1085,6 +1044,64 @@
 (function() {
   var app;
 
+  app = angular.module('app');
+
+  app.controller('GridBottomSheetCtrl', ["$scope", "$mdBottomSheet", function($scope, $mdBottomSheet) {
+    $scope.items = [
+      {
+        name: 'Yolo',
+        icon: 'twitter'
+      }
+    ];
+    return $scope.listItemClick = function($index) {
+      var clickedItem;
+      clickedItem = $scope.items[$index];
+      $mdBottomSheet.hide(clickedItem);
+      return console.log("clickedItem", clickedItem);
+    };
+  }]);
+
+}).call(this);
+
+(function() {
+  var app;
+
+  app = angular.module('app');
+
+  app.controller('index', ["$rootScope", "$scope", function($rootScope, $scope) {
+    $rootScope.page_title = "Chat";
+    return $scope.chatId = "chat-123";
+  }]);
+
+}).call(this);
+
+(function() {
+  var app;
+
+  app = angular.module('app');
+
+  app.controller('index.room', ["$rootScope", "$scope", "$stateParams", function($rootScope, $scope, $stateParams) {
+    return $scope.roomId = $stateParams.room_id;
+  }]);
+
+}).call(this);
+
+(function() {
+  var app;
+
+  app = angular.module('app');
+
+  app.filter("newlines", function() {
+    return function(text) {
+      return text.replace(/\n/g, "<br>");
+    };
+  });
+
+}).call(this);
+
+(function() {
+  var app;
+
   app = angular.module("app");
 
   app.service("animals", function() {
@@ -1495,18 +1512,5 @@
       }
     };
   }]);
-
-}).call(this);
-
-(function() {
-  var app;
-
-  app = angular.module('app');
-
-  app.filter("newlines", function() {
-    return function(text) {
-      return text.replace(/\n/g, "<br>");
-    };
-  });
 
 }).call(this);

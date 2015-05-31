@@ -50,6 +50,13 @@ app.directive "messages", ($rootScope, $timeout, $interval, $mdDialog, $mdBottom
       return false
 
     processMessage = (row) ->
+      if !$scope.messages[row.room_id]
+        $scope.messages[row.room_id] = []
+
+      # Prevent duplicate messages, hopefully
+      for message in $scope.messages[row.room_id] when message._id is row._id
+        return false
+
       hasYoutubeUrl = api.isYoutubeUrl(row.original_message)
       if hasYoutubeUrl
         youtubeId = api.getYoutubeIdFromUrl(row.original_message)
@@ -78,8 +85,6 @@ app.directive "messages", ($rootScope, $timeout, $interval, $mdDialog, $mdBottom
         notify_user: notify_user
         page: row.page
 
-      if !$scope.messages[row.room_id]
-        $scope.messages[row.room_id] = []
 
       $scope.messages[row.room_id].push(data)
 
@@ -91,16 +96,15 @@ app.directive "messages", ($rootScope, $timeout, $interval, $mdDialog, $mdBottom
         message.page = page_number
         processMessage(message)
 
+      if page_number > 0
+        $timeout ->
+          last_message = messages.length - 1
+          document.getElementsByClassName("page-#{page_number}")?[last_message]?.scrollIntoView()
+
     getMessages = (room_id, page_number) ->
       api
         .load_chat_messages_for_room({room_id, chat_id: $scope.chatId, page: page_number})
         .then (messages) ->
-
-          if page_number > 0
-            $timeout ->
-              last_message = messages.length - 1
-              document.getElementsByClassName("page-#{page_number}")?[last_message]?.scrollIntoView()
-
           processMessages(room_id, messages, page_number)
 
 
