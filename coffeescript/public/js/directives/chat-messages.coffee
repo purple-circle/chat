@@ -17,14 +17,14 @@ app.directive "messages", ($rootScope, $timeout, $interval, $mdDialog, $mdBottom
 
     messagesOpened = new Date().getTime()
 
-    $scope.openImage = (item) ->
-      ga('send', 'event', 'openImage', $scope.chatId, item.hasImage)
+    $scope.openImage = (image) ->
+      ga('send', 'event', 'openImage', $scope.chatId, image)
       $mdDialog.show
         templateUrl: 'directives/chat/image-preview.html'
         locals:
-          image: item
+          image: image
         controller: ($scope, image) ->
-          $scope.image = image.hasImage
+          $scope.image = image
 
     $scope.openYoutubeVideo = (item) ->
       ga('send', 'event', 'openYoutubeVideo', $scope.chatId, item.youtubeId)
@@ -50,11 +50,11 @@ app.directive "messages", ($rootScope, $timeout, $interval, $mdDialog, $mdBottom
       if hasYoutubeUrl
         youtubeId = api.getYoutubeIdFromUrl(row.original_message)
 
-      possibleUrl = api.stringHasUrl(row.original_message)
-      if possibleUrl?[0] and api.urlIsImage(possibleUrl[0])
-        api.testImage possibleUrl[0], ->
+      possibleUrls = api.stringHasUrl(row.original_message)
+      if possibleUrls?[0] and api.urlIsImage(possibleUrls[0])
+        api.testImage possibleUrls[0], ->
           for message in $scope.messages[row.room_id] when message._id is row._id
-            message.hasImage = possibleUrl[0]
+            message.images = possibleUrls
 
       notify_user = checkUserMentions(row?.metadata?.user_mentions, row.from)
       if notify_user
@@ -63,7 +63,7 @@ app.directive "messages", ($rootScope, $timeout, $interval, $mdDialog, $mdBottom
 
       data =
         _id: row._id
-        hasImage: false
+        images: false
         room_id: row.room_id
         message: row.message
         createdAt: row.created_at

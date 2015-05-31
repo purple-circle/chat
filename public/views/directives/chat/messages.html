@@ -30,8 +30,13 @@
           <strong class="from">{{item.from}}</strong><br/>
           <span ng-bind-html="item.message"></span>
 
-          <span ng-if="item.hasImage" class="media-preview">
-            <img ng-click="openImage(item)" ng-src="{{item.hasImage}}">
+          <span ng-if="item.images" class="media-preview">
+
+            <img
+              ng-class="{'image-gallery': item.images.length > 1}"
+              ng-repeat="image in item.images"
+              ng-click="openImage(image)"
+              ng-src="{{image}}">
           </span>
 
           <span ng-if="item.youtubeId" class="media-preview">

@@ -187,6 +187,11 @@ camera .md-subheader.md-default-theme {
   max-width: 100%;
   max-height: 200px;
 }
+.chat-messages .message .media-preview img.image-gallery {
+  float: left;
+  max-width: 45%;
+  margin: 2px;
+}
 .badge {
   border-radius: 100%;
   padding: 4px 8px;

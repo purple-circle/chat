@@ -215,15 +215,15 @@
         $scope.peopleTyping = [];
         $scope.peopleTypingTimeout = {};
         messagesOpened = new Date().getTime();
-        $scope.openImage = function(item) {
-          ga('send', 'event', 'openImage', $scope.chatId, item.hasImage);
+        $scope.openImage = function(image) {
+          ga('send', 'event', 'openImage', $scope.chatId, image);
           return $mdDialog.show({
             templateUrl: 'directives/chat/image-preview.html',
             locals: {
-              image: item
+              image: image
             },
             controller: ["$scope", "image", function($scope, image) {
-              return $scope.image = image.hasImage;
+              return $scope.image = image;
             }]
           });
         };
@@ -248,21 +248,21 @@
           return false;
         };
         processMessage = function(row) {
-          var data, hasYoutubeUrl, notify_user, possibleUrl, ref, youtubeId;
+          var data, hasYoutubeUrl, notify_user, possibleUrls, ref, youtubeId;
           hasYoutubeUrl = api.isYoutubeUrl(row.original_message);
           if (hasYoutubeUrl) {
             youtubeId = api.getYoutubeIdFromUrl(row.original_message);
           }
-          possibleUrl = api.stringHasUrl(row.original_message);
-          if ((possibleUrl != null ? possibleUrl[0] : void 0) && api.urlIsImage(possibleUrl[0])) {
-            api.testImage(possibleUrl[0], function() {
+          possibleUrls = api.stringHasUrl(row.original_message);
+          if ((possibleUrls != null ? possibleUrls[0] : void 0) && api.urlIsImage(possibleUrls[0])) {
+            api.testImage(possibleUrls[0], function() {
               var i, len, message, ref, results;
               ref = $scope.messages[row.room_id];
               results = [];
               for (i = 0, len = ref.length; i < len; i++) {
                 message = ref[i];
                 if (message._id === row._id) {
-                  results.push(message.hasImage = possibleUrl[0]);
+                  results.push(message.images = possibleUrls);
                 }
               }
               return results;
@@ -276,7 +276,7 @@
           }
           data = {
             _id: row._id,
-            hasImage: false,
+            images: false,
             room_id: row.room_id,
             message: row.message,
             createdAt: row.created_at,
