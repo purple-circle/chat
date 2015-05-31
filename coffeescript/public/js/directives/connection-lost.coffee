@@ -15,6 +15,9 @@ app.directive 'connectionLost', ($timeout, $interval, api) ->
     api
       .socket
       .on 'disconnect', ->
+
+        api.notification.hide()
+
         ga('send', 'event', 'connection', 'disconnect')
         content = 'Connection lost, trying to reconnect..'
         api.notification.set(content, true)

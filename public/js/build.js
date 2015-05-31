@@ -423,6 +423,7 @@
         };
         return api.socket.on('disconnect', function() {
           var content;
+          api.notification.hide();
           ga('send', 'event', 'connection', 'disconnect');
           content = 'Connection lost, trying to reconnect..';
           api.notification.set(content, true);
