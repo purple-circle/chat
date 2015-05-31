@@ -533,7 +533,7 @@
       },
       templateUrl: 'directives/chat/message-form.html',
       link: function($scope) {
-        var checkCommands, createMessage, create_room, postImage, setTopic;
+        var checkCommands, createMessage, create_room, hideProgressBar, hideProgressBarTimeout, postImage, setTopic;
         $rootScope.$on("currentRoom", function(event, room) {
           $scope.currentRoom = room;
           return $scope.roomId = room._id;
@@ -541,6 +541,9 @@
         $scope.message = '';
         $scope.from = api.getUsername();
         $scope.cameraSupported = api.cameraIsSupported();
+        $scope.uploadProgress = 0;
+        $scope.showProgress = false;
+        hideProgressBarTimeout = null;
         createMessage = function(data) {
           var possibleUrl;
           if (!data.message) {
@@ -691,16 +694,39 @@
           document.getElementById("image-upload").click();
           return document.getElementsByClassName("select-file-container")[0].blur();
         };
+        hideProgressBar = function() {
+          if (hideProgressBarTimeout) {
+            $timeout.cancel(hideProgressBarTimeout);
+          }
+          return hideProgressBarTimeout = $timeout(function() {
+            return $scope.showProgress = false;
+          }, 1000);
+        };
         return $scope.uploadFile = function(element) {
-          var ref;
+          var ref, upload_error, upload_notify, upload_success;
           if (!(element != null ? (ref = element.files) != null ? ref[0] : void 0 : void 0)) {
             return;
           }
           ga('send', 'event', 'uploaded image', $scope.chatId, $scope.roomId);
-          return api.upload_to_imgur(element.files[0]).then(function(result) {
-            postImage(result);
-            return angular.element(element).val(null);
-          });
+          upload_success = function(result) {
+            return postImage(result).then(function() {
+              angular.element(element).val(null);
+              return hideProgressBar();
+            });
+          };
+          upload_error = function(err) {
+            console.log("err", err);
+            ga('send', 'event', 'image upload error', $scope.chatId, JSON.stringify(err));
+            return hideProgressBar();
+          };
+          upload_notify = function(progress) {
+            return $timeout(function() {
+              return $scope.uploadProgress = progress;
+            });
+          };
+          $scope.showProgress = true;
+          $scope.uploadProgress = 0;
+          return api.upload_to_imgur(element.files[0]).then(upload_success, upload_error, upload_notify);
         };
       }
     };
@@ -1349,6 +1375,10 @@
           options = {};
         }
         deferred = $q.defer();
+        if (!clientId) {
+          deferred.reject("No clientId");
+          return deferred.promise;
+        }
         if (!file) {
           deferred.reject("No file");
           return deferred.promise;
@@ -1360,6 +1390,11 @@
         xhr = new XMLHttpRequest();
         xhr.open("POST", "https://api.imgur.com/3/image.json");
         xhr.setRequestHeader("Authorization", "Client-ID " + clientId);
+        xhr.upload.addEventListener('progress', function(event) {
+          var percent;
+          percent = parseInt(event.loaded / event.total * 100);
+          return deferred.notify(percent);
+        }, false);
         if (!options.canvas) {
           fd = new FormData();
           fd.append("image", file);
@@ -1368,6 +1403,7 @@
         if (options.canvas) {
           xhr.send(file);
         }
+        xhr.onerror = deferred.reject;
         xhr.onload = function() {
           var result;
           result = JSON.parse(xhr.responseText);

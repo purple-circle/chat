@@ -16,6 +16,10 @@ app.directive 'messageForm', ($rootScope, $timeout, $mdSidenav, $mdDialog, api, 
     $scope.message = ''
     $scope.from = api.getUsername()
     $scope.cameraSupported = api.cameraIsSupported()
+    $scope.uploadProgress = 0
+    $scope.showProgress = false
+
+    hideProgressBarTimeout = null
 
     createMessage = (data) ->
       if !data.message
@@ -178,15 +182,40 @@ app.directive 'messageForm', ($rootScope, $timeout, $mdSidenav, $mdDialog, api, 
       document.getElementById("image-upload").click()
       document.getElementsByClassName("select-file-container")[0].blur()
 
+
+    hideProgressBar = ->
+      if hideProgressBarTimeout
+        $timeout.cancel(hideProgressBarTimeout)
+
+      hideProgressBarTimeout = $timeout ->
+        $scope.showProgress = false
+      , 1000
+
     $scope.uploadFile = (element) ->
       if !element?.files?[0]
         return
 
       ga('send', 'event', 'uploaded image', $scope.chatId, $scope.roomId)
 
+      upload_success = (result) ->
+        postImage(result)
+          .then ->
+            angular.element(element).val(null)
+            hideProgressBar()
+
+      upload_error = (err) ->
+        console.log "err", err
+        ga('send', 'event', 'image upload error', $scope.chatId, JSON.stringify(err))
+        hideProgressBar()
+
+      upload_notify = (progress) ->
+        $timeout ->
+          $scope.uploadProgress = progress
+
+      $scope.showProgress = true
+      $scope.uploadProgress = 0
+
       api
         .upload_to_imgur(element.files[0])
-        .then (result) ->
-          postImage(result)
-          angular.element(element).val(null)
+        .then upload_success, upload_error, upload_notify
 

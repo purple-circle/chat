@@ -1,5 +1,6 @@
 
 <div flex class="send-message-container" ng-show="currentRoom">
+
   <form ng-submit="saveMessage()">
     <md-content flex layout="row" class="md-whiteframe-z1 md-padding">
       <md-input-container flex="15">
@@ -7,6 +8,9 @@
         <input ng-model="from" set-focus="focusUsername" ng-change="setUsername()">
       </md-input-container>
       <md-input-container flex>
+
+        <md-progress-linear class="md-warn" md-mode="buffer" value="{{uploadProgress}}" ng-show="showProgress"></md-progress-linear>
+
         <label>Your message</label>
         <input ng-model="message" ng-change="i_am_typing()" keydown="browseHistory(key)">
       </md-input-container>
