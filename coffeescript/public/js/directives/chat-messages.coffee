@@ -55,6 +55,8 @@ app.directive "messages", ($rootScope, $timeout, $interval, $mdDialog, $mdBottom
             message.hasImage = possibleUrl[0]
 
       notify_user = checkUserMentions(row?.metadata?.user_mentions, row.from)
+      if notify_user
+        $rootScope.$broadcast("tab-beep")
 
       data =
         _id: row._id

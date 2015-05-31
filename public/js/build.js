@@ -268,6 +268,9 @@
             });
           }
           notify_user = checkUserMentions(row != null ? (ref = row.metadata) != null ? ref.user_mentions : void 0 : void 0, row.from);
+          if (notify_user) {
+            $rootScope.$broadcast("tab-beep");
+          }
           data = {
             _id: row._id,
             hasImage: false,
@@ -971,21 +974,29 @@
 
   app = angular.module('app');
 
-  app.directive("titleNotifier", ["$rootScope", "tabActive", function($rootScope, tabActive) {
+  app.directive("titleNotifier", ["$rootScope", "tabActive", "beep", function($rootScope, tabActive, beep) {
     return {
       link: function($scope) {
         var tabVisible, unreadMessages;
         tabVisible = true;
         unreadMessages = 0;
         tabActive.check(function(status) {
-          tabVisible = status === "hidden";
-          if (!tabVisible) {
+          tabVisible = status !== "hidden";
+          if (tabVisible) {
             unreadMessages = 0;
             return $rootScope.page_title = "Chat";
           }
         });
+        $rootScope.$on("tab-beep", function() {
+          if (!tabVisible) {
+            beep.create(4500);
+            beep.create(400);
+            beep.create(500);
+            return beep.create(1200);
+          }
+        });
         return $rootScope.$on("message-notification", function(event, room_id) {
-          if (tabVisible) {
+          if (!tabVisible) {
             unreadMessages++;
             return $rootScope.page_title = "(" + unreadMessages + ") Chat";
           }
@@ -1167,6 +1178,38 @@
       }
     };
   }]);
+
+}).call(this);
+
+(function() {
+  var app;
+
+  app = angular.module('app');
+
+  app.factory('beep', function() {
+    return {
+      create: function(hertz) {
+        var audioContextFunction, oscillator;
+        if (typeof webkitAudioContext === "undefined" && typeof AudioContext === "undefined") {
+          return;
+        }
+        if (AudioContext) {
+          audioContextFunction = AudioContext;
+        } else {
+          audioContextFunction = webkitAudioContext;
+        }
+        window.beepAudioContext = window.beepAudioContext || new audioContextFunction();
+        oscillator = window.beepAudioContext.createOscillator();
+        oscillator.connect(window.beepAudioContext.destination);
+        oscillator.type = 'square';
+        oscillator.frequency.value = hertz;
+        oscillator.start();
+        return setTimeout(function() {
+          return oscillator.stop();
+        }, 200);
+      }
+    };
+  });
 
 }).call(this);
 
