@@ -16,13 +16,8 @@
       socket.on("disconnect", function() {
         return socket.broadcast.emit("get_online_count", io.engine.clientsCount);
       });
-      socket.on("load_chat_messages_for_room", function(arg) {
-        var chat_id, room_id;
-        chat_id = arg.chat_id, room_id = arg.room_id;
-        return chat.load_messages_for_room({
-          chat_id: chat_id,
-          room_id: room_id
-        }).then(function(messages) {
+      socket.on("load_chat_messages_for_room", function(data) {
+        return chat.load_messages_for_room(data).then(function(messages) {
           return socket.emit("load_chat_messages_for_room", messages);
         });
       });

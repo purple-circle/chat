@@ -16,9 +16,9 @@ module.exports = (server, sessionStore) ->
     socket.on "disconnect", ->
       socket.broadcast.emit "get_online_count", io.engine.clientsCount
 
-    socket.on "load_chat_messages_for_room", ({chat_id, room_id}) ->
+    socket.on "load_chat_messages_for_room", (data) ->
       chat
-        .load_messages_for_room({chat_id, room_id})
+        .load_messages_for_room(data)
         .then (messages) ->
           socket.emit "load_chat_messages_for_room", messages
 

@@ -88,9 +88,11 @@
   });
 
   jobs.process("api.load_chat_messages_for_room", function(job, done) {
-    var ChatMessages;
+    var ChatMessages, limit, page;
+    limit = 10;
+    page = job.data.page || 0;
     ChatMessages = mongoose.model('chat_messages');
-    return ChatMessages.find().where('chat_id').equals(job.data.chat_id).where('room_id').equals(job.data.room_id).limit(10).sort("-created_at").exec().then(function(result) {
+    return ChatMessages.find().where('chat_id').equals(job.data.chat_id).where('room_id').equals(job.data.room_id).limit(limit).skip(page * limit).sort("-created_at").exec().then(function(result) {
       return done(null, result);
     }, done);
   });

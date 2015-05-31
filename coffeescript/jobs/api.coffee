@@ -80,6 +80,9 @@ jobs.process "api.save_topic", (job, done) ->
       done null, topic
 
 jobs.process "api.load_chat_messages_for_room", (job, done) ->
+  limit = 10
+  page = job.data.page or 0
+
   ChatMessages = mongoose.model 'chat_messages'
   ChatMessages
     .find()
@@ -87,7 +90,8 @@ jobs.process "api.load_chat_messages_for_room", (job, done) ->
     .equals(job.data.chat_id)
     .where('room_id')
     .equals(job.data.room_id)
-    .limit(10)
+    .limit(limit)
+    .skip(page * limit)
     .sort("-created_at")
     .exec()
     .then (result) ->

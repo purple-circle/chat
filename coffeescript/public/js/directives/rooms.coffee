@@ -49,6 +49,9 @@ app.directive "rooms", ($rootScope, $timeout, $state, $stateParams, api, chatRoo
       if room._id isnt $stateParams.room_id
         $state.transitionTo "root.index.room", room_id: room._id
 
+      $timeout ->
+        document.getElementsByClassName("typing-container")?[0].scrollIntoView()
+
 
     listenToTopicChange = ->
       api

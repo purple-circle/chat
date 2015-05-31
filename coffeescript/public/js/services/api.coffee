@@ -88,8 +88,8 @@ app.factory 'api', ($q, youtubeEmbedUtils, uploadImgur, messageHistory, animals,
     socket.emit("get_online_count")
     this.on("get_online_count")
 
-  load_chat_messages_for_room: ({chat_id, room_id}) ->
-    socket.emit("load_chat_messages_for_room", {chat_id, room_id})
+  load_chat_messages_for_room: (data) ->
+    socket.emit("load_chat_messages_for_room", data)
     this.on("load_chat_messages_for_room")
 
   save_chat_messages: (data) ->

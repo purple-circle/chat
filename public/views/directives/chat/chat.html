@@ -20,7 +20,13 @@
       <toolbar chat-id="chatId" current-room="currentRoom"></toolbar>
     </md-toolbar>
 
-    <md-content flex scroll-glue class="md-whiteframe-z1 md-padding" id="content" md-scroll-y>
+    <md-content
+      md-scroll-y
+      scroll-glue
+      flex
+      scroll-load-more="loadMore()"
+      class="md-whiteframe-z1 md-padding"
+      id="content">
       <messages room="currentRoom" chat-id="chatId" scroll-glue ng-if="currentRoom"></messages>
     </md-content>
 

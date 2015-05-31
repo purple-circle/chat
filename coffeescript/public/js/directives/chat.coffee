@@ -3,6 +3,7 @@ app.directive "chat", ($rootScope, $mdSidenav) ->
   templateUrl: "directives/chat/chat.html"
   scope:
     chatId: "="
+    roomId: "="
   link: ($scope) ->
     $scope.currentRoom = false
 
@@ -16,3 +17,7 @@ app.directive "chat", ($rootScope, $mdSidenav) ->
 
     $scope.closeLeft = ->
       $mdSidenav('left').close()
+
+    $scope.loadMore = ->
+      console.log "loading more", $scope.roomId
+      $rootScope.$broadcast("load-more-messages", $scope.roomId)

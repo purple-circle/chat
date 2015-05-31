@@ -12,6 +12,8 @@
       class="chat-messages"
       ng-repeat="item in messages[room._id] | orderBy:'createdAt'">
 
+      <span class="page-{{item.page}}"></span>
+
       <md-button
         md-no-ink
         class="md-fab avatar"

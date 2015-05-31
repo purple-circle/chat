@@ -6,6 +6,10 @@ app.directive "messages", ($rootScope, $timeout, $interval, $mdDialog, $mdBottom
     room: "="
     chatId: "="
   link: ($scope) ->
+
+    # TODO: rename, this is for message paging
+    page = 0
+
     $scope.messages = {}
     $scope.whitespaces = [0..15]
     $scope.messagesFetched = {}
@@ -72,7 +76,7 @@ app.directive "messages", ($rootScope, $timeout, $interval, $mdDialog, $mdBottom
         color: api.intToARGB(api.hashCode(row.from))
         youtubeId: youtubeId
         notify_user: notify_user
-
+        page: row.page
 
       if !$scope.messages[row.room_id]
         $scope.messages[row.room_id] = []
@@ -80,22 +84,34 @@ app.directive "messages", ($rootScope, $timeout, $interval, $mdDialog, $mdBottom
       $scope.messages[row.room_id].push(data)
 
 
-    processMessages = (room_id, messages) ->
+    processMessages = (room_id, messages, page_number) ->
       $scope.messagesFetched[room_id] = true
 
       for message in messages
+        message.page = page_number
         processMessage(message)
 
-    getMessages = (room_id) ->
+    getMessages = (room_id, page_number) ->
       api
-        .load_chat_messages_for_room({room_id, chat_id: $scope.chatId})
+        .load_chat_messages_for_room({room_id, chat_id: $scope.chatId, page: page_number})
         .then (messages) ->
-          processMessages(room_id, messages)
+
+          if page_number > 0
+            $timeout ->
+              last_message = messages.length - 1
+              document.getElementsByClassName("page-#{page_number}")?[last_message]?.scrollIntoView()
+
+          processMessages(room_id, messages, page_number)
 
 
     $rootScope.$on "getMessages", (event, room_id) ->
       ga('send', 'event', 'messages', 'getMessages', $scope.chatId, room_id)
-      getMessages(room_id)
+      getMessages(room_id, page)
+
+    $rootScope.$on "load-more-messages", (event, room_id) ->
+      ga('send', 'event', 'messages', 'load-more-messages', $scope.chatId, room_id)
+      page++
+      getMessages(room_id, page)
 
     listenToMessages = ->
       api

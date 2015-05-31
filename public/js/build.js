@@ -205,7 +205,8 @@
         chatId: "="
       },
       link: function($scope) {
-        var checkUserMentions, getMessages, listenToMessages, listenToTyping, messagesOpened, processMessage, processMessages;
+        var checkUserMentions, getMessages, listenToMessages, listenToTyping, messagesOpened, page, processMessage, processMessages;
+        page = 0;
         $scope.messages = {};
         $scope.whitespaces = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
         $scope.messagesFetched = {};
@@ -284,34 +285,49 @@
             is_me: row.sid === yolosid,
             color: api.intToARGB(api.hashCode(row.from)),
             youtubeId: youtubeId,
-            notify_user: notify_user
+            notify_user: notify_user,
+            page: row.page
           };
           if (!$scope.messages[row.room_id]) {
             $scope.messages[row.room_id] = [];
           }
           return $scope.messages[row.room_id].push(data);
         };
-        processMessages = function(room_id, messages) {
+        processMessages = function(room_id, messages, page_number) {
           var i, len, message, results;
           $scope.messagesFetched[room_id] = true;
           results = [];
           for (i = 0, len = messages.length; i < len; i++) {
             message = messages[i];
+            message.page = page_number;
             results.push(processMessage(message));
           }
           return results;
         };
-        getMessages = function(room_id) {
+        getMessages = function(room_id, page_number) {
           return api.load_chat_messages_for_room({
             room_id: room_id,
-            chat_id: $scope.chatId
+            chat_id: $scope.chatId,
+            page: page_number
           }).then(function(messages) {
-            return processMessages(room_id, messages);
+            if (page_number > 0) {
+              $timeout(function() {
+                var last_message, ref, ref1;
+                last_message = messages.length - 1;
+                return (ref = document.getElementsByClassName("page-" + page_number)) != null ? (ref1 = ref[last_message]) != null ? ref1.scrollIntoView() : void 0 : void 0;
+              });
+            }
+            return processMessages(room_id, messages, page_number);
           });
         };
         $rootScope.$on("getMessages", function(event, room_id) {
           ga('send', 'event', 'messages', 'getMessages', $scope.chatId, room_id);
-          return getMessages(room_id);
+          return getMessages(room_id, page);
+        });
+        $rootScope.$on("load-more-messages", function(event, room_id) {
+          ga('send', 'event', 'messages', 'load-more-messages', $scope.chatId, room_id);
+          page++;
+          return getMessages(room_id, page);
         });
         listenToMessages = function() {
           return api.socket.on("save_chat_message", function(message) {
@@ -361,7 +377,8 @@
     return {
       templateUrl: "directives/chat/chat.html",
       scope: {
-        chatId: "="
+        chatId: "=",
+        roomId: "="
       },
       link: function($scope) {
         $scope.currentRoom = false;
@@ -372,8 +389,12 @@
         $scope.toggleLeft = function() {
           return $mdSidenav('left').toggle();
         };
-        return $scope.closeLeft = function() {
+        $scope.closeLeft = function() {
           return $mdSidenav('left').close();
+        };
+        return $scope.loadMore = function() {
+          console.log("loading more", $scope.roomId);
+          return $rootScope.$broadcast("load-more-messages", $scope.roomId);
         };
       }
     };
@@ -831,10 +852,14 @@
           }
           ga('send', 'event', 'rooms', 'setActiveRoom', room.name, room._id);
           if (room._id !== $stateParams.room_id) {
-            return $state.transitionTo("root.index.room", {
+            $state.transitionTo("root.index.room", {
               room_id: room._id
             });
           }
+          return $timeout(function() {
+            var ref;
+            return (ref = document.getElementsByClassName("typing-container")) != null ? ref[0].scrollIntoView() : void 0;
+          });
         };
         listenToTopicChange = function() {
           return api.socket.on("topic", function(topic) {
@@ -937,6 +962,35 @@
 
   app = angular.module('app');
 
+  app.directive('scrollLoadMore', ["$timeout", function($timeout) {
+    return {
+      scope: {
+        callback: "&scrollLoadMore"
+      },
+      link: function($scope, element, attr) {
+        var timeout;
+        timeout = null;
+        return element.bind('scroll', function() {
+          if (element[0].scrollTop < 50) {
+            if (timeout) {
+              $timeout.cancel(timeout);
+            }
+            return timeout = $timeout(function() {
+              return $scope.callback();
+            }, 100);
+          }
+        });
+      }
+    };
+  }]);
+
+}).call(this);
+
+(function() {
+  var app;
+
+  app = angular.module('app');
+
   app.directive('setFocus', function() {
     return {
       restrict: 'A',
@@ -1023,19 +1077,6 @@
         currentRoom: '='
       },
       templateUrl: 'directives/chat/toolbar.html'
-    };
-  });
-
-}).call(this);
-
-(function() {
-  var app;
-
-  app = angular.module('app');
-
-  app.filter("newlines", function() {
-    return function(text) {
-      return text.replace(/\n/g, "<br>");
     };
   });
 
@@ -1156,13 +1197,8 @@
         socket.emit("get_online_count");
         return this.on("get_online_count");
       },
-      load_chat_messages_for_room: function(arg) {
-        var chat_id, room_id;
-        chat_id = arg.chat_id, room_id = arg.room_id;
-        socket.emit("load_chat_messages_for_room", {
-          chat_id: chat_id,
-          room_id: room_id
-        });
+      load_chat_messages_for_room: function(data) {
+        socket.emit("load_chat_messages_for_room", data);
         return this.on("load_chat_messages_for_room");
       },
       save_chat_messages: function(data) {
@@ -1459,5 +1495,18 @@
       }
     };
   }]);
+
+}).call(this);
+
+(function() {
+  var app;
+
+  app = angular.module('app');
+
+  app.filter("newlines", function() {
+    return function(text) {
+      return text.replace(/\n/g, "<br>");
+    };
+  });
 
 }).call(this);
