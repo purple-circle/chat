@@ -23,8 +23,11 @@
 
 
       <p>
-        <span class="message" ng-class="{their: item.is_me}">
-          <strong style="color: #666;">{{item.from}}</strong><br/>
+        <span
+          class="message"
+          ng-class="{their: item.is_me, notify: item.notify_user}">
+
+          <strong class="from">{{item.from}}</strong><br/>
           <span ng-bind-html="item.message"></span>
 
           <span ng-if="item.hasImage" class="media-preview">

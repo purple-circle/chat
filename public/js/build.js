@@ -59,6 +59,51 @@
 
   app = angular.module('app');
 
+  app.controller('GridBottomSheetCtrl', ["$scope", "$mdBottomSheet", function($scope, $mdBottomSheet) {
+    $scope.items = [
+      {
+        name: 'Yolo',
+        icon: 'twitter'
+      }
+    ];
+    return $scope.listItemClick = function($index) {
+      var clickedItem;
+      clickedItem = $scope.items[$index];
+      $mdBottomSheet.hide(clickedItem);
+      return console.log("clickedItem", clickedItem);
+    };
+  }]);
+
+}).call(this);
+
+(function() {
+  var app;
+
+  app = angular.module('app');
+
+  app.controller('index', ["$rootScope", "$scope", function($rootScope, $scope) {
+    $rootScope.page_title = "Chat";
+    return $scope.chatId = "chat-123";
+  }]);
+
+}).call(this);
+
+(function() {
+  var app;
+
+  app = angular.module('app');
+
+  app.controller('index.room', ["$rootScope", "$scope", "$stateParams", function($rootScope, $scope, $stateParams) {
+    return $scope.roomId = $stateParams.room_id;
+  }]);
+
+}).call(this);
+
+(function() {
+  var app;
+
+  app = angular.module('app');
+
   app.directive('camera', ["$mdDialog", "api", function($mdDialog, api) {
     return {
       templateUrl: "directives/chat/camera.html",
@@ -160,7 +205,7 @@
         chatId: "="
       },
       link: function($scope) {
-        var getMessages, listenToMessages, listenToTyping, processMessage, processMessages;
+        var checkUserMentions, getMessages, listenToMessages, listenToTyping, processMessage, processMessages;
         $scope.messages = {};
         $scope.whitespaces = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
         $scope.messagesFetched = {};
@@ -185,8 +230,24 @@
           ga('send', 'event', 'openYoutubeVideo', $scope.chatId, item.youtubeId);
           return item.videoOpened = true;
         };
+        checkUserMentions = function(user_mentions, from) {
+          var i, len, myUsername, name, username;
+          if (!user_mentions) {
+            return false;
+          }
+          myUsername = api.getUsername();
+          myUsername = myUsername.toLowerCase();
+          for (i = 0, len = user_mentions.length; i < len; i++) {
+            username = user_mentions[i];
+            name = username.toLowerCase();
+            if (name === myUsername && from !== myUsername) {
+              return true;
+            }
+          }
+          return false;
+        };
         processMessage = function(row) {
-          var data, hasYoutubeUrl, possibleUrl, youtubeId;
+          var data, hasYoutubeUrl, notify_user, possibleUrl, ref, youtubeId;
           hasYoutubeUrl = api.isYoutubeUrl(row.original_message);
           if (hasYoutubeUrl) {
             youtubeId = api.getYoutubeIdFromUrl(row.original_message);
@@ -206,6 +267,7 @@
               return results;
             });
           }
+          notify_user = checkUserMentions(row != null ? (ref = row.metadata) != null ? ref.user_mentions : void 0 : void 0, row.from);
           data = {
             _id: row._id,
             hasImage: false,
@@ -215,7 +277,8 @@
             from: row.from,
             is_me: row.sid === yolosid,
             color: api.intToARGB(api.hashCode(row.from)),
-            youtubeId: youtubeId
+            youtubeId: youtubeId,
+            notify_user: notify_user
           };
           if (!$scope.messages[row.room_id]) {
             $scope.messages[row.room_id] = [];
@@ -927,6 +990,19 @@
 (function() {
   var app;
 
+  app = angular.module('app');
+
+  app.filter("newlines", function() {
+    return function(text) {
+      return text.replace(/\n/g, "<br>");
+    };
+  });
+
+}).call(this);
+
+(function() {
+  var app;
+
   app = angular.module("app");
 
   app.service("animals", function() {
@@ -1300,63 +1376,5 @@
       }
     };
   }]);
-
-}).call(this);
-
-(function() {
-  var app;
-
-  app = angular.module('app');
-
-  app.controller('GridBottomSheetCtrl', ["$scope", "$mdBottomSheet", function($scope, $mdBottomSheet) {
-    $scope.items = [
-      {
-        name: 'Yolo',
-        icon: 'twitter'
-      }
-    ];
-    return $scope.listItemClick = function($index) {
-      var clickedItem;
-      clickedItem = $scope.items[$index];
-      $mdBottomSheet.hide(clickedItem);
-      return console.log("clickedItem", clickedItem);
-    };
-  }]);
-
-}).call(this);
-
-(function() {
-  var app;
-
-  app = angular.module('app');
-
-  app.controller('index', ["$rootScope", "$scope", function($rootScope, $scope) {
-    $rootScope.page_title = "Chat";
-    return $scope.chatId = "chat-123";
-  }]);
-
-}).call(this);
-
-(function() {
-  var app;
-
-  app = angular.module('app');
-
-  app.controller('index.room', ["$rootScope", "$scope", "$stateParams", function($rootScope, $scope, $stateParams) {
-    return $scope.roomId = $stateParams.room_id;
-  }]);
-
-}).call(this);
-
-(function() {
-  var app;
-
-  app = angular.module('app');
-
-  app.filter("newlines", function() {
-    return function(text) {
-      return text.replace(/\n/g, "<br>");
-    };
-  });
 
 }).call(this);

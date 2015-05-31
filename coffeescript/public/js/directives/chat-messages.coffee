@@ -29,6 +29,20 @@ app.directive "messages", ($rootScope, $timeout, $interval, $mdDialog, $mdBottom
       item.videoOpened = true
 
 
+    checkUserMentions = (user_mentions, from) ->
+      if !user_mentions
+        return false
+
+      myUsername = api.getUsername()
+      myUsername = myUsername.toLowerCase()
+
+      for username in user_mentions
+        name = username.toLowerCase()
+        if name is myUsername and from isnt myUsername
+          return true
+
+      return false
+
     processMessage = (row) ->
       hasYoutubeUrl = api.isYoutubeUrl(row.original_message)
       if hasYoutubeUrl
@@ -40,6 +54,8 @@ app.directive "messages", ($rootScope, $timeout, $interval, $mdDialog, $mdBottom
           for message in $scope.messages[row.room_id] when message._id is row._id
             message.hasImage = possibleUrl[0]
 
+      notify_user = checkUserMentions(row?.metadata?.user_mentions, row.from)
+
       data =
         _id: row._id
         hasImage: false
@@ -50,6 +66,7 @@ app.directive "messages", ($rootScope, $timeout, $interval, $mdDialog, $mdBottom
         is_me: row.sid is yolosid
         color: api.intToARGB(api.hashCode(row.from))
         youtubeId: youtubeId
+        notify_user: notify_user
 
 
       if !$scope.messages[row.room_id]

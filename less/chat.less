@@ -4,6 +4,7 @@
 @border-size: 7px;
 @camera-header-background: #dcedc8;
 @nice-shadow: 0 1px .5px rgba(0,0,0,.13);
+@notify-background-color: #FFE5C3;
 
 .message-bubble() {
   word-wrap: break-word;
@@ -204,6 +205,23 @@ camera {
         border-left-color: @their-message-background;
         border-right-color: transparent;
       }
+    }
+
+    &.notify {
+      background-color: @notify-background-color;
+
+      &:after {
+        border-right-color: @notify-background-color;
+      }
+      &.their {
+        &:after {
+          border-left-color: @notify-background-color;
+        }
+      }
+    }
+
+    .from {
+      color: #666;
     }
 
     .media-preview {

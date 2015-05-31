@@ -164,6 +164,18 @@ camera .md-subheader.md-default-theme {
   border-left-color: #fff7ec;
   border-right-color: transparent;
 }
+.chat-messages .message.notify {
+  background-color: #ffe5c3;
+}
+.chat-messages .message.notify:after {
+  border-right-color: #ffe5c3;
+}
+.chat-messages .message.notify.their:after {
+  border-left-color: #ffe5c3;
+}
+.chat-messages .message .from {
+  color: #666;
+}
 .chat-messages .message .media-preview {
   border-top: 1px solid rgba(137, 137, 137, 0.1);
   margin-top: 10px;
