@@ -15,6 +15,8 @@ app.directive "messages", ($rootScope, $timeout, $interval, $mdDialog, $mdBottom
     $scope.peopleTyping = []
     $scope.peopleTypingTimeout = {}
 
+    messagesOpened = new Date().getTime()
+
     $scope.openImage = (item) ->
       ga('send', 'event', 'openImage', $scope.chatId, item.hasImage)
       $mdDialog.show
@@ -56,7 +58,8 @@ app.directive "messages", ($rootScope, $timeout, $interval, $mdDialog, $mdBottom
 
       notify_user = checkUserMentions(row?.metadata?.user_mentions, row.from)
       if notify_user
-        $rootScope.$broadcast("tab-beep")
+        if new Date(row.created_at).getTime() > messagesOpened
+          $rootScope.$broadcast("tab-beep")
 
       data =
         _id: row._id

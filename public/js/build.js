@@ -205,7 +205,7 @@
         chatId: "="
       },
       link: function($scope) {
-        var checkUserMentions, getMessages, listenToMessages, listenToTyping, processMessage, processMessages;
+        var checkUserMentions, getMessages, listenToMessages, listenToTyping, messagesOpened, processMessage, processMessages;
         $scope.messages = {};
         $scope.whitespaces = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
         $scope.messagesFetched = {};
@@ -214,6 +214,7 @@
         };
         $scope.peopleTyping = [];
         $scope.peopleTypingTimeout = {};
+        messagesOpened = new Date().getTime();
         $scope.openImage = function(item) {
           ga('send', 'event', 'openImage', $scope.chatId, item.hasImage);
           return $mdDialog.show({
@@ -269,7 +270,9 @@
           }
           notify_user = checkUserMentions(row != null ? (ref = row.metadata) != null ? ref.user_mentions : void 0 : void 0, row.from);
           if (notify_user) {
-            $rootScope.$broadcast("tab-beep");
+            if (new Date(row.created_at).getTime() > messagesOpened) {
+              $rootScope.$broadcast("tab-beep");
+            }
           }
           data = {
             _id: row._id,
