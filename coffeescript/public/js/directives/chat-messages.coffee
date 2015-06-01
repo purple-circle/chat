@@ -49,11 +49,21 @@ app.directive "messages", ($rootScope, $timeout, $interval, $mdDialog, $mdBottom
 
       return false
 
+    getMessageById = (room_id, id) ->
+      for message in $scope.messages[room_id] when message._id is id
+        return message
+
+      return false
+
+
     processMessage = (row) ->
       if !$scope.messages[row.room_id]
         $scope.messages[row.room_id] = []
 
       # Prevent duplicate messages, hopefully
+      if getMessageById(row.room_id, row._id)
+        return false
+
       for message in $scope.messages[row.room_id] when message._id is row._id
         return false
 
@@ -64,8 +74,9 @@ app.directive "messages", ($rootScope, $timeout, $interval, $mdDialog, $mdBottom
       possibleUrls = api.stringHasUrl(row.original_message)
       if possibleUrls?[0] and api.urlIsImage(possibleUrls[0])
         api.testImage possibleUrls[0], ->
-          for message in $scope.messages[row.room_id] when message._id is row._id
-            message.images = possibleUrls
+
+          message = getMessageById(row.room_id, row._id)
+          message?.images = possibleUrls
 
       notify_user = checkUserMentions(row?.metadata?.user_mentions, row.from)
       if notify_user
