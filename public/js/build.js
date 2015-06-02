@@ -104,6 +104,19 @@
 
   app = angular.module('app');
 
+  app.filter("newlines", function() {
+    return function(text) {
+      return text.replace(/\n/g, "<br>");
+    };
+  });
+
+}).call(this);
+
+(function() {
+  var app;
+
+  app = angular.module('app');
+
   app.directive('camera', ["$mdDialog", "api", function($mdDialog, api) {
     return {
       templateUrl: "directives/chat/camera.html",
@@ -302,7 +315,8 @@
             color: api.intToARGB(api.hashCode(row.from)),
             youtubeId: youtubeId,
             notify_user: notify_user,
-            page: row.page
+            page: row.page,
+            isGreenText: row.original_message[0].trim() === ">"
           };
           return $scope.messages[row.room_id].push(data);
         };
@@ -1087,19 +1101,6 @@
         currentRoom: '='
       },
       templateUrl: 'directives/chat/toolbar.html'
-    };
-  });
-
-}).call(this);
-
-(function() {
-  var app;
-
-  app = angular.module('app');
-
-  app.filter("newlines", function() {
-    return function(text) {
-      return text.replace(/\n/g, "<br>");
     };
   });
 

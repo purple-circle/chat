@@ -123,6 +123,9 @@ camera .md-subheader.md-default-theme {
   background: #f9ffff;
   box-shadow: 0 1px 0.5px rgba(0, 0, 0, 0.13);
 }
+.chat-messages .message .green-text {
+  color: #008000;
+}
 .chat-messages .message .time {
   color: rgba(47, 47, 47, 0.5);
   position: absolute;

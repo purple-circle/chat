@@ -30,7 +30,7 @@
           ng-class="{their: item.is_me, notify: item.notify_user}">
 
           <strong class="from">{{item.from}}</strong><br/>
-          <span ng-bind-html="item.message"></span>
+          <span ng-bind-html="item.message" ng-class="{'green-text': item.isGreenText}"></span>
 
           <span ng-if="item.images" class="media-preview">
 

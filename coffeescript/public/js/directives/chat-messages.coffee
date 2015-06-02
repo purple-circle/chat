@@ -95,6 +95,7 @@ app.directive "messages", ($rootScope, $timeout, $interval, $mdDialog, $mdBottom
         youtubeId: youtubeId
         notify_user: notify_user
         page: row.page
+        isGreenText: row.original_message[0].trim() is ">"
 
 
       $scope.messages[row.room_id].push(data)
