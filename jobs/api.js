@@ -1,5 +1,5 @@
 (function() {
-  var jobs, kue, mongoose, selectUserFields, settings, twitter, twitter_text_options;
+  var jobs, kue, mongoose, selectUserFields, settings, twitter, twitter_text_options, unique;
 
   require('newrelic');
 
@@ -97,13 +97,28 @@
     }, done);
   });
 
+  unique = function(list) {
+    var i, key, output, ref, results, value;
+    output = {};
+    for (key = i = 0, ref = list.length; 0 <= ref ? i < ref : i > ref; key = 0 <= ref ? ++i : --i) {
+      output[list[key]] = list[key];
+    }
+    results = [];
+    for (key in output) {
+      value = output[key];
+      results.push(value);
+    }
+    return results;
+  };
+
   jobs.process("api.save_chat_message", function(job, done) {
-    var ChatMessages, hashtags, message, user_mentions;
+    var ChatMessages, hashtags, message, urls, user_mentions;
     user_mentions = twitter.extractMentions(job.data.message);
     hashtags = twitter.extractHashtags(job.data.message);
+    urls = twitter.extractUrls(job.data.message);
     job.data.original_message = job.data.message;
     job.data.message = twitter.autoLink(twitter.htmlEscape(job.data.message), twitter_text_options);
-    if (user_mentions || hashtags) {
+    if (user_mentions || hashtags || urls) {
       job.data.metadata = {};
     }
     if (user_mentions.length) {
@@ -111,6 +126,9 @@
     }
     if (hashtags.length) {
       job.data.metadata.hashtags = hashtags;
+    }
+    if (urls.length) {
+      job.data.metadata.urls = unique(urls);
     }
     ChatMessages = mongoose.model('chat_messages');
     message = new ChatMessages(job.data);

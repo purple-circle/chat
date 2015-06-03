@@ -98,16 +98,24 @@ jobs.process "api.load_chat_messages_for_room", (job, done) ->
       done(null, result)
     , done
 
+# TODO: this should be in some helpers utility or then just use lodash
+unique = (list) ->
+  output = {}
+  output[list[key]] = list[key] for key in [0...list.length]
+  value for key, value of output
+
+
 jobs.process "api.save_chat_message", (job, done) ->
   user_mentions = twitter.extractMentions(job.data.message)
   hashtags = twitter.extractHashtags(job.data.message)
+  urls = twitter.extractUrls(job.data.message)
 
   job.data.original_message = job.data.message
 
   job.data.message = twitter.autoLink(twitter.htmlEscape(job.data.message), twitter_text_options)
 
 
-  if user_mentions || hashtags
+  if user_mentions || hashtags || urls
     job.data.metadata = {}
 
   if user_mentions.length
@@ -115,6 +123,9 @@ jobs.process "api.save_chat_message", (job, done) ->
 
   if hashtags.length
     job.data.metadata.hashtags = hashtags
+
+  if urls.length
+    job.data.metadata.urls = unique(urls)
 
   ChatMessages = mongoose.model 'chat_messages'
   message = new ChatMessages(job.data)
