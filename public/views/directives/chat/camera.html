@@ -21,6 +21,9 @@
 
 </md-subheader>
 
+
+  <md-progress-linear class="md-warn" md-mode="buffer" value="{{uploadProgress}}" ng-show="showProgress"></md-progress-linear>
+
 <div ng-hide="imageTaken">
   <video id="video" width="640" height="480" autoplay></video>
 </div>

@@ -1,10 +1,12 @@
 app = angular.module('app')
-app.directive 'camera', ($mdDialog, api) ->
+app.directive 'camera', ($timeout, $mdDialog, api) ->
   templateUrl: "directives/chat/camera.html"
   restrict: 'E'
   link: ($scope, element, attrs) ->
     $scope.imageTaken = false
     $scope.readyToTakeImage = false
+    $scope.uploadProgress = 0
+    $scope.showProgress = false
 
     # Grab elements, create settings, etc.
     canvas = document.getElementById('canvas')
@@ -65,14 +67,36 @@ app.directive 'camera', ($mdDialog, api) ->
       start()
       $scope.imageTaken = false
 
+    hideProgressBar = ->
+      if hideProgressBarTimeout
+        $timeout.cancel(hideProgressBarTimeout)
+
+      hideProgressBarTimeout = $timeout ->
+        $scope.showProgress = false
+      , 1000
+
     $scope.send = ->
+
+      upload_success = (imgur) ->
+        $scope.sending = false
+        hideProgressBar()
+        $mdDialog.hide imgur
+
+      upload_error = (err) ->
+        hideProgressBar()
+
+      upload_notify = (progress) ->
+        $timeout ->
+          $scope.uploadProgress = progress
+
+      $scope.showProgress = true
+      $scope.uploadProgress = 0
+
       $scope.sending = true
       image = convertCanvasToImage(canvas)
       api
         .upload_to_imgur(image, {canvas: true})
-        .then (imgur) ->
-          $scope.sending = false
-          $mdDialog.hide imgur
+        .then upload_success, upload_error, upload_notify
 
 
     $scope.takePhoto = ->

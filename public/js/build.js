@@ -104,27 +104,16 @@
 
   app = angular.module('app');
 
-  app.filter("newlines", function() {
-    return function(text) {
-      return text.replace(/\n/g, "<br>");
-    };
-  });
-
-}).call(this);
-
-(function() {
-  var app;
-
-  app = angular.module('app');
-
-  app.directive('camera', ["$mdDialog", "api", function($mdDialog, api) {
+  app.directive('camera', ["$timeout", "$mdDialog", "api", function($timeout, $mdDialog, api) {
     return {
       templateUrl: "directives/chat/camera.html",
       restrict: 'E',
       link: function($scope, element, attrs) {
-        var canvas, context, convertCanvasToImage, errBack, setup, start, video, videoObj;
+        var canvas, context, convertCanvasToImage, errBack, hideProgressBar, setup, start, video, videoObj;
         $scope.imageTaken = false;
         $scope.readyToTakeImage = false;
+        $scope.uploadProgress = 0;
+        $scope.showProgress = false;
         canvas = document.getElementById('canvas');
         context = canvas.getContext('2d');
         video = document.getElementById('video');
@@ -180,16 +169,37 @@
           start();
           return $scope.imageTaken = false;
         };
+        hideProgressBar = function() {
+          var hideProgressBarTimeout;
+          if (hideProgressBarTimeout) {
+            $timeout.cancel(hideProgressBarTimeout);
+          }
+          return hideProgressBarTimeout = $timeout(function() {
+            return $scope.showProgress = false;
+          }, 1000);
+        };
         $scope.send = function() {
-          var image;
+          var image, upload_error, upload_notify, upload_success;
+          upload_success = function(imgur) {
+            $scope.sending = false;
+            hideProgressBar();
+            return $mdDialog.hide(imgur);
+          };
+          upload_error = function(err) {
+            return hideProgressBar();
+          };
+          upload_notify = function(progress) {
+            return $timeout(function() {
+              return $scope.uploadProgress = progress;
+            });
+          };
+          $scope.showProgress = true;
+          $scope.uploadProgress = 0;
           $scope.sending = true;
           image = convertCanvasToImage(canvas);
           return api.upload_to_imgur(image, {
             canvas: true
-          }).then(function(imgur) {
-            $scope.sending = false;
-            return $mdDialog.hide(imgur);
-          });
+          }).then(upload_success, upload_error, upload_notify);
         };
         $scope.takePhoto = function() {
           $scope.imageTaken = true;
@@ -1101,6 +1111,19 @@
         currentRoom: '='
       },
       templateUrl: 'directives/chat/toolbar.html'
+    };
+  });
+
+}).call(this);
+
+(function() {
+  var app;
+
+  app = angular.module('app');
+
+  app.filter("newlines", function() {
+    return function(text) {
+      return text.replace(/\n/g, "<br>");
     };
   });
 
