@@ -8,6 +8,10 @@ require("../mongo")(settings)
 
 twitter = require('twitter-text')
 
+request = require("request")
+Q = require("q")
+
+
 twitter_text_options =
   usernameUrlBase: "/profile/"
   hashtagUrlBase: "/tag/"
@@ -15,6 +19,20 @@ twitter_text_options =
 
 console.log "api worker running"
 selectUserFields = '-salt -hash'
+
+
+
+getUrlContent = (url) ->
+  deferred = Q.defer()
+
+  request url, (error, response, data) ->
+    if !error && response.statusCode is 200
+      deferred.resolve data
+    else
+      deferred.reject {error}
+
+  deferred.promise
+
 
 
 jobs.process "stats.save_api_log", (job, done) ->
@@ -104,6 +122,80 @@ unique = (list) ->
   output[list[key]] = list[key] for key in [0...list.length]
   value for key, value of output
 
+objectLength = (obj) ->
+  Object.keys(obj).length
+
+jobs.process "api.store_twitter_tags", (job, done) ->
+  twitterTags = require('twitter-tag-scraper')
+  tags = twitterTags.parseHtml(job.data.content)
+  if !objectLength(tags)
+    done({error: "No tags"})
+    return
+
+  data =
+    url: job.data.url
+    tags: tags
+
+  Tags = mongoose.model 'twitter_tags'
+  tag = new Tags(data)
+  tag.save (err) ->
+    if err
+      done(err)
+    else
+      done null, tag
+
+
+jobs.process "api.store_open_graph_tags", (job, done) ->
+  ogTags = require('open-graph-tag-scraper')
+  tags = ogTags.parseHtml(job.data.content)
+  if !objectLength(tags)
+    done({error: "No tags"})
+    return
+
+
+  data =
+    url: job.data.url
+    tags: tags
+
+  Tags = mongoose.model 'open_graph_tags'
+  tag = new Tags(data)
+  tag.save (err) ->
+    if err
+      done(err)
+    else
+      done null, tag
+
+
+
+jobs.process "api.process_urls_from_message", (job, done) ->
+  urls = job.data.metadata?.urls
+
+  if !urls.length
+    done({error: "No urls"})
+    return
+
+
+  for url in urls
+    getUrlContent(url)
+      .then (content) ->
+        data = {
+          content
+          url
+          message: job.data
+        }
+
+        jobs
+          .create('api.store_twitter_tags', data)
+          .save()
+
+        jobs
+          .create('api.store_open_graph_tags', data)
+          .save()
+
+        done null, url
+
+
+
 
 jobs.process "api.save_chat_message", (job, done) ->
   user_mentions = twitter.extractMentions(job.data.message)
@@ -134,6 +226,11 @@ jobs.process "api.save_chat_message", (job, done) ->
       done(err)
     else
       done null, message
+
+      if urls.length
+        jobs
+          .create('api.process_urls_from_message', message)
+          .save()
 
 
 jobs.process "api.create_room", (job, done) ->

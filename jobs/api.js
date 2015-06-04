@@ -1,5 +1,5 @@
 (function() {
-  var jobs, kue, mongoose, selectUserFields, settings, twitter, twitter_text_options, unique;
+  var Q, getUrlContent, jobs, kue, mongoose, objectLength, request, selectUserFields, settings, twitter, twitter_text_options, unique;
 
   require('newrelic');
 
@@ -15,6 +15,10 @@
 
   twitter = require('twitter-text');
 
+  request = require("request");
+
+  Q = require("q");
+
   twitter_text_options = {
     usernameUrlBase: "/profile/",
     hashtagUrlBase: "/tag/",
@@ -24,6 +28,21 @@
   console.log("api worker running");
 
   selectUserFields = '-salt -hash';
+
+  getUrlContent = function(url) {
+    var deferred;
+    deferred = Q.defer();
+    request(url, function(error, response, data) {
+      if (!error && response.statusCode === 200) {
+        return deferred.resolve(data);
+      } else {
+        return deferred.reject({
+          error: error
+        });
+      }
+    });
+    return deferred.promise;
+  };
 
   jobs.process("stats.save_api_log", function(job, done) {
     var Log, data, log;
@@ -111,6 +130,87 @@
     return results;
   };
 
+  objectLength = function(obj) {
+    return Object.keys(obj).length;
+  };
+
+  jobs.process("api.store_twitter_tags", function(job, done) {
+    var Tags, data, tag, tags, twitterTags;
+    twitterTags = require('twitter-tag-scraper');
+    tags = twitterTags.parseHtml(job.data.content);
+    if (!objectLength(tags)) {
+      done({
+        error: "No tags"
+      });
+      return;
+    }
+    data = {
+      url: job.data.url,
+      tags: tags
+    };
+    Tags = mongoose.model('twitter_tags');
+    tag = new Tags(data);
+    return tag.save(function(err) {
+      if (err) {
+        return done(err);
+      } else {
+        return done(null, tag);
+      }
+    });
+  });
+
+  jobs.process("api.store_open_graph_tags", function(job, done) {
+    var Tags, data, ogTags, tag, tags;
+    ogTags = require('open-graph-tag-scraper');
+    tags = ogTags.parseHtml(job.data.content);
+    if (!objectLength(tags)) {
+      done({
+        error: "No tags"
+      });
+      return;
+    }
+    data = {
+      url: job.data.url,
+      tags: tags
+    };
+    Tags = mongoose.model('open_graph_tags');
+    tag = new Tags(data);
+    return tag.save(function(err) {
+      if (err) {
+        return done(err);
+      } else {
+        return done(null, tag);
+      }
+    });
+  });
+
+  jobs.process("api.process_urls_from_message", function(job, done) {
+    var i, len, ref, results, url, urls;
+    urls = (ref = job.data.metadata) != null ? ref.urls : void 0;
+    if (!urls.length) {
+      done({
+        error: "No urls"
+      });
+      return;
+    }
+    results = [];
+    for (i = 0, len = urls.length; i < len; i++) {
+      url = urls[i];
+      results.push(getUrlContent(url).then(function(content) {
+        var data;
+        data = {
+          content: content,
+          url: url,
+          message: job.data
+        };
+        jobs.create('api.store_twitter_tags', data).save();
+        jobs.create('api.store_open_graph_tags', data).save();
+        return done(null, url);
+      }));
+    }
+    return results;
+  });
+
   jobs.process("api.save_chat_message", function(job, done) {
     var ChatMessages, hashtags, message, urls, user_mentions;
     user_mentions = twitter.extractMentions(job.data.message);
@@ -136,7 +236,10 @@
       if (err) {
         return done(err);
       } else {
-        return done(null, message);
+        done(null, message);
+        if (urls.length) {
+          return jobs.create('api.process_urls_from_message', message).save();
+        }
       }
     });
   });

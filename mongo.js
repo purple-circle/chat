@@ -1,6 +1,6 @@
 (function() {
   module.exports = function(settings) {
-    var apiLogSchema, chatMessageSchema, db, imgurSchema, mongoose, roomSchema, topicSchema;
+    var apiLogSchema, chatMessageSchema, db, imgurSchema, mongoose, openGraphTagSchema, roomSchema, topicSchema, twitterTagSchema;
     mongoose = require('mongoose');
     chatMessageSchema = mongoose.Schema({
       chat_id: 'String',
@@ -66,6 +66,22 @@
         "default": Date.now
       }
     });
+    twitterTagSchema = mongoose.Schema({
+      url: 'String',
+      tags: 'Object',
+      created_at: {
+        type: Date,
+        "default": Date.now
+      }
+    });
+    openGraphTagSchema = mongoose.Schema({
+      url: 'String',
+      tags: 'Object',
+      created_at: {
+        type: Date,
+        "default": Date.now
+      }
+    });
     apiLogSchema = mongoose.Schema({
       name: 'String',
       created_at: {
@@ -77,6 +93,8 @@
     mongoose.model('topics', topicSchema);
     mongoose.model('rooms', roomSchema);
     mongoose.model('imgur', imgurSchema);
+    mongoose.model('twitter_tags', twitterTagSchema);
+    mongoose.model('open_graph_tags', openGraphTagSchema);
     mongoose.model('api_logs', apiLogSchema);
     db = mongoose.connection;
     db.on('error', function(error) {

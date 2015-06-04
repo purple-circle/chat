@@ -57,6 +57,18 @@ module.exports = (settings) ->
     created_at: { type: Date, default: Date.now }
   }
 
+  twitterTagSchema = mongoose.Schema {
+    url: 'String'
+    tags: 'Object'
+    created_at: { type: Date, default: Date.now }
+  }
+
+  openGraphTagSchema = mongoose.Schema {
+    url: 'String'
+    tags: 'Object'
+    created_at: { type: Date, default: Date.now }
+  }
+
   apiLogSchema = mongoose.Schema {
     name: 'String'
     created_at: { type: Date, default: Date.now }
@@ -66,6 +78,8 @@ module.exports = (settings) ->
   mongoose.model 'topics', topicSchema
   mongoose.model 'rooms', roomSchema
   mongoose.model 'imgur', imgurSchema
+  mongoose.model 'twitter_tags', twitterTagSchema
+  mongoose.model 'open_graph_tags', openGraphTagSchema
   mongoose.model 'api_logs', apiLogSchema
 
 
