@@ -111,6 +111,7 @@ camera .md-subheader.md-default-theme {
   line-height: 45px;
 }
 .chat-messages .message {
+  min-width: 110px;
   max-width: 350px;
   font-size: .75em;
   word-wrap: break-word;
