@@ -73,10 +73,12 @@ app.directive "messages", ($rootScope, $timeout, $interval, $mdDialog, $mdBottom
 
       possibleUrls = api.stringHasUrl(row.original_message)
       if possibleUrls?[0] and api.urlIsImage(possibleUrls[0])
-        api.testImage possibleUrls[0], ->
 
-          message = getMessageById(row.room_id, row._id)
-          message?.images = possibleUrls
+        api
+          .testImage(possibleUrls[0])
+          .then ->
+            message = getMessageById(row.room_id, row._id)
+            message?.images = possibleUrls
 
       notify_user = checkUserMentions(row?.metadata?.user_mentions, row.from)
       if notify_user

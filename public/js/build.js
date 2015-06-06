@@ -314,7 +314,7 @@
           }
           possibleUrls = api.stringHasUrl(row.original_message);
           if ((possibleUrls != null ? possibleUrls[0] : void 0) && api.urlIsImage(possibleUrls[0])) {
-            api.testImage(possibleUrls[0], function() {
+            api.testImage(possibleUrls[0]).then(function() {
               message = getMessageById(row.room_id, row._id);
               return message != null ? message.images = possibleUrls : void 0;
             });
@@ -1491,18 +1491,34 @@
 
   app = angular.module('app');
 
-  app.factory('testImage', function() {
+  app.service('testImage', ["$q", function($q) {
+    var urlIsImage;
+    urlIsImage = function(url) {
+      var parsedUrl, parser;
+      parser = document.createElement('a');
+      parser.href = url;
+      parsedUrl = parser.protocol + "//" + parser.host + parser.pathname;
+      return parsedUrl.match(/\.(jpeg|jpg|gif|png)$/) !== null;
+    };
     return {
-      urlIsImage: function(url) {
-        return url.match(/\.(jpeg|jpg|gif|png)$/) !== null;
-      },
-      test: function(url, callback) {
-        var img, timedOut, timeout, timer;
+      urlIsImage: urlIsImage,
+      test: function(url) {
+        var deferred, img, timedOut, timeout, timer;
+        deferred = $q.defer();
+        if (!url) {
+          deferred.reject('No url provided');
+          return deferred.promise;
+        }
+        if (!urlIsImage(url)) {
+          deferred.reject('Provided url doesn\'t contain image');
+          return deferred.promise;
+        }
         timeout = 5000;
         timedOut = false;
         timer = null;
-        img = new Image;
+        img = new Image();
         img.onerror = img.onabort = function() {
+          deferred.reject('Image error or aborted');
           if (!timedOut) {
             return clearTimeout(timer);
           }
@@ -1510,16 +1526,18 @@
         img.onload = function() {
           if (!timedOut) {
             clearTimeout(timer);
-            return callback(url);
+            return deferred.resolve(url);
           }
         };
         img.src = url;
-        return timer = setTimeout(function() {
-          return timedOut = true;
+        timer = setTimeout(function() {
+          timedOut = true;
+          return deferred.reject('Timeout');
         }, timeout);
+        return deferred.promise;
       }
     };
-  });
+  }]);
 
 }).call(this);
 
