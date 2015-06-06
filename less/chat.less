@@ -19,6 +19,10 @@
   box-shadow: @nice-shadow;
 }
 
+a {
+  cursor: pointer;
+}
+
 .messages-container {
   z-index: 1;
 }
@@ -72,6 +76,11 @@ md-dialog {
 
   md-dialog-content {
     padding: 0;
+
+    &.youtube-dialog {
+      background: transparent;
+      width: 640px;
+    }
 
     .md-subheader .md-subheader-inner {
       padding: 0 10px;

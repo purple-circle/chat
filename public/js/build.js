@@ -389,6 +389,18 @@
             targetEvent: $event
           });
         };
+        $scope.openYoutubeDialog = function(youtubeId) {
+          ga('send', 'event', 'openYoutubeDialog', $scope.chatId, youtubeId);
+          return $mdDialog.show({
+            templateUrl: 'directives/chat/youtube-dialog.html',
+            locals: {
+              youtubeId: youtubeId
+            },
+            controller: ["$scope", "youtubeId", function($scope, youtubeId) {
+              return $scope.youtubeId = youtubeId;
+            }]
+          });
+        };
         listenToTyping = function() {
           return api.socket.on("typing", function(from) {
             if ($scope.peopleTyping.indexOf(from) === -1) {

@@ -144,6 +144,16 @@ app.directive "messages", ($rootScope, $timeout, $interval, $mdDialog, $mdBottom
           controller: 'GridBottomSheetCtrl'
           targetEvent: $event
 
+
+    $scope.openYoutubeDialog = (youtubeId) ->
+      ga('send', 'event', 'openYoutubeDialog', $scope.chatId, youtubeId)
+      $mdDialog.show
+        templateUrl: 'directives/chat/youtube-dialog.html'
+        locals:
+          youtubeId: youtubeId
+        controller: ($scope, youtubeId) ->
+          $scope.youtubeId = youtubeId
+
     listenToTyping = ->
       api
         .socket
