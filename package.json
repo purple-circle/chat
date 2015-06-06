@@ -20,7 +20,7 @@
     "kue": "^0.8.12",
     "mongoose": "^3.9.7",
     "morgan": "^1.5.0",
-    "newrelic": "^1.19.2",
+    "newrelic": "^1.20.0",
     "open-graph-tag-scraper": "0.0.2",
     "passport": "^0.2.1",
     "passport-facebook": "^1.0.3",
