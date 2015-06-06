@@ -6,6 +6,7 @@ app = angular.module('app', [
   'templates'
   'ngMaterial'
   'youtube-embed'
+  'vimeoEmbed'
   'ngSanitize'
   'batteryLevel'
   'luegg.directives' # scroll glue

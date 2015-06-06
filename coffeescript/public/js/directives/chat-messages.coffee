@@ -64,16 +64,14 @@ app.directive "messages", ($rootScope, $timeout, $interval, $mdDialog, $mdBottom
       if getMessageById(row.room_id, row._id)
         return false
 
-      for message in $scope.messages[row.room_id] when message._id is row._id
-        return false
-
-      hasYoutubeUrl = api.isYoutubeUrl(row.original_message)
-      if hasYoutubeUrl
+      if api.hasYoutubeUrl(row.original_message)
         youtubeId = api.getYoutubeIdFromUrl(row.original_message)
+
+      if api.hasVimeoUrl(row.original_message)
+        vimeoId = api.getVimeoIdFromUrl(row.original_message)
 
       possibleUrls = api.stringHasUrl(row.original_message)
       if possibleUrls?[0] and api.urlIsImage(possibleUrls[0])
-
         api
           .testImage(possibleUrls[0])
           .then ->
@@ -95,6 +93,7 @@ app.directive "messages", ($rootScope, $timeout, $interval, $mdDialog, $mdBottom
         is_me: row.sid is yolosid
         color: api.intToARGB(api.hashCode(row.from))
         youtubeId: youtubeId
+        vimeoId: vimeoId
         notify_user: notify_user
         page: row.page
         isGreenText: row.original_message[0].trim() is ">"

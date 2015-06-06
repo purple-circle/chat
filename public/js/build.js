@@ -2,7 +2,7 @@
   'use strict';
   var app, secondsOnSite;
 
-  app = angular.module('app', ['ui.router', 'ui.router.compat', 'templates', 'ngMaterial', 'youtube-embed', 'ngSanitize', 'batteryLevel', 'luegg.directives', 'angularMoment']);
+  app = angular.module('app', ['ui.router', 'ui.router.compat', 'templates', 'ngMaterial', 'youtube-embed', 'vimeoEmbed', 'ngSanitize', 'batteryLevel', 'luegg.directives', 'angularMoment']);
 
   moment.locale('en', {
     calendar: {
@@ -107,19 +107,6 @@
   app.controller('index.room', ["$rootScope", "$scope", "$stateParams", function($rootScope, $scope, $stateParams) {
     return $scope.roomId = $stateParams.room_id;
   }]);
-
-}).call(this);
-
-(function() {
-  var app;
-
-  app = angular.module('app');
-
-  app.filter("newlines", function() {
-    return function(text) {
-      return text.replace(/\n/g, "<br>");
-    };
-  });
 
 }).call(this);
 
@@ -307,32 +294,28 @@
           return false;
         };
         processMessage = function(row) {
-          var data, hasYoutubeUrl, i, len, message, notify_user, possibleUrls, ref, ref1, youtubeId;
+          var data, notify_user, possibleUrls, ref, vimeoId, youtubeId;
           if (!$scope.messages[row.room_id]) {
             $scope.messages[row.room_id] = [];
           }
           if (getMessageById(row.room_id, row._id)) {
             return false;
           }
-          ref = $scope.messages[row.room_id];
-          for (i = 0, len = ref.length; i < len; i++) {
-            message = ref[i];
-            if (message._id === row._id) {
-              return false;
-            }
-          }
-          hasYoutubeUrl = api.isYoutubeUrl(row.original_message);
-          if (hasYoutubeUrl) {
+          if (api.hasYoutubeUrl(row.original_message)) {
             youtubeId = api.getYoutubeIdFromUrl(row.original_message);
+          }
+          if (api.hasVimeoUrl(row.original_message)) {
+            vimeoId = api.getVimeoIdFromUrl(row.original_message);
           }
           possibleUrls = api.stringHasUrl(row.original_message);
           if ((possibleUrls != null ? possibleUrls[0] : void 0) && api.urlIsImage(possibleUrls[0])) {
             api.testImage(possibleUrls[0]).then(function() {
+              var message;
               message = getMessageById(row.room_id, row._id);
               return message != null ? message.images = possibleUrls : void 0;
             });
           }
-          notify_user = checkUserMentions(row != null ? (ref1 = row.metadata) != null ? ref1.user_mentions : void 0 : void 0, row.from);
+          notify_user = checkUserMentions(row != null ? (ref = row.metadata) != null ? ref.user_mentions : void 0 : void 0, row.from);
           if (notify_user) {
             if (new Date(row.created_at).getTime() > messagesOpened) {
               $rootScope.$broadcast("tab-beep");
@@ -348,6 +331,7 @@
             is_me: row.sid === yolosid,
             color: api.intToARGB(api.hashCode(row.from)),
             youtubeId: youtubeId,
+            vimeoId: vimeoId,
             notify_user: notify_user,
             page: row.page,
             isGreenText: row.original_message[0].trim() === ">"
@@ -1163,6 +1147,19 @@
 (function() {
   var app;
 
+  app = angular.module('app');
+
+  app.filter("newlines", function() {
+    return function(text) {
+      return text.replace(/\n/g, "<br>");
+    };
+  });
+
+}).call(this);
+
+(function() {
+  var app;
+
   app = angular.module("app");
 
   app.service("animals", function() {
@@ -1183,12 +1180,17 @@
   app = angular.module('app');
 
   app.factory('api', ["$q", "youtubeEmbedUtils", "uploadImgur", "messageHistory", "animals", "testImage", "notification", function($q, youtubeEmbedUtils, uploadImgur, messageHistory, animals, testImage, notification) {
-    var getYoutubeUrls, socket;
+    var getVimeoUrls, getYoutubeUrls, socket;
     socket = io();
     getYoutubeUrls = function(url) {
       var youtubeRegexp;
       youtubeRegexp = /https?:\/\/(?:[0-9A-Z-]+\.)?(?:youtu\.be\/|youtube(?:-nocookie)?\.com\S*[^\w\s-])([\w-]{11})(?=[^\w-]|$)(?![?=&+%\w.-]*(?:['"][^<>]*>|<\/a>))[?=&+%\w.-]*/ig;
       return url.match(youtubeRegexp);
+    };
+    getVimeoUrls = function(url) {
+      var vimeoRegexp;
+      vimeoRegexp = /https?:\/\/(?:www\.|player\.)?vimeo.com\/(?:channels\/(?:\w+\/)?|groups\/([^\/]*)\/videos\/|album\/(\d+)\/video\/|video\/|)(\d+)(?:$|\/|\?)/;
+      return url.match(vimeoRegexp);
     };
     return {
       messageHistory: messageHistory,
@@ -1197,6 +1199,13 @@
       socket: socket,
       getYoutubeUrls: getYoutubeUrls,
       notification: notification,
+      hasVimeoUrl: function(url) {
+        return getVimeoUrls(url) != null;
+      },
+      getVimeoIdFromUrl: function(url) {
+        var ref;
+        return (ref = getVimeoUrls(url)) != null ? ref[3] : void 0;
+      },
       cameraIsSupported: function() {
         var cameraSupported;
         cameraSupported = false;
@@ -1287,7 +1296,7 @@
         socket.emit("update_platform");
         return this.on("update_platform");
       },
-      isYoutubeUrl: function(url) {
+      hasYoutubeUrl: function(url) {
         return getYoutubeUrls(url) != null;
       },
       getYoutubeIdFromUrl: function(url) {

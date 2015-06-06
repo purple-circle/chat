@@ -69,6 +69,15 @@
 
           </span>
 
+          <span ng-if="item.vimeoId" class="media-preview">
+            <vimeo-video
+              video-id="item.vimeoId"
+              player-width="340"
+              player-height="200"></vimeo-video>
+
+            <a ng-href="https://www.vimeo.com/{{item.vimeoId}}" target="_blank">https://www.vimeo.com/{{item.vimeoId}}</a>
+          </span>
+
 
           <span class="time">{{item.createdAt | amCalendar}}</span>
         </span>

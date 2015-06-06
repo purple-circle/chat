@@ -8,12 +8,25 @@ app.factory 'api', ($q, youtubeEmbedUtils, uploadImgur, messageHistory, animals,
       \S*[^\w\s-])([\w-]{11})(?=[^\w-]|$)(?![?=&+%\w.-]*(?:['"][^<>]*>|<\/a>))[?=&+%\w.-]*///ig
     url.match(youtubeRegexp)
 
+  getVimeoUrls = (url) ->
+    vimeoRegexp = ///https?:\/\/(?:www\.|player\.)?vimeo.com\/
+    (?:channels\/(?:\w+\/)?|groups\/([^\/]*)\/videos\/|album\/(\d+)\/
+      video\/|video\/|)(\d+)(?:$|\/|\?)///
+
+    url.match(vimeoRegexp)
+
   messageHistory: messageHistory
   urlIsImage: testImage.urlIsImage
   testImage: testImage.test
   socket: socket
   getYoutubeUrls: getYoutubeUrls
   notification: notification
+
+  hasVimeoUrl: (url) ->
+    getVimeoUrls(url)?
+
+  getVimeoIdFromUrl: (url) ->
+    getVimeoUrls(url)?[3]
 
   cameraIsSupported: ->
     cameraSupported = false
@@ -100,7 +113,7 @@ app.factory 'api', ($q, youtubeEmbedUtils, uploadImgur, messageHistory, animals,
     socket.emit("update_platform")
     this.on("update_platform")
 
-  isYoutubeUrl: (url) ->
+  hasYoutubeUrl: (url) ->
     getYoutubeUrls(url)?
 
   getYoutubeIdFromUrl: (url) ->
