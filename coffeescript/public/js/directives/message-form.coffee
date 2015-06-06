@@ -145,6 +145,14 @@ app.directive 'messageForm', ($rootScope, $timeout, $mdSidenav, $mdDialog, api, 
             templateUrl: 'directives/chat/help.html'
         return true
 
+      if command is "update_platform"
+        console.log "Updating platform"
+        api
+          .update_platform()
+          .then ->
+            console.log "Platform up to date"
+        return true
+
       return false
 
     setTopic = (topic) ->

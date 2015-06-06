@@ -739,6 +739,13 @@
             });
             return true;
           }
+          if (command === "update_platform") {
+            console.log("Updating platform");
+            api.update_platform().then(function() {
+              return console.log("Platform up to date");
+            });
+            return true;
+          }
           return false;
         };
         setTopic = function(topic) {
@@ -1274,6 +1281,10 @@
       save_chat_messages: function(data) {
         socket.emit("save_chat_message", data);
         return this.on("save_chat_message");
+      },
+      update_platform: function() {
+        socket.emit("update_platform");
+        return this.on("update_platform");
       },
       isYoutubeUrl: function(url) {
         return getYoutubeUrls(url) != null;

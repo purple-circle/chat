@@ -5,6 +5,7 @@ module.exports = (server, sessionStore) ->
   rooms = require("./models/rooms")
   imgur = require("./models/imgur")
   Q = require("q")
+  require 'shelljs/global'
 
   io.use (socket, next) ->
     sessionStore socket.request, socket.request.res, next
@@ -60,6 +61,19 @@ module.exports = (server, sessionStore) ->
         .then (result) ->
           socket.emit "room_created", result
           socket.broadcast.emit "room_created", result
+
+    socket.on "update_platform", ->
+      console.log "update_platform start"
+      if not which 'git'
+        return
+
+      console.log "update_platform start 2"
+      # Run external tool synchronously
+      shell_command = 'git pull && npm install'
+      if (exec shell_command).code is 0
+        console.log "update_platform done"
+        socket.emit "update_platform", true
+        socket.broadcast.emit "update_platform", true
 
 
     socket.on "get_online_count", ->

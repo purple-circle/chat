@@ -96,6 +96,10 @@ app.factory 'api', ($q, youtubeEmbedUtils, uploadImgur, messageHistory, animals,
     socket.emit("save_chat_message", data)
     this.on("save_chat_message")
 
+  update_platform: ->
+    socket.emit("update_platform")
+    this.on("update_platform")
+
   isYoutubeUrl: (url) ->
     getYoutubeUrls(url)?
 
