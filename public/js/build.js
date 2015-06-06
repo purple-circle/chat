@@ -2,7 +2,18 @@
   'use strict';
   var app, secondsOnSite;
 
-  app = angular.module('app', ['ui.router', 'ui.router.compat', 'templates', 'ngMaterial', 'youtube-embed', 'ngSanitize', 'batteryLevel', 'luegg.directives']);
+  app = angular.module('app', ['ui.router', 'ui.router.compat', 'templates', 'ngMaterial', 'youtube-embed', 'ngSanitize', 'batteryLevel', 'luegg.directives', 'angularMoment']);
+
+  moment.locale('en', {
+    calendar: {
+      lastDay: '[Yesterday at] LT',
+      sameDay: '[Today at] LT',
+      nextDay: '[Tomorrow at] LT',
+      lastWeek: 'dddd [at] LT',
+      nextWeek: 'dddd [at] LT',
+      sameElse: 'L'
+    }
+  });
 
   app.config(["$stateProvider", "$locationProvider", function($stateProvider, $locationProvider) {
     $locationProvider.html5Mode(true);

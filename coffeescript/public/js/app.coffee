@@ -9,7 +9,18 @@ app = angular.module('app', [
   'ngSanitize'
   'batteryLevel'
   'luegg.directives' # scroll glue
+  'angularMoment'
 ])
+
+moment.locale 'en',
+  calendar:
+    lastDay: '[Yesterday at] LT'
+    sameDay: '[Today at] LT'
+    nextDay: '[Tomorrow at] LT'
+    lastWeek: 'dddd [at] LT'
+    nextWeek: 'dddd [at] LT'
+    sameElse: 'L'
+
 
 app.config ($stateProvider, $locationProvider) ->
   $locationProvider.html5Mode(true)
