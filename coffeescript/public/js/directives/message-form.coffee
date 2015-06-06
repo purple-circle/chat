@@ -151,6 +151,7 @@ app.directive 'messageForm', ($rootScope, $timeout, $mdSidenav, $mdDialog, api, 
           .update_platform()
           .then ->
             console.log "Platform up to date"
+            window.location.reload()
         return true
 
       return false

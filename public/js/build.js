@@ -115,6 +115,19 @@
 
   app = angular.module('app');
 
+  app.filter("newlines", function() {
+    return function(text) {
+      return text.replace(/\n/g, "<br>");
+    };
+  });
+
+}).call(this);
+
+(function() {
+  var app;
+
+  app = angular.module('app');
+
   app.directive('camera', ["$timeout", "$mdDialog", "api", function($timeout, $mdDialog, api) {
     return {
       templateUrl: "directives/chat/camera.html",
@@ -742,7 +755,8 @@
           if (command === "update_platform") {
             console.log("Updating platform");
             api.update_platform().then(function() {
-              return console.log("Platform up to date");
+              console.log("Platform up to date");
+              return window.location.reload();
             });
             return true;
           }
@@ -1141,19 +1155,6 @@
         currentRoom: '='
       },
       templateUrl: 'directives/chat/toolbar.html'
-    };
-  });
-
-}).call(this);
-
-(function() {
-  var app;
-
-  app = angular.module('app');
-
-  app.filter("newlines", function() {
-    return function(text) {
-      return text.replace(/\n/g, "<br>");
     };
   });
 
