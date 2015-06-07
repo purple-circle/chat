@@ -11,6 +11,7 @@ app = angular.module('app', [
   'batteryLevel'
   'luegg.directives' # scroll glue
   'angularMoment'
+  'imgurUpload'
 ])
 
 moment.locale 'en',

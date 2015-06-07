@@ -2,7 +2,7 @@
   'use strict';
   var app, secondsOnSite;
 
-  app = angular.module('app', ['ui.router', 'ui.router.compat', 'templates', 'ngMaterial', 'youtube-embed', 'vimeoEmbed', 'ngSanitize', 'batteryLevel', 'luegg.directives', 'angularMoment']);
+  app = angular.module('app', ['ui.router', 'ui.router.compat', 'templates', 'ngMaterial', 'youtube-embed', 'vimeoEmbed', 'ngSanitize', 'batteryLevel', 'luegg.directives', 'angularMoment', 'imgurUpload']);
 
   moment.locale('en', {
     calendar: {
@@ -1179,7 +1179,7 @@
 
   app = angular.module('app');
 
-  app.factory('api', ["$q", "youtubeEmbedUtils", "uploadImgur", "messageHistory", "animals", "testImage", "notification", function($q, youtubeEmbedUtils, uploadImgur, messageHistory, animals, testImage, notification) {
+  app.factory('api', ["$q", "youtubeEmbedUtils", "imgurUpload", "messageHistory", "animals", "testImage", "notification", function($q, youtubeEmbedUtils, imgurUpload, messageHistory, animals, testImage, notification) {
     var getVimeoUrls, getYoutubeUrls, socket;
     socket = io();
     getYoutubeUrls = function(url) {
@@ -1304,7 +1304,8 @@
         return youtubeEmbedUtils.getIdFromURL((ref = getYoutubeUrls(url)) != null ? ref[0] : void 0);
       },
       upload_to_imgur: function(file, options) {
-        return uploadImgur.upload(file, options);
+        imgurUpload.setClientId("3631cecbf2bf2cf");
+        return imgurUpload.upload(file, options);
       }
     };
   }]);
@@ -1544,62 +1545,6 @@
           timedOut = true;
           return deferred.reject('Timeout');
         }, timeout);
-        return deferred.promise;
-      }
-    };
-  }]);
-
-}).call(this);
-
-(function() {
-  var app;
-
-  app = angular.module("app");
-
-  app.factory("uploadImgur", ["$q", function($q) {
-    var clientId;
-    clientId = "3631cecbf2bf2cf";
-    return {
-      upload: function(file, options) {
-        var deferred, fd, ref, xhr;
-        if (options == null) {
-          options = {};
-        }
-        deferred = $q.defer();
-        if (!clientId) {
-          deferred.reject("No clientId");
-          return deferred.promise;
-        }
-        if (!file) {
-          deferred.reject("No file");
-          return deferred.promise;
-        }
-        if (!options.canvas && !(file != null ? (ref = file.type) != null ? ref.match(/image.*/) : void 0 : void 0)) {
-          deferred.reject("File not image");
-          return deferred.promise;
-        }
-        xhr = new XMLHttpRequest();
-        xhr.open("POST", "https://api.imgur.com/3/image.json");
-        xhr.setRequestHeader("Authorization", "Client-ID " + clientId);
-        xhr.upload.addEventListener('progress', function(event) {
-          var percent;
-          percent = parseInt(event.loaded / event.total * 100);
-          return deferred.notify(percent);
-        }, false);
-        if (!options.canvas) {
-          fd = new FormData();
-          fd.append("image", file);
-          xhr.send(fd);
-        }
-        if (options.canvas) {
-          xhr.send(file);
-        }
-        xhr.onerror = deferred.reject;
-        xhr.onload = function() {
-          var result;
-          result = JSON.parse(xhr.responseText);
-          return deferred.resolve(result);
-        };
         return deferred.promise;
       }
     };

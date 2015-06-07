@@ -1,5 +1,5 @@
 app = angular.module('app')
-app.factory 'api', ($q, youtubeEmbedUtils, uploadImgur, messageHistory, animals, testImage, notification) ->
+app.factory 'api', ($q, youtubeEmbedUtils, imgurUpload, messageHistory, animals, testImage, notification) ->
   socket = io()
 
   getYoutubeUrls = (url) ->
@@ -120,4 +120,5 @@ app.factory 'api', ($q, youtubeEmbedUtils, uploadImgur, messageHistory, animals,
     youtubeEmbedUtils.getIdFromURL(getYoutubeUrls(url)?[0])
 
   upload_to_imgur: (file, options) ->
-    uploadImgur.upload file, options
+    imgurUpload.setClientId("3631cecbf2bf2cf")
+    imgurUpload.upload file, options
