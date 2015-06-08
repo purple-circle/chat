@@ -1,6 +1,4 @@
 (function() {
-  var indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
-
   require('newrelic');
 
   module.exports = function(server, sessionStore) {
@@ -10,7 +8,6 @@
     rooms = require("./models/rooms");
     imgur = require("./models/imgur");
     Q = require("q");
-    require('shelljs/global');
     io.use(function(socket, next) {
       return sessionStore(socket.request, socket.request.res, next);
     });
@@ -21,31 +18,37 @@
       });
       socket.on("load_chat_messages_for_room", function(data) {
         return chat.load_messages_for_room(data).then(function(messages) {
-          var i, len, message, ref, url, urls, urlsObject;
+          var i, len, message, ref, ref1, ref2, ref3, url, urls, urlsObject;
           urls = [];
           urlsObject = {};
           for (i = 0, len = messages.length; i < len; i++) {
             message = messages[i];
-            url = (ref = message.metadata) != null ? ref.urls[0] : void 0;
-            if (url && !urlsObject[url]) {
+            if (!((ref = message.metadata) != null ? (ref1 = ref.urls) != null ? ref1[0] : void 0 : void 0)) {
+              continue;
+            }
+            url = (ref2 = message.metadata) != null ? (ref3 = ref2.urls) != null ? ref3[0] : void 0 : void 0;
+            if ((url != null) && !urlsObject[url]) {
               urlsObject[url] = true;
               urls.push(chat.getOpenGraphData(url));
             }
           }
-          if (urls.length) {
+          if (urls.length > 0) {
             return Q.all(urls).then(function(found_urls) {
-              var j, k, len1, len2, ref1, ref2;
+              var j, k, len1, len2, ref4, ref5;
               for (j = 0, len1 = found_urls.length; j < len1; j++) {
                 url = found_urls[j];
                 if (url != null) {
                   for (k = 0, len2 = messages.length; k < len2; k++) {
                     message = messages[k];
-                    if (ref1 = url.url, indexOf.call((ref2 = message.metadata) != null ? ref2.urls : void 0, ref1) >= 0) {
+                    if (url.url === ((ref4 = message.metadata) != null ? (ref5 = ref4.urls) != null ? ref5[0] : void 0 : void 0)) {
                       message.url_data = url;
                     }
                   }
                 }
               }
+              return socket.emit("load_chat_messages_for_room", messages);
+            }, function(err) {
+              console.log("error", err);
               return socket.emit("load_chat_messages_for_room", messages);
             });
           } else {

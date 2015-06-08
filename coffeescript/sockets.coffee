@@ -5,7 +5,7 @@ module.exports = (server, sessionStore) ->
   rooms = require("./models/rooms")
   imgur = require("./models/imgur")
   Q = require("q")
-  require 'shelljs/global'
+  #require 'shelljs/global'
 
   io.use (socket, next) ->
     sessionStore socket.request, socket.request.res, next
@@ -24,19 +24,22 @@ module.exports = (server, sessionStore) ->
 
           urls = []
           urlsObject = {}
-          for message in messages
-            url = message.metadata?.urls[0]
-            if url && !urlsObject[url]
+          for message in messages when message.metadata?.urls?[0]
+            url = message.metadata?.urls?[0]
+            if url? && !urlsObject[url]
               urlsObject[url] = true
               urls.push chat.getOpenGraphData(url)
 
-          if urls.length
+          if urls.length > 0
             Q.all(urls)
               .then (found_urls) ->
                 for url in found_urls when url?
-                  for message in messages when url.url in message.metadata?.urls
+                  for message in messages when url.url is message.metadata?.urls?[0]
                     message.url_data = url
 
+                socket.emit "load_chat_messages_for_room", messages
+              , (err) ->
+                console.log "error", err
                 socket.emit "load_chat_messages_for_room", messages
           else
             socket.emit "load_chat_messages_for_room", messages
