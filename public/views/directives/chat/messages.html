@@ -85,11 +85,40 @@
 
               <a ng-href="https://www.youtube.com/watch?v={{item.youtubeId}}" target="_blank">https://www.youtube.com/watch?v={{item.youtubeId}}</a>
 
+              <span ng-if="item.url_data.tags.title">
+                <br>
+                  <strong>{{item.url_data.tags.title}}</strong>
+              </span>
+
+              <span ng-if="item.url_data.tags.title">
+                <br>
+                  <span>{{item.url_data.tags.description}}</span>
+              </span>
             </span>
 
             <span ng-if="!item.videoOpened">
+              <loading-image
+                url-text="http://img.youtube.com/vi/{{item.youtubeId}}/0.jpg"
+                ng-click="openYoutubeVideo(item, 'image')"></loading-image>
 
-              <loading-image url-text="http://img.youtube.com/vi/{{item.youtubeId}}/0.jpg" ng-click="openYoutubeVideo(item)"></loading-image>
+              <span ng-if="item.url_data.tags.title">
+                <br>
+                <a
+                  ng-click="openYoutubeVideo(item, 'title')"
+                  target="_blank">
+                  <strong>{{item.url_data.tags.title}}</strong>
+                </a>
+              </span>
+
+              <span ng-if="item.url_data.tags.title">
+                <br>
+                <a
+                  ng-click="openYoutubeVideo(item, 'description')"
+                  ng-if="item.url_data.tags.description"
+                  target="_blank">
+                  <span>{{item.url_data.tags.description}}</span>
+                </a>
+              </span>
 
             </span>
 
