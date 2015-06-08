@@ -86,6 +86,7 @@ app.directive "messages", ($rootScope, $timeout, $interval, $mdDialog, $mdBottom
         if new Date(row.created_at).getTime() > messagesOpened
           $rootScope.$broadcast("tab-beep")
 
+      # TODO: data should be extended from row object
       data =
         _id: row._id
         images: false
@@ -100,6 +101,7 @@ app.directive "messages", ($rootScope, $timeout, $interval, $mdDialog, $mdBottom
         notify_user: notify_user
         page: row.page
         isGreenText: row.original_message[0].trim() is ">"
+        url_data: row.url_data
 
 
       $scope.messages[row.room_id].push(data)

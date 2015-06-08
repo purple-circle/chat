@@ -28,8 +28,12 @@
     return api.createQueue("api.save_topic", data);
   };
 
-  chat.getUrlData = function(url) {
-    return api.createQueue("api.getUrlData", url);
+  chat.getUrlDataRetry = function(url) {
+    return api.createQueue("api.getUrlDataRetry", url);
+  };
+
+  chat.getOpenGraphData = function(url) {
+    return api.createQueue("api.getOpenGraphData", url);
   };
 
   module.exports = chat;

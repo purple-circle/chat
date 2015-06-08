@@ -21,7 +21,25 @@ module.exports = (server, sessionStore) ->
       chat
         .load_messages_for_room(data)
         .then (messages) ->
-          socket.emit "load_chat_messages_for_room", messages
+
+          urls = []
+          urlsObject = {}
+          for message in messages
+            url = message.metadata?.urls[0]
+            if url && !urlsObject[url]
+              urlsObject[url] = true
+              urls.push chat.getOpenGraphData(url)
+
+          if urls.length
+            Q.all(urls)
+              .then (found_urls) ->
+                for url in found_urls when url?
+                  for message in messages when url.url in message.metadata?.urls
+                    message.url_data = url
+
+                socket.emit "load_chat_messages_for_room", messages
+          else
+            socket.emit "load_chat_messages_for_room", messages
 
     socket.on "save_imgur", (data) ->
       imgur.save(data)
@@ -36,7 +54,7 @@ module.exports = (server, sessionStore) ->
 
           if result.metadata?.urls
             chat
-              .getUrlData(result.metadata?.urls[0])
+              .getUrlDataRetry(result.metadata?.urls[0])
               .then (url_data) ->
                 data =
                   message: result

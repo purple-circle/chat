@@ -115,6 +115,19 @@
 
   app = angular.module('app');
 
+  app.filter("newlines", function() {
+    return function(text) {
+      return text.replace(/\n/g, "<br>");
+    };
+  });
+
+}).call(this);
+
+(function() {
+  var app;
+
+  app = angular.module('app');
+
   app.directive('camera', ["$timeout", "$mdDialog", "api", function($timeout, $mdDialog, api) {
     return {
       templateUrl: "directives/chat/camera.html",
@@ -337,7 +350,8 @@
             vimeoId: vimeoId,
             notify_user: notify_user,
             page: row.page,
-            isGreenText: row.original_message[0].trim() === ">"
+            isGreenText: row.original_message[0].trim() === ">",
+            url_data: row.url_data
           };
           return $scope.messages[row.room_id].push(data);
         };
@@ -1145,19 +1159,6 @@
         currentRoom: '='
       },
       templateUrl: 'directives/chat/toolbar.html'
-    };
-  });
-
-}).call(this);
-
-(function() {
-  var app;
-
-  app = angular.module('app');
-
-  app.filter("newlines", function() {
-    return function(text) {
-      return text.replace(/\n/g, "<br>");
     };
   });
 

@@ -22,6 +22,41 @@ selectUserFields = '-salt -hash'
 
 
 
+getOpenGraphData = (url) ->
+  Tags = mongoose.model 'open_graph_tags'
+  Tags
+    .findOne()
+    .where('url')
+    .equals(url)
+    .sort("-created_at")
+    .exec()
+
+
+getUrlDataRetry = (url, done, retry_count) ->
+  retry_seconds = 3
+  retry_limit = 5
+
+  getOpenGraphData(url)
+    .then (result) ->
+      if !result?
+        console.log "No results yet, retrying #{retry_seconds} seconds", url
+        retry_count++
+
+        if retry_count >= retry_limit
+          error = "Data not found after #{retry_limit} retries"
+          console.log error
+          done({error})
+          return
+
+        setTimeout ->
+          getUrlData(url, done, retry_count)
+        , retry_seconds * 1000
+
+      else
+        done(null, result)
+    , done
+
+
 getUrlContent = (url) ->
   deferred = Q.defer()
 
@@ -194,40 +229,14 @@ jobs.process "api.process_urls_from_message", (job, done) ->
         done null, url
 
 
-getUrlData = (url, done, retry_count) ->
-  retry_seconds = 3
-  retry_limit = 5
-  Tags = mongoose.model 'open_graph_tags'
-  Tags
-    .findOne()
-    .where('url')
-    .equals(url)
-    .sort("-created_at")
-    .exec()
+jobs.process "api.getOpenGraphData", (job, done) ->
+  getOpenGraphData(job.data)
     .then (result) ->
-      if !result?
-        console.log "No results yet, retrying #{retry_seconds} seconds", url
-        retry_count++
-
-        if retry_count >= retry_limit
-          error = "Data not found after #{retry_limit} retries"
-          console.log error
-          done({error})
-          return
-
-        setTimeout ->
-          getUrlData(url, done, retry_count)
-        , retry_seconds * 1000
-
-      else
-        done(null, result)
+      done null, result
     , done
 
-
-jobs.process "api.getUrlData", (job, done) ->
-  getUrlData(job.data, done, 0)
-
-
+jobs.process "api.getUrlDataRetry", (job, done) ->
+  getUrlDataRetry(job.data, done, 0)
 
 
 jobs.process "api.save_chat_message", (job, done) ->

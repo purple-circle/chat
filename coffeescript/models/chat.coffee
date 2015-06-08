@@ -14,7 +14,11 @@ chat.load_topic = ({chat_id, room_id}) ->
 chat.save_topic = (data) ->
   api.createQueue("api.save_topic", data)
 
-chat.getUrlData = (url) ->
-  api.createQueue("api.getUrlData", url)
+# TODO: rename to getUrlDataRetry etc
+chat.getUrlDataRetry = (url) ->
+  api.createQueue("api.getUrlDataRetry", url)
+
+chat.getOpenGraphData = (url) ->
+  api.createQueue("api.getOpenGraphData", url)
 
 module.exports = chat

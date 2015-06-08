@@ -1,4 +1,6 @@
 (function() {
+  var indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
   require('newrelic');
 
   module.exports = function(server, sessionStore) {
@@ -19,7 +21,36 @@
       });
       socket.on("load_chat_messages_for_room", function(data) {
         return chat.load_messages_for_room(data).then(function(messages) {
-          return socket.emit("load_chat_messages_for_room", messages);
+          var i, len, message, ref, url, urls, urlsObject;
+          urls = [];
+          urlsObject = {};
+          for (i = 0, len = messages.length; i < len; i++) {
+            message = messages[i];
+            url = (ref = message.metadata) != null ? ref.urls[0] : void 0;
+            if (url && !urlsObject[url]) {
+              urlsObject[url] = true;
+              urls.push(chat.getOpenGraphData(url));
+            }
+          }
+          if (urls.length) {
+            return Q.all(urls).then(function(found_urls) {
+              var j, k, len1, len2, ref1, ref2;
+              for (j = 0, len1 = found_urls.length; j < len1; j++) {
+                url = found_urls[j];
+                if (url != null) {
+                  for (k = 0, len2 = messages.length; k < len2; k++) {
+                    message = messages[k];
+                    if (ref1 = url.url, indexOf.call((ref2 = message.metadata) != null ? ref2.urls : void 0, ref1) >= 0) {
+                      message.url_data = url;
+                    }
+                  }
+                }
+              }
+              return socket.emit("load_chat_messages_for_room", messages);
+            });
+          } else {
+            return socket.emit("load_chat_messages_for_room", messages);
+          }
         });
       });
       socket.on("save_imgur", function(data) {
@@ -32,7 +63,7 @@
         return chat.save(data).then(function(result) {
           var ref, ref1;
           if ((ref = result.metadata) != null ? ref.urls : void 0) {
-            chat.getUrlData((ref1 = result.metadata) != null ? ref1.urls[0] : void 0).then(function(url_data) {
+            chat.getUrlDataRetry((ref1 = result.metadata) != null ? ref1.urls[0] : void 0).then(function(url_data) {
               data = {
                 message: result,
                 url_data: url_data
