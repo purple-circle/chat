@@ -262,6 +262,9 @@
             }]
           });
         };
+        $scope.openOpenGraphImage = function(image) {
+          return ga('send', 'event', 'openOpenGraphImage', $scope.chatId, image);
+        };
         $scope.openYoutubeVideo = function(item) {
           ga('send', 'event', 'openYoutubeVideo', $scope.chatId, item.youtubeId);
           return item.videoOpened = true;

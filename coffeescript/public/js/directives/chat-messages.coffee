@@ -30,6 +30,9 @@ app.directive "messages", ($rootScope, $timeout, $interval, $mdDialog, $mdBottom
         controller: ($scope, image) ->
           $scope.image = image
 
+    $scope.openOpenGraphImage = (image) ->
+      ga('send', 'event', 'openOpenGraphImage', $scope.chatId, image)
+
     $scope.openYoutubeVideo = (item) ->
       ga('send', 'event', 'openYoutubeVideo', $scope.chatId, item.youtubeId)
       item.videoOpened = true

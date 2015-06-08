@@ -46,9 +46,12 @@
           </span>
 
           <span ng-if="item.url_data.tags.image && !item.youtubeId && !item.vimeoId" class="media-preview">
-            <img
-              ng-click="openImage(item.url_data.tags.image)"
-              ng-src="{{item.url_data.tags.image}}">
+            <a
+              ng-href="{{item.url_data.url}}"
+              ng-click="openOpenGraphImage(item.url_data.tags.image)"
+              target="_blank">
+              <img ng-src="{{item.url_data.tags.image}}">
+            </a>
           </span>
 
           <span ng-if="item.youtubeId" class="media-preview">
