@@ -56,20 +56,6 @@
           return socket.broadcast.emit("room_created", result);
         });
       });
-      socket.on("update_platform", function() {
-        var shell_command;
-        console.log("update_platform start");
-        if (!which('git')) {
-          return;
-        }
-        console.log("update_platform start 2");
-        shell_command = 'git pull && npm install';
-        if ((exec(shell_command)).code === 0) {
-          console.log("update_platform done");
-          socket.emit("update_platform", true);
-          return socket.broadcast.emit("update_platform", true);
-        }
-      });
       return socket.on("get_online_count", function() {
         socket.emit("get_online_count", io.engine.clientsCount);
         return socket.broadcast.emit("get_online_count", io.engine.clientsCount);

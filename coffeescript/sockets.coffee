@@ -62,18 +62,15 @@ module.exports = (server, sessionStore) ->
           socket.emit "room_created", result
           socket.broadcast.emit "room_created", result
 
-    socket.on "update_platform", ->
-      console.log "update_platform start"
-      if not which 'git'
-        return
+    # socket.on "update_platform", ->
+    #   if not which 'git'
+    #     return
 
-      console.log "update_platform start 2"
-      # Run external tool synchronously
-      shell_command = 'git pull && npm install'
-      if (exec shell_command).code is 0
-        console.log "update_platform done"
-        socket.emit "update_platform", true
-        socket.broadcast.emit "update_platform", true
+    #   # Run external tool synchronously
+    #   shell_command = 'git pull && npm install'
+    #   if (exec shell_command).code is 0
+    #     socket.emit "update_platform", true
+    #     socket.broadcast.emit "update_platform", true
 
 
     socket.on "get_online_count", ->

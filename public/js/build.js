@@ -736,14 +736,6 @@
             });
             return true;
           }
-          if (command === "update_platform") {
-            console.log("Updating platform");
-            api.update_platform().then(function() {
-              console.log("Platform up to date");
-              return window.location.reload();
-            });
-            return true;
-          }
           return false;
         };
         setTopic = function(topic) {
