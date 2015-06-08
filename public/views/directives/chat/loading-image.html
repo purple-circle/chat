@@ -1,9 +1,10 @@
+<span ng-if="error">Error while loading image</span>
 
-<div class="message-loader" ng-if="!loaded">
+<div class="message-loader" ng-if="!loaded && !error">
   <h4>Loading image..</h4>
   <div class="loader">
     <md-progress-circular class="md-hue-2 md-warn" md-mode="indeterminate"></md-progress-circular>
   </div>
 </div>
 
-<img ng-src="{{url}}" ng-if="loaded">
+<img ng-src="{{imageUrl}}" ng-if="loaded && !error">

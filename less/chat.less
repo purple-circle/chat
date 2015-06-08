@@ -251,6 +251,10 @@ camera {
       a {
         color: @black;
         text-decoration: none;
+
+        &:hover {
+          text-decoration: underline;
+        }
       }
 
       img {
@@ -261,6 +265,7 @@ camera {
         &.image-gallery {
           float: left;
           max-width: 45%;
+          max-height: 120px;
           margin: 2px;
         }
       }

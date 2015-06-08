@@ -197,6 +197,9 @@ camera .md-subheader.md-default-theme {
   color: #000000;
   text-decoration: none;
 }
+.chat-messages .message .media-preview a:hover {
+  text-decoration: underline;
+}
 .chat-messages .message .media-preview img {
   cursor: pointer;
   max-width: 100%;
@@ -205,6 +208,7 @@ camera .md-subheader.md-default-theme {
 .chat-messages .message .media-preview img.image-gallery {
   float: left;
   max-width: 45%;
+  max-height: 120px;
   margin: 2px;
 }
 .badge {

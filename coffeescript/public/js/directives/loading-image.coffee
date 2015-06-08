@@ -3,15 +3,24 @@ app.directive 'loadingImage', ->
   templateUrl: "directives/chat/loading-image.html"
   scope:
     url: "="
+    urlText: "@"
   link: ($scope, element, attrs) ->
     $scope.loaded = false
+
+    if !$scope.url && !$scope.urlText
+      $scope.error = true
+      return
+
     img = new Image()
 
     img.onerror = img.onabort = ->
+      $scope.error = true
       $scope.loaded = false
 
     img.onload = ->
+      $scope.error = false
       $scope.loaded = true
 
-    img.src = $scope.url
+    $scope.imageUrl = $scope.url || $scope.urlText
 
+    img.src = $scope.imageUrl

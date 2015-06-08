@@ -316,7 +316,7 @@
             vimeoId = api.getVimeoIdFromUrl(row.original_message);
           }
           possibleUrls = api.stringHasUrl(row.original_message);
-          if ((possibleUrls != null ? possibleUrls[0] : void 0) && api.urlIsImage(possibleUrls[0])) {
+          if ((possibleUrls != null ? possibleUrls[0] : void 0) && api.urlIsImage(possibleUrls != null ? possibleUrls[0] : void 0)) {
             api.testImage(possibleUrls[0]).then(function() {
               var message;
               message = getMessageById(row.room_id, row._id);
@@ -628,19 +628,27 @@
     return {
       templateUrl: "directives/chat/loading-image.html",
       scope: {
-        url: "="
+        url: "=",
+        urlText: "@"
       },
       link: function($scope, element, attrs) {
         var img;
         $scope.loaded = false;
+        if (!$scope.url && !$scope.urlText) {
+          $scope.error = true;
+          return;
+        }
         img = new Image();
         img.onerror = img.onabort = function() {
+          $scope.error = true;
           return $scope.loaded = false;
         };
         img.onload = function() {
+          $scope.error = false;
           return $scope.loaded = true;
         };
-        return img.src = $scope.url;
+        $scope.imageUrl = $scope.url || $scope.urlText;
+        return img.src = $scope.imageUrl;
       }
     };
   });

@@ -37,7 +37,6 @@
 
 
           <span ng-if="item.images" class="media-preview">
-
             <img
               ng-class="{'image-gallery': item.images.length > 1}"
               ng-repeat="image in item.images"
@@ -89,7 +88,8 @@
             </span>
 
             <span ng-if="!item.videoOpened">
-              <img ng-src="http://img.youtube.com/vi/{{item.youtubeId}}/0.jpg" ng-click="openYoutubeVideo(item)">
+
+              <loading-image url-text="http://img.youtube.com/vi/{{item.youtubeId}}/0.jpg" ng-click="openYoutubeVideo(item)"></loading-image>
 
             </span>
 

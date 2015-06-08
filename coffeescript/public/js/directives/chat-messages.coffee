@@ -78,7 +78,7 @@ app.directive "messages", ($rootScope, $timeout, $interval, $mdDialog, $mdBottom
         vimeoId = api.getVimeoIdFromUrl(row.original_message)
 
       possibleUrls = api.stringHasUrl(row.original_message)
-      if possibleUrls?[0] and api.urlIsImage(possibleUrls[0])
+      if possibleUrls?[0] and api.urlIsImage(possibleUrls?[0])
         api
           .testImage(possibleUrls[0])
           .then ->
