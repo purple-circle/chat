@@ -230,7 +230,7 @@
           return;
         }
         return setTimeout(function() {
-          return getUrlData(url, done);
+          return getUrlData(url, done, retry_count);
         }, retry_seconds * 1000);
       } else {
         return done(null, result);
