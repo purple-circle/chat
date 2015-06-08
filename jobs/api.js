@@ -1,5 +1,5 @@
 (function() {
-  var Q, getUrlContent, jobs, kue, mongoose, objectLength, request, selectUserFields, settings, twitter, twitter_text_options, unique;
+  var Q, getUrlContent, getUrlData, jobs, kue, mongoose, objectLength, request, selectUserFields, settings, twitter, twitter_text_options, unique;
 
   require('newrelic');
 
@@ -209,6 +209,37 @@
       }));
     }
     return results;
+  });
+
+  getUrlData = function(url, done, retry_count) {
+    var Tags, retry_limit, retry_seconds;
+    retry_seconds = 3;
+    retry_limit = 5;
+    Tags = mongoose.model('open_graph_tags');
+    return Tags.findOne().where('url').equals(url).sort("-created_at").exec().then(function(result) {
+      var error;
+      if (result == null) {
+        console.log("No results yet, retrying " + retry_seconds + " seconds", url);
+        retry_count++;
+        if (retry_count >= retry_limit) {
+          error = "Data not found after " + retry_limit + " retries";
+          console.log(error);
+          done({
+            error: error
+          });
+          return;
+        }
+        return setTimeout(function() {
+          return getUrlData(url, done);
+        }, retry_seconds * 1000);
+      } else {
+        return done(null, result);
+      }
+    }, done);
+  };
+
+  jobs.process("api.getUrlData", function(job, done) {
+    return getUrlData(job.data, done, 0);
   });
 
   jobs.process("api.save_chat_message", function(job, done) {

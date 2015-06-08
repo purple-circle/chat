@@ -30,6 +30,17 @@
       });
       socket.on("save_chat_message", function(data) {
         return chat.save(data).then(function(result) {
+          var ref, ref1;
+          if ((ref = result.metadata) != null ? ref.urls : void 0) {
+            chat.getUrlData((ref1 = result.metadata) != null ? ref1.urls[0] : void 0).then(function(url_data) {
+              data = {
+                message: result,
+                url_data: url_data
+              };
+              socket.emit("url_data", data);
+              return socket.broadcast.emit("url_data", data);
+            });
+          }
           socket.emit("save_chat_message", result);
           return socket.broadcast.emit("save_chat_message", result);
         });

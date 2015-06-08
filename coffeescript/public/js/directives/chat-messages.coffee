@@ -114,6 +114,14 @@ app.directive "messages", ($rootScope, $timeout, $interval, $mdDialog, $mdBottom
           last_message = messages.length - 1
           document.getElementsByClassName("page-#{page_number}")?[last_message]?.scrollIntoView()
 
+
+    appendUrlDataToMessage = (data) ->
+      message = getMessageById(data.message.room_id, data.message._id)
+      if !message
+        return false
+
+      message.url_data = data.url_data
+
     getMessages = (room_id, page_number) ->
       api
         .load_chat_messages_for_room({room_id, chat_id: $scope.chatId, page: page_number})
@@ -136,6 +144,11 @@ app.directive "messages", ($rootScope, $timeout, $interval, $mdDialog, $mdBottom
         .on "save_chat_message", (message) ->
           processMessage(message)
           $rootScope.$broadcast("message-notification", message.room_id)
+
+      api
+        .socket
+        .on "url_data", (url_data) ->
+          appendUrlDataToMessage(url_data)
 
     $scope.showGridBottomSheet = ($event) ->
       ga('send', 'event', 'click', 'showGridBottomSheet', $scope.chatId)

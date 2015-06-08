@@ -239,7 +239,7 @@
         chatId: "="
       },
       link: function($scope) {
-        var checkUserMentions, getMessageById, getMessages, listenToMessages, listenToTyping, messagesOpened, page, processMessage, processMessages;
+        var appendUrlDataToMessage, checkUserMentions, getMessageById, getMessages, listenToMessages, listenToTyping, messagesOpened, page, processMessage, processMessages;
         page = 0;
         $scope.messages = {};
         $scope.whitespaces = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
@@ -354,6 +354,14 @@
             });
           }
         };
+        appendUrlDataToMessage = function(data) {
+          var message;
+          message = getMessageById(data.message.room_id, data.message._id);
+          if (!message) {
+            return false;
+          }
+          return message.url_data = data.url_data;
+        };
         getMessages = function(room_id, page_number) {
           return api.load_chat_messages_for_room({
             room_id: room_id,
@@ -373,9 +381,12 @@
           return getMessages(room_id, page);
         });
         listenToMessages = function() {
-          return api.socket.on("save_chat_message", function(message) {
+          api.socket.on("save_chat_message", function(message) {
             processMessage(message);
             return $rootScope.$broadcast("message-notification", message.room_id);
+          });
+          return api.socket.on("url_data", function(url_data) {
+            return appendUrlDataToMessage(url_data);
           });
         };
         $scope.showGridBottomSheet = function($event) {

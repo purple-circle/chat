@@ -14,4 +14,7 @@ chat.load_topic = ({chat_id, room_id}) ->
 chat.save_topic = (data) ->
   api.createQueue("api.save_topic", data)
 
+chat.getUrlData = (url) ->
+  api.createQueue("api.getUrlData", url)
+
 module.exports = chat

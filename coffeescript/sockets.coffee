@@ -33,6 +33,18 @@ module.exports = (server, sessionStore) ->
       chat
         .save(data)
         .then (result) ->
+
+          if result.metadata?.urls
+            chat
+              .getUrlData(result.metadata?.urls[0])
+              .then (url_data) ->
+                data =
+                  message: result
+                  url_data: url_data
+
+                socket.emit "url_data", data
+                socket.broadcast.emit "url_data", data
+
           socket.emit "save_chat_message", result
           socket.broadcast.emit "save_chat_message", result
 
