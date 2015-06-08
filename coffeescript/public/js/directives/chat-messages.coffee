@@ -30,8 +30,12 @@ app.directive "messages", ($rootScope, $timeout, $interval, $mdDialog, $mdBottom
         controller: ($scope, image) ->
           $scope.image = image
 
-    $scope.openOpenGraphImage = (image) ->
-      ga('send', 'event', 'openOpenGraphImage', $scope.chatId, image)
+    $scope.openOpenGraphImage = (image, type) ->
+      data =
+        chatId: $scope.chatId
+        image: image
+
+      ga('send', 'event', 'openOpenGraphImage', type, JSON.stringify(data))
 
     $scope.openYoutubeVideo = (item) ->
       ga('send', 'event', 'openYoutubeVideo', $scope.chatId, item.youtubeId)

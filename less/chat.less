@@ -1,3 +1,4 @@
+@black: #000;
 @white: #fff;
 @my-message-background: #F9FFFF;
 @their-message-background: #FFF7EC;
@@ -26,6 +27,7 @@ a {
 .messages-container {
   z-index: 1;
 }
+
 
 battery-level {
   fill: @white;
@@ -244,6 +246,12 @@ camera {
       margin-top: 10px;
       padding-top: 10px;
       display: block;
+
+
+      a {
+        color: @black;
+        text-decoration: none;
+      }
 
       img {
         cursor: pointer;

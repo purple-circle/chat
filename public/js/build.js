@@ -115,19 +115,6 @@
 
   app = angular.module('app');
 
-  app.filter("newlines", function() {
-    return function(text) {
-      return text.replace(/\n/g, "<br>");
-    };
-  });
-
-}).call(this);
-
-(function() {
-  var app;
-
-  app = angular.module('app');
-
   app.directive('camera', ["$timeout", "$mdDialog", "api", function($timeout, $mdDialog, api) {
     return {
       templateUrl: "directives/chat/camera.html",
@@ -275,8 +262,13 @@
             }]
           });
         };
-        $scope.openOpenGraphImage = function(image) {
-          return ga('send', 'event', 'openOpenGraphImage', $scope.chatId, image);
+        $scope.openOpenGraphImage = function(image, type) {
+          var data;
+          data = {
+            chatId: $scope.chatId,
+            image: image
+          };
+          return ga('send', 'event', 'openOpenGraphImage', type, JSON.stringify(data));
         };
         $scope.openYoutubeVideo = function(item) {
           ga('send', 'event', 'openYoutubeVideo', $scope.chatId, item.youtubeId);
@@ -622,6 +614,34 @@
         currentRoom: '='
       },
       templateUrl: 'directives/chat/loader.html'
+    };
+  });
+
+}).call(this);
+
+(function() {
+  var app;
+
+  app = angular.module('app');
+
+  app.directive('loadingImage', function() {
+    return {
+      templateUrl: "directives/chat/loading-image.html",
+      scope: {
+        url: "="
+      },
+      link: function($scope, element, attrs) {
+        var img;
+        $scope.loaded = false;
+        img = new Image();
+        img.onerror = img.onabort = function() {
+          return $scope.loaded = false;
+        };
+        img.onload = function() {
+          return $scope.loaded = true;
+        };
+        return img.src = $scope.url;
+      }
     };
   });
 
@@ -1159,6 +1179,19 @@
         currentRoom: '='
       },
       templateUrl: 'directives/chat/toolbar.html'
+    };
+  });
+
+}).call(this);
+
+(function() {
+  var app;
+
+  app = angular.module('app');
+
+  app.filter("newlines", function() {
+    return function(text) {
+      return text.replace(/\n/g, "<br>");
     };
   });
 

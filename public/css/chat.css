@@ -193,6 +193,10 @@ camera .md-subheader.md-default-theme {
   padding-top: 10px;
   display: block;
 }
+.chat-messages .message .media-preview a {
+  color: #000000;
+  text-decoration: none;
+}
 .chat-messages .message .media-preview img {
   cursor: pointer;
   max-width: 100%;
