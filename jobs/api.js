@@ -53,7 +53,7 @@
           return;
         }
         return setTimeout(function() {
-          return getUrlData(url, done, retry_count);
+          return getUrlDataRetry(url, done, retry_count);
         }, retry_seconds * 1000);
       } else {
         return done(null, result);

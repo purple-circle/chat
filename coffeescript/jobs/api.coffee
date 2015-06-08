@@ -49,7 +49,7 @@ getUrlDataRetry = (url, done, retry_count) ->
           return
 
         setTimeout ->
-          getUrlData(url, done, retry_count)
+          getUrlDataRetry(url, done, retry_count)
         , retry_seconds * 1000
 
       else
