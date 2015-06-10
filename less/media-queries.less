@@ -1,0 +1,43 @@
+@import "variables";
+
+@media (min-width: 1100px) {
+  html, body {
+    background-image:
+      radial-gradient(
+        #ffff00,
+        #f06d06
+      );
+  }
+
+  md-sidenav {
+    border-radius: 3px 0 0 0;
+  }
+
+  .messages-container {
+    md-toolbar {
+      border-radius: 0 3px 0 0;
+    }
+  }
+
+  @max-width: 95%;
+  .chat-container {
+    bottom: 120px;
+    max-width: @max-width;
+    margin: 20px auto 0;
+  }
+
+  .send-message-container {
+    max-width: @max-width;
+    margin: 0 auto 20px;
+
+    md-content {
+      border-radius: 0 0 3px 3px;
+    }
+  }
+}
+
+@media (max-width: 1099px) {
+  .chat-container {
+    bottom: 100px;
+  }
+}

@@ -61,7 +61,17 @@ gulp.task "coffee", ->
 
 gulp.task "less", ->
   gulp
-    .src("less/**/*.less")
+    .src([
+      "less/**/*.less"
+      "!less/error404.less"
+    ])
+    .pipe(plumber({errorHandler}))
+    .pipe(less())
+    .pipe(concat('chat.css'))
+    .pipe(gulp.dest("./public/css"))
+
+  gulp
+    .src("less/error404.less")
     .pipe(plumber({errorHandler}))
     .pipe(less())
     .pipe(gulp.dest("./public/css"))
