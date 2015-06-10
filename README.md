@@ -44,3 +44,7 @@ To lint the code
 ```
 gulp lintcode
 ```
+
+
+### Demo
+[Demo hosted here](http://happijoy.com/)
