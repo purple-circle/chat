@@ -228,6 +228,7 @@ media-preview .youtube-thumbnail-container .youtube-play-button:hover {
   position: relative;
 }
 .chat-messages .message .message-content {
+  min-width: 100px;
   position: relative;
   padding: 8px 10px 0 9px;
   display: inline-block;
