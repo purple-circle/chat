@@ -1,0 +1,108 @@
+<span ng-if="message.images" class="media-preview">
+  <img
+    ng-class="{'image-gallery': message.images.length > 1}"
+    ng-repeat="image in message.images"
+    ng-click="openImage(image)"
+    ng-src="{{image}}">
+</span>
+
+<span ng-if="message.url_data.tags.image && !message.youtubeId && !message.vimeoId" class="media-preview">
+  <a
+    ng-href="{{message.url_data.url}}"
+    ng-click="openOpenGraphImage(message.url_data.tags.image, 'image')"
+    target="_blank">
+    <loading-image url="message.url_data.tags.image"></loading-image>
+  </a>
+
+  <span class="details">
+    <span ng-if="message.url_data.tags.title">
+      <a
+        ng-href="{{message.url_data.url}}"
+        ng-click="openOpenGraphImage(message.url_data.tags.image, 'title')"
+        target="_blank">
+        <strong>{{message.url_data.tags.title}}</strong>
+      </a>
+    </span>
+
+    <span ng-if="message.url_data.tags.title">
+      <a
+        ng-href="{{message.url_data.url}}"
+        ng-click="openOpenGraphImage(message.url_data.tags.image, 'description')"
+        ng-if="message.url_data.tags.description"
+        target="_blank">
+        <span>{{message.url_data.tags.description}}</span>
+      </a>
+    </span>
+  </span>
+
+</span>
+
+<span ng-if="message.youtubeId" class="media-preview">
+  <span ng-if="message.videoOpened">
+    <youtube-video
+      video-id="message.youtubeId"
+      player-vars="youtubeOptions"
+      player-width="'100%'"
+      player-height="'200px'"></youtube-video>
+
+    <span class="details">
+      <span ng-if="message.url_data.tags.title">
+        <strong>{{message.url_data.tags.title}}</strong>
+      </span>
+
+      <span ng-if="message.url_data.tags.title">
+        {{message.url_data.tags.description}}
+      </span>
+
+      <span>
+        <a href="#" ng-click="openYoutubeDialog(message.youtubeId)">
+          <i class="fa fa-external-link-square"></i> Open video in dialog
+        </a>
+      </span>
+    </span>
+  </span>
+
+  <span ng-if="!message.videoOpened">
+    <loading-image
+      url-text="http://img.youtube.com/vi/{{message.youtubeId}}/0.jpg"
+      ng-click="openYoutubeVideo(message, 'image')"></loading-image>
+
+    <span class="details">
+      <span ng-if="message.url_data.tags.title">
+        <a
+          ng-click="openYoutubeVideo(message, 'title')"
+          target="_blank">
+          <strong>{{message.url_data.tags.title}}</strong>
+        </a>
+      </span>
+
+      <span ng-if="message.url_data.tags.title">
+        <a
+          ng-click="openYoutubeVideo(message, 'description')"
+          ng-if="message.url_data.tags.description"
+          target="_blank">
+          {{message.url_data.tags.description}}
+        </a>
+      </span>
+    </span>
+
+  </span>
+</span>
+
+<span ng-if="message.vimeoId" class="media-preview">
+  <vimeo-video
+    video-id="message.vimeoId"
+    player-width="340"
+    player-height="200"></vimeo-video>
+
+
+  <span class="details">
+    <span ng-if="message.url_data.tags.title">
+      <strong>{{message.url_data.tags.title}}</strong>
+    </span>
+
+    <span ng-if="message.url_data.tags.title">
+      {{message.url_data.tags.description}}
+    </span>
+  </span>
+</span>

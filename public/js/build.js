@@ -7,7 +7,7 @@
   moment.locale('en', {
     calendar: {
       lastDay: '[Yesterday at] LT',
-      sameDay: '[Today at] LT',
+      sameDay: 'LT',
       nextDay: '[Tomorrow at] LT',
       lastWeek: 'dddd [at] LT',
       nextWeek: 'dddd [at] LT',
@@ -231,223 +231,6 @@
 
   app = angular.module('app');
 
-  app.directive("messages", ["$rootScope", "$timeout", "$interval", "$mdDialog", "$mdBottomSheet", "$mdMedia", "api", function($rootScope, $timeout, $interval, $mdDialog, $mdBottomSheet, $mdMedia, api) {
-    return {
-      templateUrl: "directives/chat/messages.html",
-      scope: {
-        room: "=",
-        chatId: "="
-      },
-      link: function($scope) {
-        var appendUrlDataToMessage, checkUserMentions, getMessageById, getMessages, listenToMessages, listenToTyping, messagesOpened, page, processMessage, processMessages;
-        page = 0;
-        $scope.messages = {};
-        $scope.whitespaces = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
-        $scope.messagesFetched = {};
-        $scope.youtubeOptions = {
-          autoplay: false
-        };
-        $scope.peopleTyping = [];
-        $scope.peopleTypingTimeout = {};
-        messagesOpened = new Date().getTime();
-        $scope.openImage = function(image) {
-          ga('send', 'event', 'openImage', $scope.chatId, image);
-          return $mdDialog.show({
-            templateUrl: 'directives/chat/image-preview.html',
-            locals: {
-              image: image
-            },
-            controller: ["$scope", "image", function($scope, image) {
-              return $scope.image = image;
-            }]
-          });
-        };
-        $scope.openOpenGraphImage = function(image, type) {
-          var data;
-          data = {
-            chatId: $scope.chatId,
-            image: image
-          };
-          return ga('send', 'event', 'openOpenGraphImage', type, JSON.stringify(data));
-        };
-        $scope.openYoutubeVideo = function(item) {
-          ga('send', 'event', 'openYoutubeVideo', $scope.chatId, item.youtubeId);
-          return item.videoOpened = true;
-        };
-        checkUserMentions = function(user_mentions, from) {
-          var i, len, myUsername, name, username;
-          if (!user_mentions) {
-            return false;
-          }
-          myUsername = api.getUsername();
-          myUsername = myUsername.toLowerCase();
-          for (i = 0, len = user_mentions.length; i < len; i++) {
-            username = user_mentions[i];
-            name = username.toLowerCase();
-            if (name === myUsername && from !== myUsername) {
-              return true;
-            }
-          }
-          return false;
-        };
-        getMessageById = function(room_id, id) {
-          var i, len, message, ref;
-          ref = $scope.messages[room_id];
-          for (i = 0, len = ref.length; i < len; i++) {
-            message = ref[i];
-            if (message._id === id) {
-              return message;
-            }
-          }
-          return false;
-        };
-        processMessage = function(row) {
-          var data, notify_user, possibleUrls, ref, vimeoId, youtubeId;
-          if (!$scope.messages[row.room_id]) {
-            $scope.messages[row.room_id] = [];
-          }
-          if (getMessageById(row.room_id, row._id)) {
-            return false;
-          }
-          if (api.hasYoutubeUrl(row.original_message)) {
-            youtubeId = api.getYoutubeIdFromUrl(row.original_message);
-          }
-          if (api.hasVimeoUrl(row.original_message)) {
-            vimeoId = api.getVimeoIdFromUrl(row.original_message);
-          }
-          possibleUrls = api.stringHasUrl(row.original_message);
-          if ((possibleUrls != null ? possibleUrls[0] : void 0) && api.urlIsImage(possibleUrls != null ? possibleUrls[0] : void 0)) {
-            api.testImage(possibleUrls[0]).then(function() {
-              var message;
-              message = getMessageById(row.room_id, row._id);
-              return message != null ? message.images = possibleUrls : void 0;
-            });
-          }
-          notify_user = checkUserMentions(row != null ? (ref = row.metadata) != null ? ref.user_mentions : void 0 : void 0, row.from);
-          if (notify_user) {
-            if (new Date(row.created_at).getTime() > messagesOpened) {
-              $rootScope.$broadcast("tab-beep");
-            }
-          }
-          data = {
-            _id: row._id,
-            images: false,
-            room_id: row.room_id,
-            message: row.message,
-            createdAt: row.created_at,
-            from: row.from,
-            is_me: row.sid === yolosid,
-            color: api.intToARGB(api.hashCode(row.from)),
-            youtubeId: youtubeId,
-            vimeoId: vimeoId,
-            notify_user: notify_user,
-            page: row.page,
-            isGreenText: row.original_message[0].trim() === ">",
-            url_data: row.url_data
-          };
-          return $scope.messages[row.room_id].push(data);
-        };
-        processMessages = function(room_id, messages, page_number) {
-          var i, len, message;
-          $scope.messagesFetched[room_id] = true;
-          for (i = 0, len = messages.length; i < len; i++) {
-            message = messages[i];
-            message.page = page_number;
-            processMessage(message);
-          }
-          if (page_number > 0) {
-            return $timeout(function() {
-              var last_message, ref, ref1;
-              last_message = messages.length - 1;
-              return (ref = document.getElementsByClassName("page-" + page_number)) != null ? (ref1 = ref[last_message]) != null ? ref1.scrollIntoView() : void 0 : void 0;
-            });
-          }
-        };
-        appendUrlDataToMessage = function(data) {
-          var message;
-          message = getMessageById(data.message.room_id, data.message._id);
-          if (!message) {
-            return false;
-          }
-          return message.url_data = data.url_data;
-        };
-        getMessages = function(room_id, page_number) {
-          return api.load_chat_messages_for_room({
-            room_id: room_id,
-            chat_id: $scope.chatId,
-            page: page_number
-          }).then(function(messages) {
-            return processMessages(room_id, messages, page_number);
-          });
-        };
-        $rootScope.$on("getMessages", function(event, room_id) {
-          ga('send', 'event', 'messages', 'getMessages', $scope.chatId, room_id);
-          return getMessages(room_id, page);
-        });
-        $rootScope.$on("load-more-messages", function(event, room_id) {
-          ga('send', 'event', 'messages', 'load-more-messages', $scope.chatId, room_id);
-          page++;
-          return getMessages(room_id, page);
-        });
-        listenToMessages = function() {
-          api.socket.on("save_chat_message", function(message) {
-            processMessage(message);
-            return $rootScope.$broadcast("message-notification", message.room_id);
-          });
-          return api.socket.on("url_data", function(url_data) {
-            return appendUrlDataToMessage(url_data);
-          });
-        };
-        $scope.showGridBottomSheet = function($event) {
-          ga('send', 'event', 'click', 'showGridBottomSheet', $scope.chatId);
-          return $mdBottomSheet.show({
-            templateUrl: 'directives/chat/bottom-sheet.html',
-            controller: 'GridBottomSheetCtrl',
-            targetEvent: $event
-          });
-        };
-        $scope.openYoutubeDialog = function(youtubeId) {
-          ga('send', 'event', 'openYoutubeDialog', $scope.chatId, youtubeId);
-          return $mdDialog.show({
-            templateUrl: 'directives/chat/youtube-dialog.html',
-            locals: {
-              youtubeId: youtubeId
-            },
-            controller: ["$scope", "youtubeId", function($scope, youtubeId) {
-              return $scope.youtubeId = youtubeId;
-            }]
-          });
-        };
-        listenToTyping = function() {
-          return api.socket.on("typing", function(from) {
-            if ($scope.peopleTyping.indexOf(from) === -1) {
-              $scope.peopleTyping.push(from);
-            }
-            if ($scope.peopleTypingTimeout[from]) {
-              $timeout.cancel($scope.peopleTypingTimeout[from]);
-            }
-            return $scope.peopleTypingTimeout[from] = $timeout(function() {
-              var index;
-              index = $scope.peopleTyping.indexOf(from);
-              if (index > -1) {
-                return $scope.peopleTyping.splice(index, 1);
-              }
-            }, 3000);
-          });
-        };
-        listenToMessages();
-        return listenToTyping();
-      }
-    };
-  }]);
-
-}).call(this);
-
-(function() {
-  var app;
-
-  app = angular.module('app');
-
   app.directive("chat", ["$rootScope", "$mdSidenav", function($rootScope, $mdSidenav) {
     return {
       templateUrl: "directives/chat/chat.html",
@@ -649,6 +432,82 @@
         };
         $scope.imageUrl = $scope.url || $scope.urlText;
         return img.src = $scope.imageUrl;
+      }
+    };
+  });
+
+}).call(this);
+
+(function() {
+  var app;
+
+  app = angular.module('app');
+
+  app.directive("mediaPreview", ["$mdDialog", function($mdDialog) {
+    return {
+      templateUrl: "directives/chat/media-preview.html",
+      scope: {
+        message: "="
+      },
+      link: function($scope) {
+        $scope.youtubeOptions = {
+          autoplay: false
+        };
+        $scope.openImage = function(image) {
+          ga('send', 'event', 'openImage', $scope.chatId, image);
+          return $mdDialog.show({
+            templateUrl: 'directives/chat/image-preview.html',
+            locals: {
+              image: image
+            },
+            controller: ["$scope", "image", function($scope, image) {
+              return $scope.image = image;
+            }]
+          });
+        };
+        $scope.openOpenGraphImage = function(image, type) {
+          var data;
+          data = {
+            chatId: $scope.chatId,
+            image: image
+          };
+          return ga('send', 'event', 'openOpenGraphImage', type, JSON.stringify(data));
+        };
+        $scope.openYoutubeVideo = function(item) {
+          ga('send', 'event', 'openYoutubeVideo', $scope.chatId, item.youtubeId);
+          return item.videoOpened = true;
+        };
+        return $scope.openYoutubeDialog = function(youtubeId) {
+          ga('send', 'event', 'openYoutubeDialog', $scope.chatId, youtubeId);
+          return $mdDialog.show({
+            templateUrl: 'directives/chat/youtube-dialog.html',
+            locals: {
+              youtubeId: youtubeId
+            },
+            controller: ["$scope", "youtubeId", function($scope, youtubeId) {
+              return $scope.youtubeId = youtubeId;
+            }]
+          });
+        };
+      }
+    };
+  }]);
+
+}).call(this);
+
+(function() {
+  var app;
+
+  app = angular.module('app');
+
+  app.directive("messageContent", function() {
+    return {
+      templateUrl: "directives/chat/message-content.html",
+      scope: {
+        message: "="
+      },
+      link: function($scope) {
+        return $scope.whitespaces = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
       }
     };
   });
@@ -865,6 +724,175 @@
           $scope.uploadProgress = 0;
           return api.upload_to_imgur(element.files[0]).then(upload_success, upload_error, upload_notify);
         };
+      }
+    };
+  }]);
+
+}).call(this);
+
+(function() {
+  var app;
+
+  app = angular.module('app');
+
+  app.directive("messages", ["$rootScope", "$timeout", "$interval", "api", function($rootScope, $timeout, $interval, api) {
+    return {
+      templateUrl: "directives/chat/messages.html",
+      scope: {
+        room: "=",
+        chatId: "="
+      },
+      link: function($scope) {
+        var appendUrlDataToMessage, checkUserMentions, getMessageById, getMessages, listenToMessages, listenToTyping, messagesOpened, page, processMessage, processMessages;
+        page = 0;
+        $scope.messages = {};
+        $scope.messagesFetched = {};
+        $scope.peopleTyping = [];
+        $scope.peopleTypingTimeout = {};
+        messagesOpened = new Date().getTime();
+        checkUserMentions = function(user_mentions, from) {
+          var i, len, myUsername, name, username;
+          if (!user_mentions) {
+            return false;
+          }
+          myUsername = api.getUsername();
+          myUsername = myUsername.toLowerCase();
+          for (i = 0, len = user_mentions.length; i < len; i++) {
+            username = user_mentions[i];
+            name = username.toLowerCase();
+            if (name === myUsername && from !== myUsername) {
+              return true;
+            }
+          }
+          return false;
+        };
+        getMessageById = function(room_id, id) {
+          var i, len, message, ref;
+          ref = $scope.messages[room_id];
+          for (i = 0, len = ref.length; i < len; i++) {
+            message = ref[i];
+            if (message._id === id) {
+              return message;
+            }
+          }
+          return false;
+        };
+        processMessage = function(row) {
+          var data, notify_user, possibleUrls, ref, vimeoId, youtubeId;
+          if (!$scope.messages[row.room_id]) {
+            $scope.messages[row.room_id] = [];
+          }
+          if (getMessageById(row.room_id, row._id)) {
+            return false;
+          }
+          if (api.hasYoutubeUrl(row.original_message)) {
+            youtubeId = api.getYoutubeIdFromUrl(row.original_message);
+          }
+          if (api.hasVimeoUrl(row.original_message)) {
+            vimeoId = api.getVimeoIdFromUrl(row.original_message);
+          }
+          possibleUrls = api.stringHasUrl(row.original_message);
+          if ((possibleUrls != null ? possibleUrls[0] : void 0) && api.urlIsImage(possibleUrls != null ? possibleUrls[0] : void 0)) {
+            api.testImage(possibleUrls[0]).then(function() {
+              var message;
+              message = getMessageById(row.room_id, row._id);
+              return message != null ? message.images = possibleUrls : void 0;
+            });
+          }
+          notify_user = checkUserMentions(row != null ? (ref = row.metadata) != null ? ref.user_mentions : void 0 : void 0, row.from);
+          if (notify_user) {
+            if (new Date(row.created_at).getTime() > messagesOpened) {
+              $rootScope.$broadcast("tab-beep");
+            }
+          }
+          data = {
+            _id: row._id,
+            images: false,
+            room_id: row.room_id,
+            message: row.message,
+            createdAt: row.created_at,
+            from: row.from,
+            is_me: row.sid === yolosid,
+            color: api.intToARGB(api.hashCode(row.from)),
+            youtubeId: youtubeId,
+            vimeoId: vimeoId,
+            notify_user: notify_user,
+            page: row.page,
+            isGreenText: row.original_message[0].trim() === ">",
+            url_data: row.url_data
+          };
+          return $scope.messages[row.room_id].push(data);
+        };
+        processMessages = function(room_id, messages, page_number) {
+          var i, len, message;
+          $scope.messagesFetched[room_id] = true;
+          for (i = 0, len = messages.length; i < len; i++) {
+            message = messages[i];
+            message.page = page_number;
+            processMessage(message);
+          }
+          if (page_number > 0) {
+            return $timeout(function() {
+              var last_message, ref, ref1;
+              last_message = messages.length - 1;
+              return (ref = document.getElementsByClassName("page-" + page_number)) != null ? (ref1 = ref[last_message]) != null ? ref1.scrollIntoView() : void 0 : void 0;
+            });
+          }
+        };
+        appendUrlDataToMessage = function(data) {
+          var message;
+          message = getMessageById(data.message.room_id, data.message._id);
+          if (!message) {
+            return false;
+          }
+          return message.url_data = data.url_data;
+        };
+        getMessages = function(room_id, page_number) {
+          return api.load_chat_messages_for_room({
+            room_id: room_id,
+            chat_id: $scope.chatId,
+            page: page_number
+          }).then(function(messages) {
+            return processMessages(room_id, messages, page_number);
+          });
+        };
+        $rootScope.$on("getMessages", function(event, room_id) {
+          ga('send', 'event', 'messages', 'getMessages', $scope.chatId, room_id);
+          return getMessages(room_id, page);
+        });
+        $rootScope.$on("load-more-messages", function(event, room_id) {
+          ga('send', 'event', 'messages', 'load-more-messages', $scope.chatId, room_id);
+          page++;
+          return getMessages(room_id, page);
+        });
+        listenToMessages = function() {
+          api.socket.on("save_chat_message", function(message) {
+            processMessage(message);
+            return $rootScope.$broadcast("message-notification", message.room_id);
+          });
+          return api.socket.on("url_data", function(url_data) {
+            return appendUrlDataToMessage(url_data);
+          });
+        };
+        listenToTyping = function() {
+          return api.socket.on("typing", function(from) {
+            if ($scope.peopleTyping.indexOf(from) === -1) {
+              $scope.peopleTyping.push(from);
+            }
+            if ($scope.peopleTypingTimeout[from]) {
+              $timeout.cancel($scope.peopleTypingTimeout[from]);
+            }
+            return $scope.peopleTypingTimeout[from] = $timeout(function() {
+              var index;
+              index = $scope.peopleTyping.indexOf(from);
+              if (index > -1) {
+                return $scope.peopleTyping.splice(index, 1);
+              }
+            }, 3000);
+          });
+        };
+        listenToMessages();
+        return listenToTyping();
       }
     };
   }]);

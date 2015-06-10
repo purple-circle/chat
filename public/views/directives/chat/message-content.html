@@ -1,0 +1,12 @@
+<span class="message-content">
+
+  <strong class="from">{{message.from}}</strong><br/>
+  <span ng-bind-html="message.message" ng-class="{'green-text': message.isGreenText}"></span>
+
+  <!-- epic whitespace hack to create random width bubbles -->
+  <span ng-repeat="i in whitespaces">&nbsp;</span>
+
+
+</span>
+
+<span class="time">{{message.createdAt | amCalendar}}</span>

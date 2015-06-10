@@ -17,7 +17,7 @@ app = angular.module('app', [
 moment.locale 'en',
   calendar:
     lastDay: '[Yesterday at] LT'
-    sameDay: '[Today at] LT'
+    sameDay: 'LT'
     nextDay: '[Tomorrow at] LT'
     lastWeek: 'dddd [at] LT'
     nextWeek: 'dddd [at] LT'

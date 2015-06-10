@@ -1,6 +1,5 @@
 app = angular.module('app')
-
-app.directive "messages", ($rootScope, $timeout, $interval, $mdDialog, $mdBottomSheet, $mdMedia, api) ->
+app.directive "messages", ($rootScope, $timeout, $interval, api) ->
   templateUrl: "directives/chat/messages.html"
   scope:
     room: "="
@@ -11,36 +10,12 @@ app.directive "messages", ($rootScope, $timeout, $interval, $mdDialog, $mdBottom
     page = 0
 
     $scope.messages = {}
-    $scope.whitespaces = [0..15]
     $scope.messagesFetched = {}
-    $scope.youtubeOptions =
-      autoplay: false
 
     $scope.peopleTyping = []
     $scope.peopleTypingTimeout = {}
 
     messagesOpened = new Date().getTime()
-
-    $scope.openImage = (image) ->
-      ga('send', 'event', 'openImage', $scope.chatId, image)
-      $mdDialog.show
-        templateUrl: 'directives/chat/image-preview.html'
-        locals:
-          image: image
-        controller: ($scope, image) ->
-          $scope.image = image
-
-    $scope.openOpenGraphImage = (image, type) ->
-      data =
-        chatId: $scope.chatId
-        image: image
-
-      ga('send', 'event', 'openOpenGraphImage', type, JSON.stringify(data))
-
-    $scope.openYoutubeVideo = (item) ->
-      ga('send', 'event', 'openYoutubeVideo', $scope.chatId, item.youtubeId)
-      item.videoOpened = true
-
 
     checkUserMentions = (user_mentions, from) ->
       if !user_mentions
@@ -159,23 +134,6 @@ app.directive "messages", ($rootScope, $timeout, $interval, $mdDialog, $mdBottom
         .on "url_data", (url_data) ->
           appendUrlDataToMessage(url_data)
 
-    $scope.showGridBottomSheet = ($event) ->
-      ga('send', 'event', 'click', 'showGridBottomSheet', $scope.chatId)
-      $mdBottomSheet
-        .show
-          templateUrl: 'directives/chat/bottom-sheet.html'
-          controller: 'GridBottomSheetCtrl'
-          targetEvent: $event
-
-
-    $scope.openYoutubeDialog = (youtubeId) ->
-      ga('send', 'event', 'openYoutubeDialog', $scope.chatId, youtubeId)
-      $mdDialog.show
-        templateUrl: 'directives/chat/youtube-dialog.html'
-        locals:
-          youtubeId: youtubeId
-        controller: ($scope, youtubeId) ->
-          $scope.youtubeId = youtubeId
 
     listenToTyping = ->
       api
