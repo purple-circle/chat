@@ -413,7 +413,7 @@
       scope: {
         url: "=",
         urlText: "@",
-        loaded: "="
+        loaded: "=?"
       },
       link: function($scope, element, attrs) {
         var img;
@@ -451,6 +451,7 @@
         message: "="
       },
       link: function($scope) {
+        $scope.loaded = false;
         $scope.youtubeOptions = {
           autoplay: false
         };

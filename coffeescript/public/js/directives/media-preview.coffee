@@ -3,8 +3,9 @@ app.directive "mediaPreview", ($mdDialog) ->
   templateUrl: "directives/chat/media-preview.html"
   scope:
     message: "="
-
   link: ($scope) ->
+    $scope.loaded = false
+
     $scope.youtubeOptions =
       autoplay: false
 
