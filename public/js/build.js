@@ -412,7 +412,8 @@
       templateUrl: "directives/chat/loading-image.html",
       scope: {
         url: "=",
-        urlText: "@"
+        urlText: "@",
+        loaded: "="
       },
       link: function($scope, element, attrs) {
         var img;

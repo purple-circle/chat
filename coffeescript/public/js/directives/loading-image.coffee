@@ -4,6 +4,7 @@ app.directive 'loadingImage', ->
   scope:
     url: "="
     urlText: "@"
+    loaded: "="
   link: ($scope, element, attrs) ->
     $scope.loaded = false
 

@@ -63,9 +63,19 @@
   </span>
 
   <span ng-if="!message.videoOpened">
-    <loading-image
-      url-text="http://img.youtube.com/vi/{{message.youtubeId}}/0.jpg"
-      ng-click="openYoutubeVideo(message, 'image')"></loading-image>
+    <span class="youtube-thumbnail-container">
+      <loading-image
+        url-text="http://img.youtube.com/vi/{{message.youtubeId}}/0.jpg"
+        ng-click="openYoutubeVideo(message, 'image')" loaded="loaded"></loading-image>
+
+        <span
+          ng-if="loaded"
+          ng-click="openYoutubeVideo(message, 'button')"
+          class="youtube-play-button">
+          <i class="fa fa-youtube-play"></i>
+        </span>
+      </span>
+
 
     <span class="details">
       <span ng-if="message.url_data.tags.title">

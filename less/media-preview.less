@@ -41,4 +41,27 @@ media-preview {
       }
     }
   }
+
+  .youtube-thumbnail-container {
+    position: relative;
+    display: inline-block;
+    min-width: 100%;
+
+    .youtube-play-button {
+      cursor: pointer;
+      position: absolute;
+      font-size: 90px;
+      top: 50%;
+      left: 50%;
+      margin-top: -45px;
+      margin-left: -45px;
+      line-height: 90px;
+      opacity: 0.9;
+      color: @youtube-red;
+
+      &:hover {
+        opacity: 1;
+      }
+    }
+  }
 }
