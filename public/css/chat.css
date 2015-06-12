@@ -82,8 +82,8 @@ md-dialog md-dialog-content.youtube-dialog {
 md-dialog md-dialog-content .md-subheader .md-subheader-inner {
   padding: 0 10px;
 }
-md-dialog.md-default-theme.image-preview {
-  background: transparent;
+md-dialog .close {
+  font-size: 24px;
 }
 md-dialog img.image-preview {
   margin: auto;

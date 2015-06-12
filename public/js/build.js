@@ -463,7 +463,10 @@
               image: image
             },
             controller: ["$scope", "image", function($scope, image) {
-              return $scope.image = image;
+              $scope.image = image;
+              return $scope.close = function() {
+                return $mdDialog.cancel();
+              };
             }]
           });
         };

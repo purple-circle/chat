@@ -1,4 +1,12 @@
 <md-dialog aria-label="Image" class="image-preview">
+  <md-toolbar>
+    <div class="md-toolbar-tools">
+      <span flex></span>
+      <md-button class="md-icon-button" ng-click="close()" aria-label="Close">
+        <i class="fa fa-times close"></i>
+      </md-button>
+    </div>
+  </md-toolbar>
   <md-dialog-content>
     <div>
       <a ng-href="{{image}}" target="_blank">

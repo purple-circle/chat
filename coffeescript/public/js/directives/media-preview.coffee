@@ -17,6 +17,8 @@ app.directive "mediaPreview", ($mdDialog) ->
           image: image
         controller: ($scope, image) ->
           $scope.image = image
+          $scope.close = ->
+            $mdDialog.cancel()
 
     $scope.openOpenGraphImage = (image, type) ->
       data =
