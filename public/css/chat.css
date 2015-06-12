@@ -106,6 +106,7 @@ md-dialog img.image-preview {
   background: #f9ffff;
   box-shadow: 0 1px 0.5px rgba(0, 0, 0, 0.13);
   position: relative;
+  padding: 3px 10px 2px 9px;
 }
 
 .loader {

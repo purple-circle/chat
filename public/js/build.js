@@ -652,7 +652,12 @@
           }
           if (command === "help") {
             $mdDialog.show({
-              templateUrl: 'directives/chat/help.html'
+              templateUrl: 'directives/chat/help.html',
+              controller: ["$scope", function($scope) {
+                return $scope.close = function() {
+                  return $mdDialog.cancel();
+                };
+              }]
             });
             return true;
           }
