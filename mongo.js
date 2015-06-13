@@ -1,6 +1,6 @@
 (function() {
   module.exports = function(settings) {
-    var apiLogSchema, chatMessageSchema, db, facebookUserSchema, getRandomName, getRandomUserName, googleUserSchema, imgurSchema, instagramUserSchema, mongoose, openGraphTagSchema, passportLocalMongoose, roomSchema, topicSchema, twitterTagSchema, userSchema;
+    var apiLogSchema, chatMessageSchema, db, facebookUserSchema, getRandomName, getRandomUserName, googleUserSchema, imgurSchema, instagramUserSchema, mongoose, openGraphTagSchema, passportLocalMongoose, profilePictureAlbumSchema, profilePictureSchema, roomSchema, topicSchema, twitterTagSchema, userSchema;
     mongoose = require('mongoose');
     passportLocalMongoose = require('passport-local-mongoose');
     getRandomName = function() {
@@ -16,6 +16,7 @@
     chatMessageSchema = mongoose.Schema({
       chat_id: 'String',
       room_id: 'ObjectId',
+      user_id: 'ObjectId',
       message: 'String',
       sid: 'String',
       from: 'String',
@@ -29,6 +30,7 @@
     topicSchema = mongoose.Schema({
       chat_id: 'String',
       room_id: 'ObjectId',
+      user_id: 'ObjectId',
       topic: 'String',
       from: 'String',
       created_at: {
@@ -40,6 +42,7 @@
       chat_id: 'String',
       name: 'String',
       created_by: 'String',
+      user_id: 'ObjectId',
       sid: 'String',
       icon: 'String',
       created_at: {
@@ -71,6 +74,7 @@
       link: 'String',
       chat_id: 'String',
       room_id: 'ObjectId',
+      user_id: 'ObjectId',
       sid: 'String',
       created_at: {
         type: Date,
@@ -225,6 +229,31 @@
         "default": Date.now
       }
     });
+    profilePictureSchema = mongoose.Schema({
+      user_id: 'ObjectId',
+      album_id: 'ObjectId',
+      title: 'String',
+      filename: 'String',
+      file: 'Object',
+      resolution: 'Object',
+      metadata: 'Object',
+      created_at: {
+        type: Date,
+        "default": Date.now
+      }
+    });
+    profilePictureAlbumSchema = mongoose.Schema({
+      user_id: 'ObjectId',
+      title: 'String',
+      "default": {
+        type: Boolean,
+        "default": false
+      },
+      created_at: {
+        type: Date,
+        "default": Date.now
+      }
+    });
     userSchema.plugin(passportLocalMongoose);
     mongoose.model('chat_messages', chatMessageSchema);
     mongoose.model('topics', topicSchema);
@@ -237,6 +266,8 @@
     mongoose.model('facebook_user_data', facebookUserSchema);
     mongoose.model('instagram_user_data', instagramUserSchema);
     mongoose.model('google_user_data', googleUserSchema);
+    mongoose.model('profile_pictures', profilePictureSchema);
+    mongoose.model('profile_picture_albums', profilePictureAlbumSchema);
     db = mongoose.connection;
     db.on('error', function(error) {
       return console.log('Mongodb returned error: %s', error);

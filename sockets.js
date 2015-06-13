@@ -2,11 +2,12 @@
   require('newrelic');
 
   module.exports = function(server, sessionStore) {
-    var Q, chat, imgur, io, rooms;
+    var Q, chat, imgur, io, rooms, users;
     io = require("socket.io").listen(server);
     chat = require("./models/chat");
     rooms = require("./models/rooms");
     imgur = require("./models/imgur");
+    users = require('./models/user');
     Q = require("q");
     io.use(function(socket, next) {
       return sessionStore(socket.request, socket.request.res, next);
@@ -100,6 +101,20 @@
           socket.emit("room_created", result);
           return socket.broadcast.emit("room_created", result);
         });
+      });
+      socket.on("signup", function(data) {
+        var error, success;
+        error = function(error) {
+          return socket.emit("signup_error", {
+            error: error
+          });
+        };
+        success = function(account) {
+          return socket.emit("signup", {
+            account: account
+          });
+        };
+        return users.localSignup(data).then(success, error);
       });
       return socket.on("get_online_count", function() {
         socket.emit("get_online_count", io.engine.clientsCount);

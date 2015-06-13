@@ -295,3 +295,73 @@ jobs.process "api.get_rooms", (job, done) ->
     .then (result) ->
       done(null, result)
     , done
+
+
+jobs.process "api.check_username", (job, done) ->
+  Users = mongoose.model 'users'
+  Users
+    .findOne({username: job.data})
+    .select('username')
+    .exec()
+    .then (result) ->
+      done(null, result)
+    , done
+
+
+jobs.process "api.localSignupUser", (job, done) ->
+  User = mongoose.model 'users'
+  User.register new User(username: job.data.username), job.data.password, (err, account) ->
+    if err
+      done err
+    else
+      done null, account
+
+
+
+jobs.process "api.create_profile_picture_album", (job, done) ->
+  ProfilePictureAlbum = mongoose.model 'profile_picture_albums'
+  album = new ProfilePictureAlbum(job.data)
+  album.save (err) ->
+    if err
+      done(err)
+    else
+      done null, album
+
+jobs.process "api.get_profile_picture_albums", (job, done) ->
+  Albums = mongoose.model 'profile_picture_albums'
+  Albums
+    .find({user_id: job.data})
+    .exec()
+    .then (result) ->
+      done(null, result)
+    , done
+
+
+jobs.process "api.saveFacebookData", (job, done) ->
+  Facebook = mongoose.model 'facebook_user_data'
+  facebook = new Facebook(job.data)
+  facebook.save (err) ->
+    if err
+      done(err)
+    else
+      done null, facebook
+
+
+jobs.process "api.saveGoogleData", (job, done) ->
+  Google = mongoose.model 'google_user_data'
+  google = new Google(job.data)
+  google.save (err) ->
+    if err
+      done(err)
+    else
+      done null, google
+
+jobs.process "api.saveInstagramData", (job, done) ->
+  Instagram = mongoose.model 'instagram_user_data'
+  instagram = new Instagram(job.data)
+  instagram.save (err) ->
+    if err
+      done(err)
+    else
+      done null, instagram
+

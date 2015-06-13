@@ -4,6 +4,7 @@ module.exports = (server, sessionStore) ->
   chat = require("./models/chat")
   rooms = require("./models/rooms")
   imgur = require("./models/imgur")
+  users = require('./models/user')
   Q = require("q")
   #require 'shelljs/global'
 
@@ -94,6 +95,18 @@ module.exports = (server, sessionStore) ->
         .then (result) ->
           socket.emit "room_created", result
           socket.broadcast.emit "room_created", result
+
+
+    socket.on "signup", (data) ->
+      error = (error) ->
+        socket.emit "signup_error", {error}
+
+      success = (account) ->
+        socket.emit "signup", {account}
+
+      users
+        .localSignup(data)
+        .then success, error
 
     # socket.on "update_platform", ->
     #   if not which 'git'

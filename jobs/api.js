@@ -307,4 +307,90 @@
     }, done);
   });
 
+  jobs.process("api.check_username", function(job, done) {
+    var Users;
+    Users = mongoose.model('users');
+    return Users.findOne({
+      username: job.data
+    }).select('username').exec().then(function(result) {
+      return done(null, result);
+    }, done);
+  });
+
+  jobs.process("api.localSignupUser", function(job, done) {
+    var User;
+    User = mongoose.model('users');
+    return User.register(new User({
+      username: job.data.username
+    }), job.data.password, function(err, account) {
+      if (err) {
+        return done(err);
+      } else {
+        return done(null, account);
+      }
+    });
+  });
+
+  jobs.process("api.create_profile_picture_album", function(job, done) {
+    var ProfilePictureAlbum, album;
+    ProfilePictureAlbum = mongoose.model('profile_picture_albums');
+    album = new ProfilePictureAlbum(job.data);
+    return album.save(function(err) {
+      if (err) {
+        return done(err);
+      } else {
+        return done(null, album);
+      }
+    });
+  });
+
+  jobs.process("api.get_profile_picture_albums", function(job, done) {
+    var Albums;
+    Albums = mongoose.model('profile_picture_albums');
+    return Albums.find({
+      user_id: job.data
+    }).exec().then(function(result) {
+      return done(null, result);
+    }, done);
+  });
+
+  jobs.process("api.saveFacebookData", function(job, done) {
+    var Facebook, facebook;
+    Facebook = mongoose.model('facebook_user_data');
+    facebook = new Facebook(job.data);
+    return facebook.save(function(err) {
+      if (err) {
+        return done(err);
+      } else {
+        return done(null, facebook);
+      }
+    });
+  });
+
+  jobs.process("api.saveGoogleData", function(job, done) {
+    var Google, google;
+    Google = mongoose.model('google_user_data');
+    google = new Google(job.data);
+    return google.save(function(err) {
+      if (err) {
+        return done(err);
+      } else {
+        return done(null, google);
+      }
+    });
+  });
+
+  jobs.process("api.saveInstagramData", function(job, done) {
+    var Instagram, instagram;
+    Instagram = mongoose.model('instagram_user_data');
+    instagram = new Instagram(job.data);
+    return instagram.save(function(err) {
+      if (err) {
+        return done(err);
+      } else {
+        return done(null, instagram);
+      }
+    });
+  });
+
 }).call(this);
