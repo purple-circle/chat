@@ -143,11 +143,19 @@ app.directive 'messageForm', ($rootScope, $timeout, $mdSidenav, $mdDialog, api, 
         $mdDialog
           .show
             templateUrl: 'directives/chat/help.html'
-            controller: ($scope) ->
-              $scope.close = ->
-                $mdDialog.cancel()
+            controller: 'simpleDialog'
 
         return true
+
+      if command is "register" or command is "signup"
+        $mdDialog
+          .show
+            templateUrl: 'directives/chat/signup-dialog.html'
+            controller: 'simpleDialog'
+
+        return true
+
+
 
       # if command is "update_platform"
       #   console.log "Updating platform"

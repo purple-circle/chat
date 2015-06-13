@@ -115,6 +115,32 @@
 
   app = angular.module('app');
 
+  app.controller('simpleDialog', ["$scope", "$mdDialog", function($scope, $mdDialog) {
+    return $scope.close = function() {
+      return $mdDialog.cancel();
+    };
+  }]);
+
+}).call(this);
+
+(function() {
+  var app;
+
+  app = angular.module('app');
+
+  app.filter("newlines", function() {
+    return function(text) {
+      return text.replace(/\n/g, "<br>");
+    };
+  });
+
+}).call(this);
+
+(function() {
+  var app;
+
+  app = angular.module('app');
+
   app.directive('camera', ["$timeout", "$mdDialog", "api", function($timeout, $mdDialog, api) {
     return {
       templateUrl: "directives/chat/camera.html",
@@ -653,11 +679,14 @@
           if (command === "help") {
             $mdDialog.show({
               templateUrl: 'directives/chat/help.html',
-              controller: ["$scope", function($scope) {
-                return $scope.close = function() {
-                  return $mdDialog.cancel();
-                };
-              }]
+              controller: 'simpleDialog'
+            });
+            return true;
+          }
+          if (command === "register" || command === "signup") {
+            $mdDialog.show({
+              templateUrl: 'directives/chat/signup-dialog.html',
+              controller: 'simpleDialog'
             });
             return true;
           }
@@ -1179,6 +1208,26 @@
 
   app = angular.module('app');
 
+  app.directive('signup', ["api", function(api) {
+    return {
+      templateUrl: "directives/chat/signup.html",
+      restrict: 'E',
+      link: function($scope, element, attrs) {
+        $scope.username = api.getUsername();
+        return $scope.signup = function() {
+          return console.log("Signup should happen here");
+        };
+      }
+    };
+  }]);
+
+}).call(this);
+
+(function() {
+  var app;
+
+  app = angular.module('app');
+
   app.directive("titleNotifier", ["$rootScope", "tabActive", "beep", function($rootScope, tabActive, beep) {
     return {
       link: function($scope) {
@@ -1225,19 +1274,6 @@
         currentRoom: '='
       },
       templateUrl: 'directives/chat/toolbar.html'
-    };
-  });
-
-}).call(this);
-
-(function() {
-  var app;
-
-  app = angular.module('app');
-
-  app.filter("newlines", function() {
-    return function(text) {
-      return text.replace(/\n/g, "<br>");
     };
   });
 
