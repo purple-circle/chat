@@ -107,6 +107,17 @@ module.exports = (server, sessionStore) ->
         .localSignup(data)
         .then success, error
 
+    socket.on "login", (data) ->
+      error = (error) ->
+        socket.emit "login_error", {error}
+
+      success = (account) ->
+        socket.emit "login", {account}
+
+      users
+        .login(data)
+        .then success, error
+
     # socket.on "update_platform", ->
     #   if not which 'git'
     #     return

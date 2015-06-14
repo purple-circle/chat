@@ -1,0 +1,23 @@
+<md-content layout-padding layout="column">
+
+  <div ng-if="errors">
+    {{errors}}
+  </div>
+
+  <form ng-submit="login()">
+    <md-input-container>
+      <label>Username</label>
+      <input ng-model="username">
+    </md-input-container>
+
+    <md-input-container>
+      <label>Password</label>
+      <input ng-model="password" type="password">
+    </md-input-container>
+
+    <md-input-container>
+      <md-button class="md-primary" type="submit" ng-disabled="login_in_progress">Login</md-button>
+    </md-input-container>
+  </form>
+
+</md-content>

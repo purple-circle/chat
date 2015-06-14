@@ -126,3 +126,7 @@ app.factory 'api', ($q, youtubeEmbedUtils, imgurUpload, messageHistory, animals,
   signup: (data) ->
     socket.emit("signup", data)
     this.on("signup")
+
+  login: (data) ->
+    socket.emit("login", data)
+    this.on("login")

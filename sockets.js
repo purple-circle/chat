@@ -115,6 +115,20 @@
         };
         return users.localSignup(data).then(success, error);
       });
+      socket.on("login", function(data) {
+        var error, success;
+        error = function(error) {
+          return socket.emit("login_error", {
+            error: error
+          });
+        };
+        success = function(account) {
+          return socket.emit("login", {
+            account: account
+          });
+        };
+        return users.login(data).then(success, error);
+      });
       return socket.on("get_online_count", function() {
         socket.emit("get_online_count", io.engine.clientsCount);
         return socket.broadcast.emit("get_online_count", io.engine.clientsCount);

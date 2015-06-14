@@ -2,9 +2,41 @@ Q = require("q")
 api = require("../models/api")
 user = {}
 
+
+
+passport = require("passport")
+mongoose = require("mongoose")
+LocalStrategy = require("passport-local").Strategy
+
+Users = mongoose.model 'users'
+passport.use new LocalStrategy(Users.authenticate())
+
 rejectPromise = ->
   deferred = Q.defer()
   deferred.reject()
+  deferred.promise
+
+
+user.login = (data) ->
+  deferred = Q.defer()
+
+  # Fucking stupid passport.js
+  req =
+    body:
+      username: data.username
+      password: data.password
+
+  authenticate = passport.authenticate 'local', (err, user, info) ->
+
+    if err
+      deferred.reject err
+    else if info
+      deferred.reject info
+    else
+      deferred.resolve user
+
+  authenticate(req)
+
   deferred.promise
 
 

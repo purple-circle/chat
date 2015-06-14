@@ -461,6 +461,54 @@
 
   app = angular.module('app');
 
+  app.directive('login', ["api", function(api) {
+    return {
+      templateUrl: 'directives/chat/login.html',
+      restrict: 'E',
+      link: function($scope, element, attrs) {
+        $scope.username = api.getUsername();
+        api.socket.on("login_error", function(error) {
+          console.log("error", error);
+          $scope.login_in_progress = false;
+          return $scope.errors = error;
+        });
+        return $scope.login = function() {
+          var data;
+          $scope.errors = {};
+          if (!$scope.username) {
+            $scope.errors.username = true;
+            return;
+          }
+          if (!$scope.password) {
+            $scope.errors.password = true;
+            return;
+          }
+          data = {
+            username: $scope.username,
+            password: $scope.password
+          };
+          $scope.login_in_progress = true;
+          return api.login(data).then(function(account) {
+            console.log("login success", account);
+            $scope.login_in_progress = false;
+            return $scope.account = account;
+          }, function(error) {
+            console.log("login error", error);
+            $scope.errors = error;
+            return $scope.login_in_progress = false;
+          });
+        };
+      }
+    };
+  }]);
+
+}).call(this);
+
+(function() {
+  var app;
+
+  app = angular.module('app');
+
   app.directive("mediaPreview", ["$mdDialog", function($mdDialog) {
     return {
       templateUrl: "directives/chat/media-preview.html",
@@ -677,6 +725,13 @@
           if (command === "register" || command === "signup") {
             $mdDialog.show({
               templateUrl: 'directives/chat/signup-dialog.html',
+              controller: 'simpleDialog'
+            });
+            return true;
+          }
+          if (command === "login" || command === "signin") {
+            $mdDialog.show({
+              templateUrl: 'directives/chat/login-dialog.html',
               controller: 'simpleDialog'
             });
             return true;
@@ -1207,7 +1262,6 @@
         $scope.username = api.getUsername();
         api.socket.on("signup_error", function(error) {
           $scope.signup_in_progress = false;
-          console.log("signup_error", error);
           return $scope.errors = error;
         });
         return $scope.signup = function() {
@@ -1227,15 +1281,13 @@
             email: $scope.email
           };
           $scope.signup_in_progress = true;
-          api.signup(data).then(function(account) {
+          return api.signup(data).then(function(account) {
             $scope.signup_in_progress = false;
-            console.log("account", account);
             return $scope.account = account;
           }, function(error) {
-            $scope.errors = error;
-            return $scope.signup_in_progress = false;
+            $scope.signup_in_progress = false;
+            return $scope.errors = error;
           });
-          return console.log("Signup should happen here");
         };
       }
     };
@@ -1465,6 +1517,10 @@
       signup: function(data) {
         socket.emit("signup", data);
         return this.on("signup");
+      },
+      login: function(data) {
+        socket.emit("login", data);
+        return this.on("login");
       }
     };
   }]);

@@ -155,6 +155,14 @@ app.directive 'messageForm', ($rootScope, $timeout, $mdSidenav, $mdDialog, api, 
 
         return true
 
+      if command is "login" or command is "signin"
+        $mdDialog
+          .show
+            templateUrl: 'directives/chat/login-dialog.html'
+            controller: 'simpleDialog'
+
+        return true
+
 
 
       # if command is "update_platform"

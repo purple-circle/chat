@@ -1,17 +1,18 @@
 app = angular.module('app')
-app.directive 'signup', (api) ->
-  templateUrl: "directives/chat/signup.html"
+app.directive 'login', (api) ->
+  templateUrl: 'directives/chat/login.html'
   restrict: 'E'
   link: ($scope, element, attrs) ->
     $scope.username = api.getUsername()
 
     api
       .socket
-      .on "signup_error", (error) ->
-        $scope.signup_in_progress = false
+      .on "login_error", (error) ->
+        console.log "error", error
+        $scope.login_in_progress = false
         $scope.errors = error
 
-    $scope.signup = ->
+    $scope.login = ->
       $scope.errors = {}
       if !$scope.username
         $scope.errors.username = true
@@ -24,15 +25,16 @@ app.directive 'signup', (api) ->
       data =
         username: $scope.username
         password: $scope.password
-        email: $scope.email
 
-      $scope.signup_in_progress = true
+      $scope.login_in_progress = true
 
       api
-        .signup(data)
+        .login(data)
         .then (account) ->
-          $scope.signup_in_progress = false
+          console.log "login success", account
+          $scope.login_in_progress = false
           $scope.account = account
         , (error) ->
-          $scope.signup_in_progress = false
+          console.log "login error", error
           $scope.errors = error
+          $scope.login_in_progress = false

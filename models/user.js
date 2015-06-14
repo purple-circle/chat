@@ -1,5 +1,5 @@
 (function() {
-  var Q, api, rejectPromise, user;
+  var LocalStrategy, Q, Users, api, mongoose, passport, rejectPromise, user;
 
   Q = require("q");
 
@@ -7,10 +7,42 @@
 
   user = {};
 
+  passport = require("passport");
+
+  mongoose = require("mongoose");
+
+  LocalStrategy = require("passport-local").Strategy;
+
+  Users = mongoose.model('users');
+
+  passport.use(new LocalStrategy(Users.authenticate()));
+
   rejectPromise = function() {
     var deferred;
     deferred = Q.defer();
     deferred.reject();
+    return deferred.promise;
+  };
+
+  user.login = function(data) {
+    var authenticate, deferred, req;
+    deferred = Q.defer();
+    req = {
+      body: {
+        username: data.username,
+        password: data.password
+      }
+    };
+    authenticate = passport.authenticate('local', function(err, user, info) {
+      if (err) {
+        return deferred.reject(err);
+      } else if (info) {
+        return deferred.reject(info);
+      } else {
+        return deferred.resolve(user);
+      }
+    });
+    authenticate(req);
     return deferred.promise;
   };
 

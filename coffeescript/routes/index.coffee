@@ -1,13 +1,7 @@
 "use strict"
 express = require("express")
-passport = require("passport")
-mongoose = require("mongoose")
-LocalStrategy = require("passport-local").Strategy
 
 router = express.Router()
-Users = mongoose.model 'users'
-passport.use new LocalStrategy(Users.authenticate())
-
 
 indexPage = (req, res) ->
   fs = require("fs")
@@ -31,22 +25,7 @@ router.get "/room/*", (req, res) ->
 
 router.get "/logout", (req, res) ->
   req.logout()
-  res.redirect('/')
-
-router.get "/login/success", (req, res) ->
-  res.jsonp {login: true}
-
-router.get "/login/fail", (req, res) ->
-  res.jsonp {login: false}
-
-loginOptions =
-  successRedirect: "/"
-  failureRedirect: "/login/fail"
-  failureFlash: false
-
-router.post "/login", passport.authenticate("local", loginOptions), (req, res) ->
   res.redirect "/"
-
 
 router.get "*", (req, res) ->
   res.redirect "/"
