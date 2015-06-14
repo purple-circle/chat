@@ -58,6 +58,11 @@ window.onbeforeunload = ->
   ga('send', 'event', 'timeSpentOnChat', 'seconds', secondsOnSite)
 
 
+# For lols, send event if phantomjs
+if /PhantomJS/.test(window.navigator.userAgent)
+  ga('send', 'event', 'PhantomJS', 'window.navigator.userAgent')
+
+
 
 window.onerror = (msg, url, line, col, orig_error) ->
   if !JSON

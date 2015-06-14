@@ -48,6 +48,10 @@
     return ga('send', 'event', 'timeSpentOnChat', 'seconds', secondsOnSite);
   };
 
+  if (/PhantomJS/.test(window.navigator.userAgent)) {
+    ga('send', 'event', 'PhantomJS', 'window.navigator.userAgent');
+  }
+
   window.onerror = function(msg, url, line, col, orig_error) {
     var error;
     if (!JSON) {
