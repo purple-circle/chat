@@ -122,3 +122,7 @@ app.factory 'api', ($q, youtubeEmbedUtils, imgurUpload, messageHistory, animals,
   upload_to_imgur: (file, options) ->
     imgurUpload.setClientId("3631cecbf2bf2cf")
     imgurUpload.upload file, options
+
+  signup: (data) ->
+    socket.emit("signup", data)
+    this.on("signup")

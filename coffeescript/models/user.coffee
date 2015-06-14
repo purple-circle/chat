@@ -9,12 +9,12 @@ rejectPromise = ->
 
 
 user.create_default_picture_album = (userid) ->
-  album_data =
-    user_id: result._id
+  data =
+    user_id: userid
     title: "Default album"
     default: true
 
-  user.create_picture_album(album_data)
+  user.create_picture_album(data)
 
 user.check_username = (username) ->
   api.createQueue("api.check_username", username)

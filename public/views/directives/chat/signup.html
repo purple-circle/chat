@@ -1,17 +1,31 @@
 <md-content layout-padding layout="column">
-  <form ng-submit="signup()">
+
+  <div ng-if="errors">
+    {{errors}}
+  </div>
+
+  <form ng-submit="signup()" ng-show="!account">
     <md-input-container>
       <label>Username</label>
       <input ng-model="username">
     </md-input-container>
 
     <md-input-container>
-      <label>Email</label>
+      <label>Password</label>
+      <input ng-model="password" type="password">
+    </md-input-container>
+
+    <md-input-container>
+      <label>Email (optional)</label>
       <input ng-model="email" type="email">
     </md-input-container>
 
     <md-input-container>
-      <md-button class="md-primary" type="submit">Signup</md-button>
+      <md-button class="md-primary" type="submit" ng-disabled="signup_in_progress">Signup</md-button>
     </md-input-container>
   </form>
+
+  <div ng-show="account">
+    <h2>Happy chatting {{username}}! :)</h2>
+  </div>
 </md-content>

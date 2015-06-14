@@ -15,13 +15,13 @@
   };
 
   user.create_default_picture_album = function(userid) {
-    var album_data;
-    album_data = {
-      user_id: result._id,
+    var data;
+    data = {
+      user_id: userid,
       title: "Default album",
       "default": true
     };
-    return user.create_picture_album(album_data);
+    return user.create_picture_album(data);
   };
 
   user.check_username = function(username) {

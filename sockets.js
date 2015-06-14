@@ -49,7 +49,6 @@
               }
               return socket.emit("load_chat_messages_for_room", messages);
             }, function(err) {
-              console.log("error", err);
               return socket.emit("load_chat_messages_for_room", messages);
             });
           } else {

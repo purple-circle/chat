@@ -128,19 +128,6 @@
 
   app = angular.module('app');
 
-  app.filter("newlines", function() {
-    return function(text) {
-      return text.replace(/\n/g, "<br>");
-    };
-  });
-
-}).call(this);
-
-(function() {
-  var app;
-
-  app = angular.module('app');
-
   app.directive('camera', ["$timeout", "$mdDialog", "api", function($timeout, $mdDialog, api) {
     return {
       templateUrl: "directives/chat/camera.html",
@@ -1214,7 +1201,36 @@
       restrict: 'E',
       link: function($scope, element, attrs) {
         $scope.username = api.getUsername();
+        api.socket.on("signup_error", function(error) {
+          $scope.signup_in_progress = false;
+          console.log("signup_error", error);
+          return $scope.errors = error;
+        });
         return $scope.signup = function() {
+          var data;
+          $scope.errors = {};
+          if (!$scope.username) {
+            $scope.errors.username = true;
+            return;
+          }
+          if (!$scope.password) {
+            $scope.errors.password = true;
+            return;
+          }
+          data = {
+            username: $scope.username,
+            password: $scope.password,
+            email: $scope.email
+          };
+          $scope.signup_in_progress = true;
+          api.signup(data).then(function(account) {
+            $scope.signup_in_progress = false;
+            console.log("account", account);
+            return $scope.account = account;
+          }, function(error) {
+            $scope.errors = error;
+            return $scope.signup_in_progress = false;
+          });
           return console.log("Signup should happen here");
         };
       }
@@ -1274,6 +1290,19 @@
         currentRoom: '='
       },
       templateUrl: 'directives/chat/toolbar.html'
+    };
+  });
+
+}).call(this);
+
+(function() {
+  var app;
+
+  app = angular.module('app');
+
+  app.filter("newlines", function() {
+    return function(text) {
+      return text.replace(/\n/g, "<br>");
     };
   });
 
@@ -1428,6 +1457,10 @@
       upload_to_imgur: function(file, options) {
         imgurUpload.setClientId("3631cecbf2bf2cf");
         return imgurUpload.upload(file, options);
+      },
+      signup: function(data) {
+        socket.emit("signup", data);
+        return this.on("signup");
       }
     };
   }]);

@@ -40,7 +40,6 @@ module.exports = (server, sessionStore) ->
 
                 socket.emit "load_chat_messages_for_room", messages
               , (err) ->
-                console.log "error", err
                 socket.emit "load_chat_messages_for_room", messages
           else
             socket.emit "load_chat_messages_for_room", messages
