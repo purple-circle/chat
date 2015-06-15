@@ -586,7 +586,7 @@
 
   app = angular.module('app');
 
-  app.directive('messageForm', ["$rootScope", "$timeout", "$mdSidenav", "$mdDialog", "api", "tabActive", function($rootScope, $timeout, $mdSidenav, $mdDialog, api, tabActive) {
+  app.directive('messageForm', ["$rootScope", "$timeout", "$mdSidenav", "$mdDialog", "api", "tabActive", "commands", function($rootScope, $timeout, $mdSidenav, $mdDialog, api, tabActive, commands) {
     return {
       restrict: 'E',
       scope: {
@@ -596,7 +596,7 @@
       },
       templateUrl: 'directives/chat/message-form.html',
       link: function($scope) {
-        var checkCommands, createMessage, create_room, hideProgressBar, hideProgressBarTimeout, postImage, setTopic;
+        var createMessage, hideProgressBar, hideProgressBarTimeout, postImage;
         $rootScope.$on("currentRoom", function(event, room) {
           $scope.currentRoom = room;
           return $scope.roomId = room._id;
@@ -612,11 +612,14 @@
           if (!data.message) {
             return;
           }
-          if (checkCommands(data.message)) {
+          if (!data.from) {
             return;
           }
           data.room_id = $scope.roomId;
           data.chat_id = $scope.chatId;
+          if (commands.check(data)) {
+            return;
+          }
           possibleUrl = api.stringHasUrl(data.message);
           if ((possibleUrl != null ? possibleUrl[0] : void 0) && api.urlIsImage(possibleUrl[0])) {
             api.testImage(possibleUrl[0], function() {
@@ -669,80 +672,11 @@
           return api.i_am_typing($scope.from);
         };
         $scope.setUsername = function() {
-          if (!localStorage) {
+          if (typeof localStorage === "undefined" || localStorage === null) {
             return false;
           }
           ga('send', 'event', 'setUsername', $scope.chatId, $scope.from);
           return localStorage.setItem("name", $scope.from);
-        };
-        create_room = function(name) {
-          var data, icon, imgur_ids, random;
-          imgur_ids = ['h18WTm2b', 'p8SNOcVb', 'CfmbeXib', 'JxtD1vcb', 'RaKwQD7b', 'aaVkYvxb'];
-          random = imgur_ids[Math.floor(Math.random() * imgur_ids.length)];
-          icon = "http://i.imgur.com/" + random + ".png";
-          data = {
-            name: name,
-            chat_id: $scope.chatId,
-            sid: yolosid,
-            created_by: $scope.from,
-            icon: icon
-          };
-          return api.create_room(data).then(function(result) {
-            ga('send', 'event', 'createdRoom', $scope.chatId, result.name);
-            $rootScope.$broadcast("room-created", result);
-            return checkCommands("/join " + result.name);
-          });
-        };
-        checkCommands = function(message) {
-          var command, content;
-          if (message[0] !== "/") {
-            return false;
-          }
-          content = message.split(" ");
-          command = content[0].replace("/", "");
-          if (command === "topic") {
-            setTopic(content.slice(1).join(" "));
-            return true;
-          }
-          if (command === "join" || command === "j") {
-            $rootScope.$broadcast("joinRoom", content.slice(1).join(" "));
-            return true;
-          }
-          if (command === "create") {
-            create_room(content.slice(1).join(" "));
-            return true;
-          }
-          if (command === "help") {
-            $mdDialog.show({
-              templateUrl: 'directives/chat/help.html',
-              controller: 'simpleDialog'
-            });
-            return true;
-          }
-          if (command === "register" || command === "signup") {
-            $mdDialog.show({
-              templateUrl: 'directives/chat/signup-dialog.html',
-              controller: 'simpleDialog'
-            });
-            return true;
-          }
-          if (command === "login" || command === "signin") {
-            $mdDialog.show({
-              templateUrl: 'directives/chat/login-dialog.html',
-              controller: 'simpleDialog'
-            });
-            return true;
-          }
-          return false;
-        };
-        setTopic = function(topic) {
-          ga('send', 'event', 'setTopic', $scope.chatId, topic);
-          $scope.currentRoom.topic = topic;
-          return api.set_topic({
-            topic: topic,
-            room_id: $scope.roomId,
-            chat_id: $scope.chatId
-          });
         };
         postImage = function(imgur) {
           var data;
@@ -1582,6 +1516,91 @@
           chat_id: chat_id
         });
       }
+    };
+  }]);
+
+}).call(this);
+
+(function() {
+  var app;
+
+  app = angular.module("app");
+
+  app.service("commands", ["$rootScope", "$mdDialog", "api", function($rootScope, $mdDialog, api) {
+    var check, create_room, setTopic;
+    setTopic = function(topic, chat_id, room_id) {
+      ga('send', 'event', 'setTopic', chat_id, topic);
+      return api.set_topic({
+        topic: topic,
+        room_id: room_id,
+        chat_id: chat_id
+      });
+    };
+    create_room = function(name, chat_id, from) {
+      var data, icon, imgur_ids, random;
+      imgur_ids = ['h18WTm2b', 'p8SNOcVb', 'CfmbeXib', 'JxtD1vcb', 'RaKwQD7b', 'aaVkYvxb'];
+      random = imgur_ids[Math.floor(Math.random() * imgur_ids.length)];
+      icon = "http://i.imgur.com/" + random + ".png";
+      data = {
+        name: name,
+        chat_id: chat_id,
+        sid: yolosid,
+        created_by: from,
+        icon: icon
+      };
+      return api.create_room(data).then(function(result) {
+        ga('send', 'event', 'createdRoom', chat_id, result.name);
+        $rootScope.$broadcast("room-created", result);
+        return check({
+          message: "/join " + result.name
+        });
+      });
+    };
+    check = function(data) {
+      var command, content, message;
+      message = data.message;
+      if (message[0] !== "/") {
+        return false;
+      }
+      content = message.split(" ");
+      command = content[0].replace("/", "");
+      if (command === "topic") {
+        setTopic(content.slice(1).join(" "), data.chat_id, data.room_id);
+        return true;
+      }
+      if (command === "join" || command === "j") {
+        $rootScope.$broadcast("joinRoom", content.slice(1).join(" "));
+        return true;
+      }
+      if (command === "create") {
+        create_room(content.slice(1).join(" "), data.chat_id, data.from);
+        return true;
+      }
+      if (command === "help") {
+        $mdDialog.show({
+          templateUrl: 'directives/chat/help.html',
+          controller: 'simpleDialog'
+        });
+        return true;
+      }
+      if (command === "register" || command === "signup") {
+        $mdDialog.show({
+          templateUrl: 'directives/chat/signup-dialog.html',
+          controller: 'simpleDialog'
+        });
+        return true;
+      }
+      if (command === "login" || command === "signin") {
+        $mdDialog.show({
+          templateUrl: 'directives/chat/login-dialog.html',
+          controller: 'simpleDialog'
+        });
+        return true;
+      }
+      return false;
+    };
+    return {
+      check: check
     };
   }]);
 

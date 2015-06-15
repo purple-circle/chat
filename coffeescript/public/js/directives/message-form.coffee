@@ -1,5 +1,5 @@
 app = angular.module('app')
-app.directive 'messageForm', ($rootScope, $timeout, $mdSidenav, $mdDialog, api, tabActive) ->
+app.directive 'messageForm', ($rootScope, $timeout, $mdSidenav, $mdDialog, api, tabActive, commands) ->
   restrict: 'E'
   scope:
     chatId: '='
@@ -25,11 +25,14 @@ app.directive 'messageForm', ($rootScope, $timeout, $mdSidenav, $mdDialog, api, 
       if !data.message
         return
 
-      if checkCommands(data.message)
+      if !data.from
         return
 
       data.room_id = $scope.roomId
       data.chat_id = $scope.chatId
+
+      if commands.check(data)
+        return
 
       possibleUrl = api.stringHasUrl(data.message)
       if possibleUrl?[0] and api.urlIsImage(possibleUrl[0])
@@ -85,103 +88,11 @@ app.directive 'messageForm', ($rootScope, $timeout, $mdSidenav, $mdDialog, api, 
 
 
     $scope.setUsername = ->
-      if !localStorage
+      if !localStorage?
         return false
 
       ga('send', 'event', 'setUsername', $scope.chatId, $scope.from)
       localStorage.setItem "name", $scope.from
-
-
-    create_room = (name) ->
-      imgur_ids = [
-        'h18WTm2b'
-        'p8SNOcVb'
-        'CfmbeXib'
-        'JxtD1vcb'
-        'RaKwQD7b'
-        'aaVkYvxb'
-      ]
-
-      random = imgur_ids[Math.floor(Math.random() * imgur_ids.length)]
-
-      icon = "http://i.imgur.com/#{random}.png"
-      data =
-        name: name
-        chat_id: $scope.chatId
-        sid: yolosid
-        created_by: $scope.from
-        icon: icon
-
-      api
-        .create_room(data)
-        .then (result) ->
-          ga('send', 'event', 'createdRoom', $scope.chatId, result.name)
-          $rootScope.$broadcast("room-created", result)
-          checkCommands("/join #{result.name}")
-
-
-    checkCommands = (message) ->
-      if message[0] isnt "/"
-        return false
-
-      content = message.split(" ")
-      command = content[0].replace("/", "")
-
-      if command is "topic"
-        setTopic(content.slice(1).join(" "))
-        return true
-
-      if command is "join" or command is "j"
-        $rootScope.$broadcast("joinRoom", content.slice(1).join(" "))
-        return true
-
-      if command is "create"
-        create_room(content.slice(1).join(" "))
-        return true
-
-      if command is "help"
-        $mdDialog
-          .show
-            templateUrl: 'directives/chat/help.html'
-            controller: 'simpleDialog'
-
-        return true
-
-      if command is "register" or command is "signup"
-        $mdDialog
-          .show
-            templateUrl: 'directives/chat/signup-dialog.html'
-            controller: 'simpleDialog'
-
-        return true
-
-      if command is "login" or command is "signin"
-        $mdDialog
-          .show
-            templateUrl: 'directives/chat/login-dialog.html'
-            controller: 'simpleDialog'
-
-        return true
-
-
-
-      # if command is "update_platform"
-      #   console.log "Updating platform"
-      #   api
-      #     .update_platform()
-      #     .then ->
-      #       console.log "Platform up to date"
-      #       window.location.reload()
-      #   return true
-
-      return false
-
-    setTopic = (topic) ->
-      ga('send', 'event', 'setTopic', $scope.chatId, topic)
-      $scope.currentRoom.topic = topic
-
-      api
-        .set_topic({topic, room_id: $scope.roomId, chat_id: $scope.chatId})
 
     postImage = (imgur) ->
       data =
