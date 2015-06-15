@@ -1,5 +1,5 @@
 app = angular.module('app')
-app.directive 'signup', (api) ->
+app.directive 'signup', (api, accountData) ->
   templateUrl: "directives/chat/signup.html"
   restrict: 'E'
   link: ($scope, element, attrs) ->
@@ -30,9 +30,10 @@ app.directive 'signup', (api) ->
 
       api
         .signup(data)
-        .then (account) ->
+        .then (result) ->
           $scope.signup_in_progress = false
-          $scope.account = account
+          $scope.result = result
+          accountData.account = result.account
         , (error) ->
           $scope.signup_in_progress = false
           $scope.errors = error

@@ -1,5 +1,5 @@
 app = angular.module('app')
-app.directive 'login', (api) ->
+app.directive 'login', (api, accountData) ->
   templateUrl: 'directives/chat/login.html'
   restrict: 'E'
   link: ($scope, element, attrs) ->
@@ -8,7 +8,6 @@ app.directive 'login', (api) ->
     api
       .socket
       .on "login_error", (error) ->
-        console.log "error", error
         $scope.login_in_progress = false
         $scope.errors = error
 
@@ -30,11 +29,9 @@ app.directive 'login', (api) ->
 
       api
         .login(data)
-        .then (account) ->
-          console.log "login success", account
+        .then (result) ->
           $scope.login_in_progress = false
-          $scope.account = account
+          accountData.account = result.account
         , (error) ->
-          console.log "login error", error
           $scope.errors = error
           $scope.login_in_progress = false

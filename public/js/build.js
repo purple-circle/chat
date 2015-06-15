@@ -461,14 +461,13 @@
 
   app = angular.module('app');
 
-  app.directive('login', ["api", function(api) {
+  app.directive('login', ["api", "accountData", function(api, accountData) {
     return {
       templateUrl: 'directives/chat/login.html',
       restrict: 'E',
       link: function($scope, element, attrs) {
         $scope.username = api.getUsername();
         api.socket.on("login_error", function(error) {
-          console.log("error", error);
           $scope.login_in_progress = false;
           return $scope.errors = error;
         });
@@ -488,12 +487,10 @@
             password: $scope.password
           };
           $scope.login_in_progress = true;
-          return api.login(data).then(function(account) {
-            console.log("login success", account);
+          return api.login(data).then(function(result) {
             $scope.login_in_progress = false;
-            return $scope.account = account;
+            return accountData.account = result.account;
           }, function(error) {
-            console.log("login error", error);
             $scope.errors = error;
             return $scope.login_in_progress = false;
           });
@@ -1254,7 +1251,7 @@
 
   app = angular.module('app');
 
-  app.directive('signup', ["api", function(api) {
+  app.directive('signup', ["api", "accountData", function(api, accountData) {
     return {
       templateUrl: "directives/chat/signup.html",
       restrict: 'E',
@@ -1281,9 +1278,10 @@
             email: $scope.email
           };
           $scope.signup_in_progress = true;
-          return api.signup(data).then(function(account) {
+          return api.signup(data).then(function(result) {
             $scope.signup_in_progress = false;
-            return $scope.account = account;
+            $scope.result = result;
+            return accountData.account = result.account;
           }, function(error) {
             $scope.signup_in_progress = false;
             return $scope.errors = error;
@@ -1359,6 +1357,19 @@
   app.filter("newlines", function() {
     return function(text) {
       return text.replace(/\n/g, "<br>");
+    };
+  });
+
+}).call(this);
+
+(function() {
+  var app;
+
+  app = angular.module("app");
+
+  app.service("accountData", function() {
+    return {
+      account: false
     };
   });
 
