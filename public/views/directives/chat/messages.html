@@ -6,6 +6,10 @@
     </div>
   </div>
 
+  <div ng-if="!messages[room._id].length && messagesFetched[room._id]" class="no-messages">
+    No messages, be cool gentleman and send the first message!
+  </div>
+
   <md-list>
 
     <md-list-item
