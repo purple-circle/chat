@@ -211,15 +211,15 @@ messages .no-messages {
   margin-top: 40px;
   color: #747474;
 }
-.chat-messages {
+messages .chat-messages {
   padding: 16px 5px;
 }
-.chat-messages .md-fab.avatar {
+messages .chat-messages .md-fab.avatar {
   width: 45px;
   height: 45px;
   line-height: 45px;
 }
-.chat-messages .message {
+messages .chat-messages .message {
   min-width: 110px;
   max-width: 350px;
   font-size: .75em;
@@ -233,24 +233,24 @@ messages .no-messages {
   box-shadow: 0 1px 0.5px rgba(0, 0, 0, 0.13);
   position: relative;
 }
-.chat-messages .message .message-content {
+messages .chat-messages .message .message-content {
   min-width: 130px;
   position: relative;
   padding: 8px 10px 0 9px;
   display: inline-block;
 }
-.chat-messages .message .green-text {
+messages .chat-messages .message .green-text {
   color: #008000;
 }
-.chat-messages .message .time {
+messages .chat-messages .message .time {
   color: rgba(47, 47, 47, 0.5);
   position: absolute;
   right: 7px;
   bottom: 2px;
   font-size: 11.5px;
 }
-.chat-messages .message:after,
-.chat-messages .message:before {
+messages .chat-messages .message:after,
+messages .chat-messages .message:before {
   right: 100%;
   top: 50%;
   border: solid transparent;
@@ -261,38 +261,38 @@ messages .no-messages {
   pointer-events: none;
   border-color: transparent;
 }
-.chat-messages .message:after {
+messages .chat-messages .message:after {
   border-right-color: #f9ffff;
   border-width: 6px;
   margin-top: -6px;
 }
-.chat-messages .message:before {
+messages .chat-messages .message:before {
   border-width: 7px;
   margin-top: -7px;
 }
-.chat-messages .message.their {
+messages .chat-messages .message.their {
   float: right;
   background: #fff7ec;
 }
-.chat-messages .message.their:after,
-.chat-messages .message.their:before {
+messages .chat-messages .message.their:after,
+messages .chat-messages .message.their:before {
   right: 0;
   left: 100%;
 }
-.chat-messages .message.their:after {
+messages .chat-messages .message.their:after {
   border-left-color: #fff7ec;
   border-right-color: transparent;
 }
-.chat-messages .message.notify {
+messages .chat-messages .message.notify {
   background-color: #ffe5c3;
 }
-.chat-messages .message.notify:after {
+messages .chat-messages .message.notify:after {
   border-right-color: #ffe5c3;
 }
-.chat-messages .message.notify.their:after {
+messages .chat-messages .message.notify.their:after {
   border-left-color: #ffe5c3;
 }
-.chat-messages .message .from {
+messages .chat-messages .message .from {
   color: #666;
 }
 
