@@ -1,5 +1,5 @@
 (function() {
-  require('newrelic');
+  require("newrelic");
 
   module.exports = function(server, sessionStore) {
     var Q, chat, default_chat_id, imgur, io, rooms, users;
@@ -7,7 +7,7 @@
     chat = require("./models/chat");
     rooms = require("./models/rooms");
     imgur = require("./models/imgur");
-    users = require('./models/user');
+    users = require("./models/user");
     Q = require("q");
     io.use(function(socket, next) {
       return sessionStore(socket.request, socket.request.res, next);

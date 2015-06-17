@@ -1,12 +1,12 @@
-require('newrelic')
+require("newrelic")
 module.exports = (server, sessionStore) ->
   io = require("socket.io").listen(server)
   chat = require("./models/chat")
   rooms = require("./models/rooms")
   imgur = require("./models/imgur")
-  users = require('./models/user')
+  users = require("./models/user")
   Q = require("q")
-  #require 'shelljs/global'
+  #require "shelljs/global"
 
   io.use (socket, next) ->
     sessionStore socket.request, socket.request.res, next
@@ -125,11 +125,11 @@ module.exports = (server, sessionStore) ->
         .then success, error
 
     # socket.on "update_platform", ->
-    #   if not which 'git'
+    #   if not which "git"
     #     return
 
     #   # Run external tool synchronously
-    #   shell_command = 'git pull && npm install'
+    #   shell_command = "git pull && npm install"
     #   if (exec shell_command).code is 0
     #     socket.emit "update_platform", true
     #     socket.broadcast.emit "update_platform", true
