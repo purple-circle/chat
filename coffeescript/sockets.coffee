@@ -12,11 +12,17 @@ module.exports = (server, sessionStore) ->
     sessionStore socket.request, socket.request.res, next
 
 
+  default_chat_id = "chat-123"
+
   io.on "connection", (socket) ->
-    socket.broadcast.emit "get_online_count", io.engine.clientsCount
+    socket.join(default_chat_id)
+
+    broadcastClientCount = ->
+      io.to(default_chat_id).emit "get_online_count", io.engine.clientsCount
+
 
     socket.on "disconnect", ->
-      socket.broadcast.emit "get_online_count", io.engine.clientsCount
+      broadcastClientCount()
 
     socket.on "load_chat_messages_for_room", (data) ->
       chat
@@ -48,7 +54,7 @@ module.exports = (server, sessionStore) ->
       imgur.save(data)
 
     socket.on "i_am_typing", (from) ->
-      socket.broadcast.emit "typing", from
+      io.to(default_chat_id).emit "typing", from
 
     socket.on "save_chat_message", (data) ->
       chat
@@ -66,8 +72,8 @@ module.exports = (server, sessionStore) ->
                 socket.emit "url_data", data
                 socket.broadcast.emit "url_data", data
 
-          socket.emit "save_chat_message", result
-          socket.broadcast.emit "save_chat_message", result
+          io.to(default_chat_id).emit "save_chat_message", result
+          #socket.broadcast.emit "save_chat_message", result
 
     socket.on "load_topic", (data) ->
       chat
@@ -79,21 +85,21 @@ module.exports = (server, sessionStore) ->
       chat
         .save_topic(data)
         .then (result) ->
-          socket.emit "topic", result
-          socket.broadcast.emit "topic", result
+          io.to(default_chat_id).emit "topic", result
+          #socket.broadcast.emit "topic", result
 
     socket.on "load_rooms", (data) ->
       rooms
         .get_rooms(data)
         .then (result) ->
-          socket.emit "rooms", result
+          io.to(default_chat_id).emit "rooms", result
 
     socket.on "create_room", (data) ->
       rooms
         .create(data)
         .then (result) ->
-          socket.emit "room_created", result
-          socket.broadcast.emit "room_created", result
+          io.to(default_chat_id).emit "room_created", result
+          #socket.broadcast.emit "room_created", result
 
 
     socket.on "signup", (data) ->
@@ -130,5 +136,5 @@ module.exports = (server, sessionStore) ->
 
 
     socket.on "get_online_count", ->
-      socket.emit "get_online_count", io.engine.clientsCount
-      socket.broadcast.emit "get_online_count", io.engine.clientsCount
+      #socket.emit "get_online_count", io.engine.clientsCount
+      broadcastClientCount()
