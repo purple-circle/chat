@@ -892,6 +892,11 @@
         };
         listenToTyping = function() {
           return api.socket.on("typing", function(from) {
+            var myUsername;
+            myUsername = api.getUsername();
+            if (from === myUsername) {
+              return false;
+            }
             if ($scope.peopleTyping.indexOf(from) === -1) {
               $scope.peopleTyping.push(from);
             }

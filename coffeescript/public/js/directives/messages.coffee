@@ -139,6 +139,9 @@ app.directive "messages", ($rootScope, $timeout, $interval, api) ->
       api
         .socket
         .on "typing", (from) ->
+          myUsername = api.getUsername()
+          if from is myUsername
+            return false
 
           if $scope.peopleTyping.indexOf(from) is -1
             $scope.peopleTyping.push from
