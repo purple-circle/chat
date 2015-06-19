@@ -53,8 +53,8 @@ module.exports = (server, sessionStore) ->
     socket.on "save_imgur", (data) ->
       imgur.save(data)
 
-    socket.on "i_am_typing", (from) ->
-      io.to(default_chat_id).emit "typing", from
+    socket.on "i_am_typing", (data) ->
+      io.to(default_chat_id).emit "typing", data
 
     socket.on "save_chat_message", (data) ->
       chat

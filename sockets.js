@@ -64,8 +64,8 @@
       socket.on("save_imgur", function(data) {
         return imgur.save(data);
       });
-      socket.on("i_am_typing", function(from) {
-        return io.to(default_chat_id).emit("typing", from);
+      socket.on("i_am_typing", function(data) {
+        return io.to(default_chat_id).emit("typing", data);
       });
       socket.on("save_chat_message", function(data) {
         return chat.save(data).then(function(result) {

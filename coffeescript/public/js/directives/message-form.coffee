@@ -84,7 +84,11 @@ app.directive 'messageForm', ($rootScope, $timeout, $mdSidenav, $mdDialog, api, 
 
 
     $scope.i_am_typing = ->
-      api.i_am_typing($scope.from)
+      data =
+        from: $scope.from,
+        chatId: $scope.chatId
+        roomId: $scope.roomId
+      api.i_am_typing(data)
 
 
     $scope.setUsername = ->

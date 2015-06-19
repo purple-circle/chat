@@ -132,6 +132,19 @@
 
   app = angular.module('app');
 
+  app.filter("newlines", function() {
+    return function(text) {
+      return text.replace(/\n/g, "<br>");
+    };
+  });
+
+}).call(this);
+
+(function() {
+  var app;
+
+  app = angular.module('app');
+
   app.directive('camera', ["$timeout", "$mdDialog", "api", function($timeout, $mdDialog, api) {
     return {
       templateUrl: "directives/chat/camera.html",
@@ -669,7 +682,13 @@
           return createMessage(data);
         };
         $scope.i_am_typing = function() {
-          return api.i_am_typing($scope.from);
+          var data;
+          data = {
+            from: $scope.from,
+            chatId: $scope.chatId,
+            roomId: $scope.roomId
+          };
+          return api.i_am_typing(data);
         };
         $scope.setUsername = function() {
           if (typeof localStorage === "undefined" || localStorage === null) {
@@ -891,21 +910,21 @@
           });
         };
         listenToTyping = function() {
-          return api.socket.on("typing", function(from) {
+          return api.socket.on("typing", function(data) {
             var myUsername;
             myUsername = api.getUsername();
-            if (from === myUsername) {
+            if (data.from === myUsername) {
               return false;
             }
-            if ($scope.peopleTyping.indexOf(from) === -1) {
-              $scope.peopleTyping.push(from);
+            if ($scope.peopleTyping.indexOf(data.from) === -1) {
+              $scope.peopleTyping.push(data.from);
             }
-            if ($scope.peopleTypingTimeout[from]) {
-              $timeout.cancel($scope.peopleTypingTimeout[from]);
+            if ($scope.peopleTypingTimeout[data.from]) {
+              $timeout.cancel($scope.peopleTypingTimeout[data.from]);
             }
-            return $scope.peopleTypingTimeout[from] = $timeout(function() {
+            return $scope.peopleTypingTimeout[data.from] = $timeout(function() {
               var index;
-              index = $scope.peopleTyping.indexOf(from);
+              index = $scope.peopleTyping.indexOf(data.from);
               if (index > -1) {
                 return $scope.peopleTyping.splice(index, 1);
               }
@@ -1291,19 +1310,6 @@
 (function() {
   var app;
 
-  app = angular.module('app');
-
-  app.filter("newlines", function() {
-    return function(text) {
-      return text.replace(/\n/g, "<br>");
-    };
-  });
-
-}).call(this);
-
-(function() {
-  var app;
-
   app = angular.module("app");
 
   app.service("accountData", function() {
@@ -1410,8 +1416,8 @@
         socket.once(event, deferred.resolve);
         return deferred.promise;
       },
-      i_am_typing: function(from) {
-        return socket.emit("i_am_typing", from);
+      i_am_typing: function(data) {
+        return socket.emit("i_am_typing", data);
       },
       api_stats: function() {
         socket.emit("api_stats");

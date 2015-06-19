@@ -75,8 +75,8 @@ app.factory 'api', ($q, youtubeEmbedUtils, imgurUpload, messageHistory, animals,
     socket.once event, deferred.resolve
     deferred.promise
 
-  i_am_typing: (from) ->
-    socket.emit("i_am_typing", from)
+  i_am_typing: (data) ->
+    socket.emit("i_am_typing", data)
 
   api_stats: ->
     socket.emit("api_stats")

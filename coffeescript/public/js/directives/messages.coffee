@@ -138,19 +138,19 @@ app.directive "messages", ($rootScope, $timeout, $interval, api) ->
     listenToTyping = ->
       api
         .socket
-        .on "typing", (from) ->
+        .on "typing", (data) ->
           myUsername = api.getUsername()
-          if from is myUsername
+          if data.from is myUsername
             return false
 
-          if $scope.peopleTyping.indexOf(from) is -1
-            $scope.peopleTyping.push from
+          if $scope.peopleTyping.indexOf(data.from) is -1
+            $scope.peopleTyping.push data.from
 
-          if $scope.peopleTypingTimeout[from]
-            $timeout.cancel($scope.peopleTypingTimeout[from])
+          if $scope.peopleTypingTimeout[data.from]
+            $timeout.cancel($scope.peopleTypingTimeout[data.from])
 
-          $scope.peopleTypingTimeout[from] = $timeout ->
-            index = $scope.peopleTyping.indexOf(from)
+          $scope.peopleTypingTimeout[data.from] = $timeout ->
+            index = $scope.peopleTyping.indexOf(data.from)
             if index > -1
               $scope.peopleTyping.splice(index, 1)
           , 3000
