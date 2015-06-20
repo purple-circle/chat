@@ -5,8 +5,23 @@
     <title ng-bind="page_title"></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="description" content="" />
     <link rel="icon" href="/favicon.ico" />
+
+    <meta name="description" content="<%= settings.metatags.description %>">
+    <meta name="keywords" content="<%= settings.metatags.keywords %>">
+
+    <meta property="og:site_name" content="<%= settings.metatags.title %>">
+    <meta property="og:url" content="<%= settings.metatags.url %>">
+    <meta property="og:title" content="<%= settings.metatags.title %>">
+    <meta property="og:description" content="<%= settings.metatags.description %>">
+    <meta property="og:type" content="website">
+
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:site" content="@juha_tauriainen">
+    <meta name="twitter:url" content="<%= settings.metatags.url %>">
+    <meta name="twitter:title" content="<%= settings.metatags.title %>">
+    <meta name="twitter:description" content="<%= settings.metatags.description %>">
+    <meta name="twitter:image" content="<%= settings.metatags.image %>" />
 
     <base href="/" />
 

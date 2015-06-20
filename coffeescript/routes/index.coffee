@@ -1,5 +1,6 @@
 "use strict"
 express = require("express")
+settings = require("../settings.js")
 
 router = express.Router()
 
@@ -15,6 +16,7 @@ indexPage = (req, res) ->
     sid: req.sessionID
     jsBuildModified
     cssBuildModified
+    settings
   }
 
 router.get "/", (req, res) ->

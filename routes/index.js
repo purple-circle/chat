@@ -1,8 +1,10 @@
 (function() {
   "use strict";
-  var express, indexPage, router;
+  var express, indexPage, router, settings;
 
   express = require("express");
+
+  settings = require("../settings.js");
 
   router = express.Router();
 
@@ -16,7 +18,8 @@
     return res.render("index", {
       sid: req.sessionID,
       jsBuildModified: jsBuildModified,
-      cssBuildModified: cssBuildModified
+      cssBuildModified: cssBuildModified,
+      settings: settings
     });
   };
 
