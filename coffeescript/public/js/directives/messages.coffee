@@ -65,25 +65,16 @@ app.directive "messages", ($rootScope, $timeout, $interval, api) ->
         if new Date(row.created_at).getTime() > messagesOpened
           $rootScope.$broadcast("tab-beep")
 
-      # TODO: data should be extended from row object
       data =
-        _id: row._id
         images: false
-        room_id: row.room_id
-        message: row.message
-        createdAt: row.created_at
-        from: row.from
         is_me: row.sid is yolosid
         color: api.intToARGB(api.hashCode(row.from))
         youtubeId: youtubeId
         vimeoId: vimeoId
         notify_user: notify_user
-        page: row.page
         isGreenText: row.original_message[0].trim() is ">"
-        url_data: row.url_data
 
-
-      $scope.messages[row.room_id].push(data)
+      $scope.messages[row.room_id].push(angular.extend(row, data))
 
 
     processMessages = (room_id, messages, page_number) ->
