@@ -1,0 +1,10 @@
+<div class="typing-container">
+  <small ng-if="peopleTyping.length">
+    <span ng-repeat="person in peopleTyping">
+      {{person}}<span ng-if="!$last">,</span>
+    </span>
+    <span ng-if="peopleTyping.length == 1">is</span>
+    <span ng-if="peopleTyping.length > 1">are</span>
+    typing..
+  </small>
+</div>

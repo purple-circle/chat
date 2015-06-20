@@ -6,14 +6,14 @@ app.directive "messages", ($rootScope, $timeout, $interval, api) ->
     chatId: "="
   link: ($scope) ->
 
+    # TODO: move this to view?
+    $scope.roomId = $scope.room._id
+
     # TODO: rename, this is for message paging
     page = 0
 
     $scope.messages = {}
     $scope.messagesFetched = {}
-
-    $scope.peopleTyping = []
-    $scope.peopleTypingTimeout = {}
 
     messagesOpened = new Date().getTime()
 
@@ -135,25 +135,4 @@ app.directive "messages", ($rootScope, $timeout, $interval, api) ->
           appendUrlDataToMessage(url_data)
 
 
-    listenToTyping = ->
-      api
-        .socket
-        .on "typing", (data) ->
-          myUsername = api.getUsername()
-          if data.from is myUsername
-            return false
-
-          if $scope.peopleTyping.indexOf(data.from) is -1
-            $scope.peopleTyping.push data.from
-
-          if $scope.peopleTypingTimeout[data.from]
-            $timeout.cancel($scope.peopleTypingTimeout[data.from])
-
-          $scope.peopleTypingTimeout[data.from] = $timeout ->
-            index = $scope.peopleTyping.indexOf(data.from)
-            if index > -1
-              $scope.peopleTyping.splice(index, 1)
-          , 3000
-
     listenToMessages()
-    listenToTyping()

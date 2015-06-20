@@ -132,19 +132,6 @@
 
   app = angular.module('app');
 
-  app.filter("newlines", function() {
-    return function(text) {
-      return text.replace(/\n/g, "<br>");
-    };
-  });
-
-}).call(this);
-
-(function() {
-  var app;
-
-  app = angular.module('app');
-
   app.directive('camera', ["$timeout", "$mdDialog", "api", function($timeout, $mdDialog, api) {
     return {
       templateUrl: "directives/chat/camera.html",
@@ -412,6 +399,47 @@
       }
     };
   });
+
+}).call(this);
+
+(function() {
+  var app;
+
+  app = angular.module('app');
+
+  app.directive("listenToTyping", ["$timeout", "api", function($timeout, api) {
+    return {
+      templateUrl: "directives/chat/listen-to-typing.html",
+      scope: {
+        roomId: "=",
+        chatId: "="
+      },
+      link: function($scope) {
+        $scope.peopleTyping = [];
+        $scope.peopleTypingTimeout = {};
+        return api.socket.on("typing", function(data) {
+          var myUsername;
+          myUsername = api.getUsername();
+          if (data.from === myUsername) {
+            return false;
+          }
+          if ($scope.peopleTyping.indexOf(data.from) === -1) {
+            $scope.peopleTyping.push(data.from);
+          }
+          if ($scope.peopleTypingTimeout[data.from]) {
+            $timeout.cancel($scope.peopleTypingTimeout[data.from]);
+          }
+          return $scope.peopleTypingTimeout[data.from] = $timeout(function() {
+            var index;
+            index = $scope.peopleTyping.indexOf(data.from);
+            if (index > -1) {
+              return $scope.peopleTyping.splice(index, 1);
+            }
+          }, 3000);
+        });
+      }
+    };
+  }]);
 
 }).call(this);
 
@@ -778,12 +806,11 @@
         chatId: "="
       },
       link: function($scope) {
-        var appendUrlDataToMessage, checkUserMentions, getMessageById, getMessages, listenToMessages, listenToTyping, messagesOpened, page, processMessage, processMessages;
+        var appendUrlDataToMessage, checkUserMentions, getMessageById, getMessages, listenToMessages, messagesOpened, page, processMessage, processMessages;
+        $scope.roomId = $scope.room._id;
         page = 0;
         $scope.messages = {};
         $scope.messagesFetched = {};
-        $scope.peopleTyping = [];
-        $scope.peopleTypingTimeout = {};
         messagesOpened = new Date().getTime();
         checkUserMentions = function(user_mentions, from) {
           var i, len, myUsername, name, username;
@@ -909,30 +936,7 @@
             return appendUrlDataToMessage(url_data);
           });
         };
-        listenToTyping = function() {
-          return api.socket.on("typing", function(data) {
-            var myUsername;
-            myUsername = api.getUsername();
-            if (data.from === myUsername) {
-              return false;
-            }
-            if ($scope.peopleTyping.indexOf(data.from) === -1) {
-              $scope.peopleTyping.push(data.from);
-            }
-            if ($scope.peopleTypingTimeout[data.from]) {
-              $timeout.cancel($scope.peopleTypingTimeout[data.from]);
-            }
-            return $scope.peopleTypingTimeout[data.from] = $timeout(function() {
-              var index;
-              index = $scope.peopleTyping.indexOf(data.from);
-              if (index > -1) {
-                return $scope.peopleTyping.splice(index, 1);
-              }
-            }, 3000);
-          });
-        };
-        listenToMessages();
-        return listenToTyping();
+        return listenToMessages();
       }
     };
   }]);
@@ -1310,6 +1314,19 @@
 (function() {
   var app;
 
+  app = angular.module('app');
+
+  app.filter("newlines", function() {
+    return function(text) {
+      return text.replace(/\n/g, "<br>");
+    };
+  });
+
+}).call(this);
+
+(function() {
+  var app;
+
   app = angular.module("app");
 
   app.service("accountData", function() {
@@ -1387,6 +1404,9 @@
       getUsername: function() {
         var name;
         name = (typeof localStorage !== "undefined" && localStorage !== null ? localStorage.getItem("name") : void 0) || ((animals.getRandom()) + "-" + (Math.ceil(Math.random() * 100)));
+        if (typeof localStorage !== "undefined" && localStorage !== null) {
+          localStorage.setItem("name", name);
+        }
         ga('send', 'event', 'usernames', 'randomName', name);
         return name;
       },

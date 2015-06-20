@@ -56,13 +56,4 @@
 
 </md-content>
 
-<div class="typing-container">
-  <small ng-if="peopleTyping.length">
-    <span ng-repeat="person in peopleTyping">
-      {{person}}<span ng-if="!$last">,</span>
-    </span>
-    <span ng-if="peopleTyping.length == 1">is</span>
-    <span ng-if="peopleTyping.length > 1">are</span>
-    typing..
-  </small>
-</div>
+<listen-to-typing chat-id="chatId" room-id="roomId" ng-if="roomId"></listen-to-typing>
