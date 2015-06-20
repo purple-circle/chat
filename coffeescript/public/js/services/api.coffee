@@ -131,3 +131,7 @@ app.factory 'api', ($q, youtubeEmbedUtils, imgurUpload, messageHistory, animals,
   login: (data) ->
     socket.emit("login", data)
     this.on("login")
+
+  # userid for future use
+  userIsSender: (sid, userid) ->
+    sid is yolosid

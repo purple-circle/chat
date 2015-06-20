@@ -67,7 +67,7 @@ app.directive "messages", ($rootScope, $timeout, $interval, api) ->
 
       data =
         images: false
-        is_me: row.sid is yolosid
+        is_me: api.userIsSender(row.sid)
         color: api.intToARGB(api.hashCode(row.from))
         youtubeId: youtubeId
         vimeoId: vimeoId

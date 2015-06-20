@@ -132,19 +132,6 @@
 
   app = angular.module('app');
 
-  app.filter("newlines", function() {
-    return function(text) {
-      return text.replace(/\n/g, "<br>");
-    };
-  });
-
-}).call(this);
-
-(function() {
-  var app;
-
-  app = angular.module('app');
-
   app.directive('camera', ["$timeout", "$mdDialog", "api", function($timeout, $mdDialog, api) {
     return {
       templateUrl: "directives/chat/camera.html",
@@ -882,7 +869,7 @@
           }
           data = {
             images: false,
-            is_me: row.sid === yolosid,
+            is_me: api.userIsSender(row.sid),
             color: api.intToARGB(api.hashCode(row.from)),
             youtubeId: youtubeId,
             vimeoId: vimeoId,
@@ -1320,6 +1307,19 @@
 (function() {
   var app;
 
+  app = angular.module('app');
+
+  app.filter("newlines", function() {
+    return function(text) {
+      return text.replace(/\n/g, "<br>");
+    };
+  });
+
+}).call(this);
+
+(function() {
+  var app;
+
   app = angular.module("app");
 
   app.service("accountData", function() {
@@ -1490,6 +1490,9 @@
       login: function(data) {
         socket.emit("login", data);
         return this.on("login");
+      },
+      userIsSender: function(sid, userid) {
+        return sid === yolosid;
       }
     };
   }]);
