@@ -6,9 +6,6 @@ app.directive "messages", ($rootScope, $timeout, $interval, api) ->
     chatId: "="
   link: ($scope) ->
 
-    # TODO: move this to view?
-    $scope.roomId = $scope.room._id
-
     # TODO: rename, this is for message paging
     page = 0
 

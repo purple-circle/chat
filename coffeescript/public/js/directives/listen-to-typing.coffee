@@ -11,6 +11,9 @@ app.directive "listenToTyping", ($timeout, api) ->
     api
       .socket
       .on "typing", (data) ->
+        if data.roomId isnt $scope.roomId or data.chatId isnt $scope.chatId
+          return false
+
         myUsername = api.getUsername()
         if data.from is myUsername
           return false
