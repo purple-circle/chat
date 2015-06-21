@@ -7,6 +7,41 @@ app.directive "rooms", ($rootScope, $timeout, $state, $stateParams, api, chatRoo
   link: ($scope) ->
     $scope.rooms = []
 
+    $scope.peopleTyping = {}
+    $scope.peopleTypingTimeout = {}
+
+
+    # TODO: move to room-typing directive
+    listenToTyping = ->
+      api
+        .socket
+        .on "typing", (data) ->
+          if data.chatId isnt $scope.chatId
+            return false
+
+          myUsername = api.getUsername()
+          if data.from is myUsername
+            return false
+
+          myUsername = api.getUsername()
+          if data.from is myUsername
+            return false
+
+          if !$scope.peopleTyping[data.chatId]
+            $scope.peopleTyping[data.chatId] = {}
+
+          if !$scope.peopleTyping[data.chatId][data.roomId]
+            $scope.peopleTyping[data.chatId][data.roomId] = true
+
+          if $scope.peopleTypingTimeout[data.from]
+            $timeout.cancel($scope.peopleTypingTimeout[data.from])
+
+          $scope.peopleTypingTimeout[data.from] = $timeout ->
+            $scope.peopleTyping[data.chatId][data.roomId] = false
+          , 3000
+
+
+
     getTopic = (room_id) ->
       api
         .get_topic({room_id, chat_id: $scope.chatId})
@@ -128,3 +163,4 @@ app.directive "rooms", ($rootScope, $timeout, $state, $stateParams, api, chatRoo
     getRooms()
     listenToMessageNotifications()
     listenToTopicChange()
+    listenToTyping()

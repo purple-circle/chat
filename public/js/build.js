@@ -132,6 +132,20 @@
 
   app = angular.module('app');
 
+  app.directive('bouncyLoader', function() {
+    return {
+      restrict: 'E',
+      templateUrl: 'directives/chat/bouncy-loader.html'
+    };
+  });
+
+}).call(this);
+
+(function() {
+  var app;
+
+  app = angular.module('app');
+
   app.directive('camera', ["$timeout", "$mdDialog", "api", function($timeout, $mdDialog, api) {
     return {
       templateUrl: "directives/chat/camera.html",
@@ -979,8 +993,38 @@
         chatId: "="
       },
       link: function($scope) {
-        var createFirstRoom, getRooms, getSelectedRoom, getTopic, joinRoom, listenToMessageNotifications, listenToTopicChange;
+        var createFirstRoom, getRooms, getSelectedRoom, getTopic, joinRoom, listenToMessageNotifications, listenToTopicChange, listenToTyping;
         $scope.rooms = [];
+        $scope.peopleTyping = {};
+        $scope.peopleTypingTimeout = {};
+        listenToTyping = function() {
+          return api.socket.on("typing", function(data) {
+            var myUsername;
+            if (data.chatId !== $scope.chatId) {
+              return false;
+            }
+            myUsername = api.getUsername();
+            if (data.from === myUsername) {
+              return false;
+            }
+            myUsername = api.getUsername();
+            if (data.from === myUsername) {
+              return false;
+            }
+            if (!$scope.peopleTyping[data.chatId]) {
+              $scope.peopleTyping[data.chatId] = {};
+            }
+            if (!$scope.peopleTyping[data.chatId][data.roomId]) {
+              $scope.peopleTyping[data.chatId][data.roomId] = true;
+            }
+            if ($scope.peopleTypingTimeout[data.from]) {
+              $timeout.cancel($scope.peopleTypingTimeout[data.from]);
+            }
+            return $scope.peopleTypingTimeout[data.from] = $timeout(function() {
+              return $scope.peopleTyping[data.chatId][data.roomId] = false;
+            }, 3000);
+          });
+        };
         getTopic = function(room_id) {
           return api.get_topic({
             room_id: room_id,
@@ -1133,7 +1177,8 @@
         };
         getRooms();
         listenToMessageNotifications();
-        return listenToTopicChange();
+        listenToTopicChange();
+        return listenToTyping();
       }
     };
   }]);

@@ -20,6 +20,7 @@
         <h3>
           {{room.name}}
           <span ng-if="room.messages" class="badge">{{room.messages}}</span>
+          <bouncy-loader ng-if="peopleTyping[chatId][room._id]"></bouncy-loader>
         </h3>
 
     </md-list-item>

@@ -1,0 +1,50 @@
+bouncy-loader {
+  @dot-size: 5px;
+  @indicator-padding: @dot-size * 2;
+
+  position: absolute;
+  right: 5px;
+  top: 50%;
+  margin-top: -20px;
+
+  .mixin-loop (@i) when (@i > 0) {
+    &:nth-of-type(@{i}) {
+      animation: 1s blink infinite (@i * .3333s);
+    }
+    .mixin-loop(@i - 1);
+  }
+
+  .typing-indicator {
+    border-radius: 50px;
+    display: inline-table;
+    padding: @indicator-padding;
+    background-color: #E6E7ED;
+    animation: 2s bulge infinite ease-out;
+
+    span {
+      height: @dot-size;
+      width: @dot-size;
+      float: left;
+      margin: 0 1px;
+      background-color: #9E9EA1;
+      display: block;
+      border-radius: 50%;
+      opacity: 0.4;
+
+      .mixin-loop(3);
+
+    }
+  }
+
+  @keyframes blink {
+    50% {
+      opacity: 1;
+    }
+  }
+
+  @keyframes bulge {
+    50% {
+      transform: scale(1.05);
+    }
+  }
+}
