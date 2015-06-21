@@ -132,19 +132,6 @@
 
   app = angular.module('app');
 
-  app.filter("newlines", function() {
-    return function(text) {
-      return text.replace(/\n/g, "<br>");
-    };
-  });
-
-}).call(this);
-
-(function() {
-  var app;
-
-  app = angular.module('app');
-
   app.directive('camera', ["$timeout", "$mdDialog", "api", function($timeout, $mdDialog, api) {
     return {
       templateUrl: "directives/chat/camera.html",
@@ -428,7 +415,7 @@
         chatId: "="
       },
       link: function($scope) {
-        $scope.peopleTyping = [];
+        $scope.peopleTyping = {};
         $scope.peopleTypingTimeout = {};
         return api.socket.on("typing", function(data) {
           var myUsername;
@@ -439,17 +426,23 @@
           if (data.from === myUsername) {
             return false;
           }
-          if ($scope.peopleTyping.indexOf(data.from) === -1) {
-            $scope.peopleTyping.push(data.from);
+          if (!$scope.peopleTyping[data.chatId]) {
+            $scope.peopleTyping[data.chatId] = {};
+          }
+          if (!$scope.peopleTyping[data.chatId][data.roomId]) {
+            $scope.peopleTyping[data.chatId][data.roomId] = [];
+          }
+          if ($scope.peopleTyping[data.chatId][data.roomId].indexOf(data.from) === -1) {
+            $scope.peopleTyping[data.chatId][data.roomId].push(data.from);
           }
           if ($scope.peopleTypingTimeout[data.from]) {
             $timeout.cancel($scope.peopleTypingTimeout[data.from]);
           }
           return $scope.peopleTypingTimeout[data.from] = $timeout(function() {
             var index;
-            index = $scope.peopleTyping.indexOf(data.from);
+            index = $scope.peopleTyping[data.chatId][data.roomId].indexOf(data.from);
             if (index > -1) {
-              return $scope.peopleTyping.splice(index, 1);
+              return $scope.peopleTyping[data.chatId][data.roomId].splice(index, 1);
             }
           }, 3000);
         });
@@ -1314,6 +1307,19 @@
         currentRoom: '='
       },
       templateUrl: 'directives/chat/toolbar.html'
+    };
+  });
+
+}).call(this);
+
+(function() {
+  var app;
+
+  app = angular.module('app');
+
+  app.filter("newlines", function() {
+    return function(text) {
+      return text.replace(/\n/g, "<br>");
     };
   });
 

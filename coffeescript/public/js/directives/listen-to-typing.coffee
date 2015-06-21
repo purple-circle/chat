@@ -5,7 +5,7 @@ app.directive "listenToTyping", ($timeout, api) ->
     roomId: "="
     chatId: "="
   link: ($scope) ->
-    $scope.peopleTyping = []
+    $scope.peopleTyping = {}
     $scope.peopleTypingTimeout = {}
 
     api
@@ -18,14 +18,20 @@ app.directive "listenToTyping", ($timeout, api) ->
         if data.from is myUsername
           return false
 
-        if $scope.peopleTyping.indexOf(data.from) is -1
-          $scope.peopleTyping.push data.from
+        if !$scope.peopleTyping[data.chatId]
+          $scope.peopleTyping[data.chatId] = {}
+
+        if !$scope.peopleTyping[data.chatId][data.roomId]
+          $scope.peopleTyping[data.chatId][data.roomId] = []
+
+        if $scope.peopleTyping[data.chatId][data.roomId].indexOf(data.from) is -1
+          $scope.peopleTyping[data.chatId][data.roomId].push data.from
 
         if $scope.peopleTypingTimeout[data.from]
           $timeout.cancel($scope.peopleTypingTimeout[data.from])
 
         $scope.peopleTypingTimeout[data.from] = $timeout ->
-          index = $scope.peopleTyping.indexOf(data.from)
+          index = $scope.peopleTyping[data.chatId][data.roomId].indexOf(data.from)
           if index > -1
-            $scope.peopleTyping.splice(index, 1)
+            $scope.peopleTyping[data.chatId][data.roomId].splice(index, 1)
         , 3000

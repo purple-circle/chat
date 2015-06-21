@@ -1,6 +1,6 @@
 <div class="typing-container">
-  <small ng-if="peopleTyping.length">
-    <span ng-repeat="person in peopleTyping">
+  <small ng-if="peopleTyping[chatId][roomId].length">
+    <span ng-repeat="person in peopleTyping[chatId][roomId]">
       {{person}}<span ng-if="!$last">,</span>
     </span>
     <span ng-if="peopleTyping.length == 1">is</span>
