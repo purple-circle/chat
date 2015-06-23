@@ -135,3 +135,15 @@ app.factory 'api', ($q, youtubeEmbedUtils, imgurUpload, messageHistory, animals,
   # userid for future use
   userIsSender: (sid, userid) ->
     sid is yolosid
+
+  getRandomImgurId: ->
+    imgur_ids = [
+      'h18WTm2b'
+      'p8SNOcVb'
+      'CfmbeXib'
+      'JxtD1vcb'
+      'RaKwQD7b'
+      'aaVkYvxb'
+    ]
+
+    imgur_ids[Math.floor(Math.random() * imgur_ids.length)]

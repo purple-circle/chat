@@ -108,16 +108,7 @@ app.directive "rooms", ($rootScope, $timeout, $state, $stateParams, api, chatRoo
         $scope.setActiveRoom(room)
 
     createFirstRoom = ->
-      imgur_ids = [
-        'h18WTm2b'
-        'p8SNOcVb'
-        'CfmbeXib'
-        'JxtD1vcb'
-        'RaKwQD7b'
-        'aaVkYvxb'
-      ]
-
-      random = imgur_ids[Math.floor(Math.random() * imgur_ids.length)]
+      random = api.getRandomImgurId()
 
       icon = "http://i.imgur.com/#{random}.png"
       data =

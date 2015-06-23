@@ -5,15 +5,13 @@
     <input ng-model="$parent.roomSearch.name" type="search">
   </md-input-container>
 
-
-  <md-list style="padding: 0;" class="md-no-style">
+  <md-list class="md-no-style">
 
     <md-list-item
       class="select-room md-no-style"
       ng-class="{selected: room.$selected}"
       ng-repeat="room in rooms | filter:roomSearch | orderBy:'-messages'"
-      ng-click="setActiveRoom(room)"
-      >
+      ng-click="setActiveRoom(room)">
 
         <img ng-src="{{room.icon}}" class="face" alt="{{room.name}}" title="{{room.name}}">
 
@@ -25,6 +23,5 @@
 
     </md-list-item>
   </md-list>
-
 
 </md-content>

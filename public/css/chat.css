@@ -358,6 +358,9 @@ messages .chat-messages .message .from {
 rooms h3 {
   font-weight: normal;
 }
+rooms md-list {
+  padding: 0;
+}
 rooms md-list.md-default-theme md-list-item button {
   background-color: transparent;
   padding: 5px 5px 4px 5px;

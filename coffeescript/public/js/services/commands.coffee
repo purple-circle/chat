@@ -8,16 +8,7 @@ app.service "commands", ($rootScope, $mdDialog, api) ->
       .set_topic({topic, room_id, chat_id})
 
   create_room = (name, chat_id, from) ->
-    imgur_ids = [
-      'h18WTm2b'
-      'p8SNOcVb'
-      'CfmbeXib'
-      'JxtD1vcb'
-      'RaKwQD7b'
-      'aaVkYvxb'
-    ]
-
-    random = imgur_ids[Math.floor(Math.random() * imgur_ids.length)]
+    random = api.getRandomImgurId()
 
     icon = "http://i.imgur.com/#{random}.png"
     data =

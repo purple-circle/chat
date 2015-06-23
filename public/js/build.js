@@ -1129,9 +1129,8 @@
           return results;
         };
         createFirstRoom = function() {
-          var data, icon, imgur_ids, random;
-          imgur_ids = ['h18WTm2b', 'p8SNOcVb', 'CfmbeXib', 'JxtD1vcb', 'RaKwQD7b', 'aaVkYvxb'];
-          random = imgur_ids[Math.floor(Math.random() * imgur_ids.length)];
+          var data, icon, random;
+          random = api.getRandomImgurId();
           icon = "http://i.imgur.com/" + random + ".png";
           data = {
             name: "Room #1",
@@ -1546,6 +1545,11 @@
       },
       userIsSender: function(sid, userid) {
         return sid === yolosid;
+      },
+      getRandomImgurId: function() {
+        var imgur_ids;
+        imgur_ids = ['h18WTm2b', 'p8SNOcVb', 'CfmbeXib', 'JxtD1vcb', 'RaKwQD7b', 'aaVkYvxb'];
+        return imgur_ids[Math.floor(Math.random() * imgur_ids.length)];
       }
     };
   }]);
@@ -1617,9 +1621,8 @@
       });
     };
     create_room = function(name, chat_id, from) {
-      var data, icon, imgur_ids, random;
-      imgur_ids = ['h18WTm2b', 'p8SNOcVb', 'CfmbeXib', 'JxtD1vcb', 'RaKwQD7b', 'aaVkYvxb'];
-      random = imgur_ids[Math.floor(Math.random() * imgur_ids.length)];
+      var data, icon, random;
+      random = api.getRandomImgurId();
       icon = "http://i.imgur.com/" + random + ".png";
       data = {
         name: name,
