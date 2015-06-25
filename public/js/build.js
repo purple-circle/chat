@@ -132,6 +132,19 @@
 
   app = angular.module('app');
 
+  app.filter("newlines", function() {
+    return function(text) {
+      return text.replace(/\n/g, "<br>");
+    };
+  });
+
+}).call(this);
+
+(function() {
+  var app;
+
+  app = angular.module('app');
+
   app.directive('bouncyLoader', function() {
     return {
       restrict: 'E',
@@ -1359,19 +1372,6 @@
 (function() {
   var app;
 
-  app = angular.module('app');
-
-  app.filter("newlines", function() {
-    return function(text) {
-      return text.replace(/\n/g, "<br>");
-    };
-  });
-
-}).call(this);
-
-(function() {
-  var app;
-
   app = angular.module("app");
 
   app.service("accountData", function() {
@@ -1565,7 +1565,7 @@
     return {
       create: function(hertz) {
         var audioContextFunction, oscillator;
-        if (typeof webkitAudioContext === "undefined" && typeof AudioContext === "undefined") {
+        if ((typeof webkitAudioContext === "undefined" || webkitAudioContext === null) && (typeof AudioContext === "undefined" || AudioContext === null)) {
           return;
         }
         if (AudioContext) {

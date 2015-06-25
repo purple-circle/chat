@@ -2,7 +2,7 @@ app = angular.module('app')
 app.factory 'beep', ->
 
   create: (hertz) ->
-    if typeof webkitAudioContext is "undefined" and typeof AudioContext is "undefined"
+    if !webkitAudioContext? and !AudioContext?
       return
 
     if AudioContext
