@@ -29,11 +29,11 @@
           urlsObject = {};
           for (i = 0, len = messages.length; i < len; i++) {
             message = messages[i];
-            if (!((ref = message.metadata) != null ? (ref1 = ref.urls) != null ? ref1[0] : void 0 : void 0)) {
+            if (!((ref = message.metadata) !== null ? (ref1 = ref.urls) !== null ? ref1[0] : void 0 : void 0)) {
               continue;
             }
-            url = (ref2 = message.metadata) != null ? (ref3 = ref2.urls) != null ? ref3[0] : void 0 : void 0;
-            if ((url != null) && !urlsObject[url]) {
+            url = (ref2 = message.metadata) !== null ? (ref3 = ref2.urls) !== null ? ref3[0] : void 0 : void 0;
+            if ((url !== null) && !urlsObject[url]) {
               urlsObject[url] = true;
               urls.push(chat.getOpenGraphData(url));
             }
@@ -43,10 +43,10 @@
               var j, k, len1, len2, ref4, ref5;
               for (j = 0, len1 = found_urls.length; j < len1; j++) {
                 url = found_urls[j];
-                if (url != null) {
+                if (url !== null) {
                   for (k = 0, len2 = messages.length; k < len2; k++) {
                     message = messages[k];
-                    if (url.url === ((ref4 = message.metadata) != null ? (ref5 = ref4.urls) != null ? ref5[0] : void 0 : void 0)) {
+                    if (url.url === ((ref4 = message.metadata) !== null ? (ref5 = ref4.urls) !== null ? ref5[0] : void 0 : void 0)) {
                       message.url_data = url;
                     }
                   }
@@ -70,8 +70,8 @@
       socket.on("save_chat_message", function(data) {
         return chat.save(data).then(function(result) {
           var ref, ref1;
-          if ((ref = result.metadata) != null ? ref.urls : void 0) {
-            chat.getUrlDataRetry((ref1 = result.metadata) != null ? ref1.urls[0] : void 0).then(function(url_data) {
+          if ((ref = result.metadata) !== null ? ref.urls : void 0) {
+            chat.getUrlDataRetry((ref1 = result.metadata) !== null ? ref1.urls[0] : void 0).then(function(url_data) {
               data = {
                 message: result,
                 url_data: url_data

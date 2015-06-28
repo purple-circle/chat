@@ -29,6 +29,8 @@ plato = require("gulp-plato")
 # Notifications for OSX
 notify = require("gulp-notify")
 
+fixCompare = require("gulp-fix-compare")
+
 
 errorHandler = notify.onError("Error: <%= error.message %>")
 
@@ -41,6 +43,7 @@ gulp.task "public-coffee", ->
     .pipe(coffee())
     .on('error', gutil.log)
     .pipe(ngAnnotate())
+    .pipe(fixCompare())
     .pipe(concat("build.js"))
     .pipe(gulp.dest("./public/js"))
 
@@ -55,6 +58,7 @@ gulp.task "coffee", ->
     ])
     .pipe(plumber({errorHandler}))
     .pipe(coffee())
+    .pipe(fixCompare())
     .on('error', gutil.log)
     .pipe(gulp.dest("./"))
 
