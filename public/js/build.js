@@ -132,6 +132,19 @@
 
   app = angular.module('app');
 
+  app.filter("newlines", function() {
+    return function(text) {
+      return text.replace(/\n/g, "<br>");
+    };
+  });
+
+}).call(this);
+
+(function() {
+  var app;
+
+  app = angular.module('app');
+
   app.directive('bouncyLoader', function() {
     return {
       restrict: 'E',
@@ -967,10 +980,16 @@
     return {
       restrict: 'E',
       scope: {
-        chatId: '='
+        chatId: '=',
+        roomId: '='
       },
       link: function($scope, element, attrs) {
-        api.get_online_count();
+        var data;
+        data = {
+          chatId: $scope.chatId,
+          roomId: $scope.roomId
+        };
+        api.get_online_count(data);
         return api.socket.on("get_online_count", function(result) {
           ga('send', 'event', 'onlineCount', $scope.chatId, result);
           return element.html(result);
@@ -1359,19 +1378,6 @@
 (function() {
   var app;
 
-  app = angular.module('app');
-
-  app.filter("newlines", function() {
-    return function(text) {
-      return text.replace(/\n/g, "<br>");
-    };
-  });
-
-}).call(this);
-
-(function() {
-  var app;
-
   app = angular.module("app");
 
   app.service("accountData", function() {
@@ -1508,8 +1514,8 @@
         socket.emit("load_rooms", data);
         return this.on("rooms");
       },
-      get_online_count: function() {
-        socket.emit("get_online_count");
+      get_online_count: function(data) {
+        socket.emit("get_online_count", data);
         return this.on("get_online_count");
       },
       load_chat_messages_for_room: function(data) {

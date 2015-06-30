@@ -3,9 +3,14 @@ app.directive 'onlineCount', ($timeout, api) ->
   restrict: 'E'
   scope:
     chatId: '='
+    roomId: '='
   link: ($scope, element, attrs) ->
 
-    api.get_online_count()
+    data =
+      chatId: $scope.chatId
+      roomId: $scope.roomId
+
+    api.get_online_count(data)
 
     api
       .socket
