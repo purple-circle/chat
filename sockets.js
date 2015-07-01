@@ -16,11 +16,11 @@
     return io.on("connection", function(socket) {
       var broadcastClientCount;
       socket.join(default_chat_id);
-      broadcastClientCount = function() {
-        return io.to(default_chat_id).emit("get_online_count", io.engine.clientsCount);
+      broadcastClientCount = function(data) {
+        return io.to((data !== null ? data.chatId : void 0) || default_chat_id).emit("get_online_count", io.engine.clientsCount);
       };
       socket.on("disconnect", function() {
-        return broadcastClientCount();
+        return broadcastClientCount(null);
       });
       socket.on("load_chat_messages_for_room", function(data) {
         return chat.load_messages_for_room(data).then(function(messages) {
@@ -131,8 +131,8 @@
         };
         return users.login(data).then(success, error);
       });
-      return socket.on("get_online_count", function() {
-        return broadcastClientCount();
+      return socket.on("get_online_count", function(data) {
+        return broadcastClientCount(data);
       });
     });
   };

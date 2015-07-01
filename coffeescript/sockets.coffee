@@ -17,12 +17,12 @@ module.exports = (server, sessionStore) ->
   io.on "connection", (socket) ->
     socket.join(default_chat_id)
 
-    broadcastClientCount = ->
-      io.to(default_chat_id).emit "get_online_count", io.engine.clientsCount
+    broadcastClientCount = (data) ->
+      io.to(data?.chatId or default_chat_id).emit "get_online_count", io.engine.clientsCount
 
 
     socket.on "disconnect", ->
-      broadcastClientCount()
+      broadcastClientCount(null)
 
     socket.on "load_chat_messages_for_room", (data) ->
       chat
@@ -135,6 +135,6 @@ module.exports = (server, sessionStore) ->
     #     socket.broadcast.emit "update_platform", true
 
 
-    socket.on "get_online_count", ->
+    socket.on "get_online_count", (data) ->
       #socket.emit "get_online_count", io.engine.clientsCount
-      broadcastClientCount()
+      broadcastClientCount(data)
