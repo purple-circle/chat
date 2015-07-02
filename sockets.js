@@ -17,7 +17,14 @@
       var broadcastClientCount;
       socket.join(default_chat_id);
       broadcastClientCount = function(data) {
-        return io.to((data !== null ? data.chatId : void 0) || default_chat_id).emit("get_online_count", io.engine.clientsCount);
+        var chatId, clientsCount, roomData;
+        chatId = (data !== null ? data.chatId : void 0) || default_chat_id;
+        roomData = {};
+        if (io.sockets.adapter.rooms[chatId]) {
+          roomData = io.sockets.adapter.rooms[chatId];
+        }
+        clientsCount = Object.keys(roomData).length;
+        return io.to(chatId).emit("get_online_count", clientsCount);
       };
       socket.on("disconnect", function() {
         return broadcastClientCount(null);
