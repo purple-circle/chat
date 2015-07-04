@@ -6,11 +6,9 @@ module.exports = (server, sessionStore) ->
   imgur = require("./models/imgur")
   users = require("./models/user")
   Q = require("q")
-  #require "shelljs/global"
 
   io.use (socket, next) ->
     sessionStore socket.request, socket.request.res, next
-
 
   default_chat_id = "chat-123"
 
@@ -79,7 +77,6 @@ module.exports = (server, sessionStore) ->
                 socket.broadcast.emit "url_data", data
 
           io.to(default_chat_id).emit "save_chat_message", result
-          #socket.broadcast.emit "save_chat_message", result
 
     socket.on "load_topic", (data) ->
       chat
@@ -92,7 +89,6 @@ module.exports = (server, sessionStore) ->
         .save_topic(data)
         .then (result) ->
           io.to(default_chat_id).emit "topic", result
-          #socket.broadcast.emit "topic", result
 
     socket.on "load_rooms", (data) ->
       rooms
@@ -105,8 +101,6 @@ module.exports = (server, sessionStore) ->
         .create(data)
         .then (result) ->
           io.to(default_chat_id).emit "room_created", result
-          #socket.broadcast.emit "room_created", result
-
 
     socket.on "signup", (data) ->
       error = (error) ->
@@ -130,17 +124,5 @@ module.exports = (server, sessionStore) ->
         .login(data)
         .then success, error
 
-    # socket.on "update_platform", ->
-    #   if not which "git"
-    #     return
-
-    #   # Run external tool synchronously
-    #   shell_command = "git pull && npm install"
-    #   if (exec shell_command).code is 0
-    #     socket.emit "update_platform", true
-    #     socket.broadcast.emit "update_platform", true
-
-
     socket.on "get_online_count", (data) ->
-      #socket.emit "get_online_count", io.engine.clientsCount
       broadcastClientCount(data)
