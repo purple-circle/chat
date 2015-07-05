@@ -1,5 +1,5 @@
 (function() {
-  var RedisStore, app, bodyParser, cookieParser, express, favicon, logger, longCookieIsLong, passport, path, routes, server, session, sessionStore, settings;
+  var RedisStore, app, bodyParser, cookieParser, express, favicon, longCookieIsLong, passport, path, routes, server, session, sessionStore, settings;
 
   require('newrelic');
 
@@ -8,8 +8,6 @@
   path = require("path");
 
   favicon = require("serve-favicon");
-
-  logger = require("morgan");
 
   cookieParser = require("cookie-parser");
 
