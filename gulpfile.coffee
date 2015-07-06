@@ -44,7 +44,7 @@ gulp.task "public-coffee", ->
     .pipe(coffee())
     .on('error', gutil.log)
     .pipe(ngAnnotate())
-    .pipe(fixCompare())
+    #.pipe(fixCompare())
     .pipe(concat("build.js"))
     .pipe(gulp.dest("./public/js"))
 
@@ -59,7 +59,7 @@ gulp.task "coffee", ->
     ])
     .pipe(plumber({errorHandler}))
     .pipe(coffee())
-    .pipe(fixCompare())
+    #.pipe(fixCompare())
     .on('error', gutil.log)
     .pipe(gulp.dest("./"))
 

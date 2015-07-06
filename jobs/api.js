@@ -41,7 +41,7 @@
     retry_limit = 5;
     return getOpenGraphData(url).then(function(result) {
       var error;
-      if (result === null) {
+      if (result == null) {
         console.log("No results yet, retrying " + retry_seconds + " seconds", url);
         retry_count++;
         if (retry_count >= retry_limit) {
@@ -218,7 +218,7 @@
 
   jobs.process("api.process_urls_from_message", function(job, done) {
     var i, len, ref, results, url, urls;
-    urls = (ref = job.data.metadata) !== null ? ref.urls : void 0;
+    urls = (ref = job.data.metadata) != null ? ref.urls : void 0;
     if (!urls.length) {
       done({
         error: "No urls"

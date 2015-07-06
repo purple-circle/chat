@@ -74,77 +74,6 @@
 
   app = angular.module('app');
 
-  app.controller('GridBottomSheetCtrl', ["$scope", "$mdBottomSheet", function($scope, $mdBottomSheet) {
-    $scope.items = [
-      {
-        name: 'Yolo',
-        icon: 'twitter'
-      }
-    ];
-    return $scope.listItemClick = function($index) {
-      var clickedItem;
-      clickedItem = $scope.items[$index];
-      $mdBottomSheet.hide(clickedItem);
-      return console.log("clickedItem", clickedItem);
-    };
-  }]);
-
-}).call(this);
-
-(function() {
-  var app;
-
-  app = angular.module('app');
-
-  app.controller('index', ["$rootScope", "$scope", function($rootScope, $scope) {
-    $rootScope.page_title = "Chat";
-    return $scope.chatId = "chat-123";
-  }]);
-
-}).call(this);
-
-(function() {
-  var app;
-
-  app = angular.module('app');
-
-  app.controller('index.room', ["$rootScope", "$scope", "$stateParams", function($rootScope, $scope, $stateParams) {
-    return $scope.roomId = $stateParams.room_id;
-  }]);
-
-}).call(this);
-
-(function() {
-  var app;
-
-  app = angular.module('app');
-
-  app.controller('simpleDialog', ["$scope", "$mdDialog", function($scope, $mdDialog) {
-    return $scope.close = function() {
-      return $mdDialog.cancel();
-    };
-  }]);
-
-}).call(this);
-
-(function() {
-  var app;
-
-  app = angular.module('app');
-
-  app.filter("newlines", function() {
-    return function(text) {
-      return text.replace(/\n/g, "<br>");
-    };
-  });
-
-}).call(this);
-
-(function() {
-  var app;
-
-  app = angular.module('app');
-
   app.directive('bouncyLoader', function() {
     return {
       restrict: 'E',
@@ -416,7 +345,7 @@
       },
       link: function($scope, element, attrs) {
         return element.bind("keydown", function(event) {
-          if (!(event !== null ? event.keyIdentifier : void 0)) {
+          if (!(event != null ? event.keyIdentifier : void 0)) {
             return;
           }
           return $scope.callback({
@@ -698,7 +627,7 @@
             return;
           }
           possibleUrl = api.stringHasUrl(data.message);
-          if ((possibleUrl !== null ? possibleUrl[0] : void 0) && api.urlIsImage(possibleUrl[0])) {
+          if ((possibleUrl != null ? possibleUrl[0] : void 0) && api.urlIsImage(possibleUrl[0])) {
             api.testImage(possibleUrl[0], function() {
               return ga('send', 'event', 'sharedImage', data.chat_id, possibleUrl[0]);
             });
@@ -782,7 +711,7 @@
             return ga('send', 'event', 'used camera, saved picture', $scope.chatId, $scope.roomId);
           }, function() {
             var ref;
-            return (ref = window.camera) !== null ? ref.stop() : void 0;
+            return (ref = window.camera) != null ? ref.stop() : void 0;
           });
         };
         $scope.selectFile = function() {
@@ -799,7 +728,7 @@
         };
         return $scope.uploadFile = function(element) {
           var ref, upload_error, upload_notify, upload_success;
-          if (!(element !== null ? (ref = element.files) !== null ? ref[0] : void 0 : void 0)) {
+          if (!(element != null ? (ref = element.files) != null ? ref[0] : void 0 : void 0)) {
             return;
           }
           ga('send', 'event', 'uploaded image', $scope.chatId, $scope.roomId);
@@ -889,14 +818,14 @@
             vimeoId = api.getVimeoIdFromUrl(row.original_message);
           }
           possibleUrls = api.stringHasUrl(row.original_message);
-          if ((possibleUrls !== null ? possibleUrls[0] : void 0) && api.urlIsImage(possibleUrls !== null ? possibleUrls[0] : void 0)) {
+          if ((possibleUrls != null ? possibleUrls[0] : void 0) && api.urlIsImage(possibleUrls != null ? possibleUrls[0] : void 0)) {
             api.testImage(possibleUrls[0]).then(function() {
               var message;
               message = getMessageById(row.room_id, row._id);
-              return message !== null ? message.images = possibleUrls : void 0;
+              return message != null ? message.images = possibleUrls : void 0;
             });
           }
-          notify_user = checkUserMentions(row !== null ? (ref = row.metadata) !== null ? ref.user_mentions : void 0 : void 0, row.from);
+          notify_user = checkUserMentions(row != null ? (ref = row.metadata) != null ? ref.user_mentions : void 0 : void 0, row.from);
           if (notify_user) {
             if (new Date(row.created_at).getTime() > messagesOpened) {
               $rootScope.$broadcast("tab-beep");
@@ -925,7 +854,7 @@
             return $timeout(function() {
               var last_message, ref, ref1;
               last_message = messages.length - 1;
-              return (ref = document.getElementsByClassName("page-" + page_number)) !== null ? (ref1 = ref[last_message]) !== null ? ref1.scrollIntoView() : void 0 : void 0;
+              return (ref = document.getElementsByClassName("page-" + page_number)) != null ? (ref1 = ref[last_message]) != null ? ref1.scrollIntoView() : void 0 : void 0;
             });
           }
         };
@@ -1056,7 +985,7 @@
               for (i = 0, len = ref.length; i < len; i++) {
                 room = ref[i];
                 if (room._id === room_id) {
-                  results.push(room.topic = topic !== null ? topic.topic : void 0);
+                  results.push(room.topic = topic != null ? topic.topic : void 0);
                 }
               }
               return results;
@@ -1086,7 +1015,7 @@
             });
           }
           previousSelectedRoom = getSelectedRoom();
-          if (previousSelectedRoom !== null) {
+          if (previousSelectedRoom != null) {
             previousSelectedRoom.$selected = false;
           }
           room.$selected = true;
@@ -1104,14 +1033,14 @@
           }
           return $timeout(function() {
             var ref;
-            return (ref = document.getElementsByClassName("typing-container")) !== null ? ref[0].scrollIntoView() : void 0;
+            return (ref = document.getElementsByClassName("typing-container")) != null ? ref[0].scrollIntoView() : void 0;
           });
         };
         listenToTopicChange = function() {
           return api.socket.on("topic", function(topic) {
             var room;
             room = getSelectedRoom();
-            return room.topic = topic !== null ? topic.topic : void 0;
+            return room.topic = topic != null ? topic.topic : void 0;
           });
         };
         listenToMessageNotifications = function() {
@@ -1378,6 +1307,77 @@
 (function() {
   var app;
 
+  app = angular.module('app');
+
+  app.controller('GridBottomSheetCtrl', ["$scope", "$mdBottomSheet", function($scope, $mdBottomSheet) {
+    $scope.items = [
+      {
+        name: 'Yolo',
+        icon: 'twitter'
+      }
+    ];
+    return $scope.listItemClick = function($index) {
+      var clickedItem;
+      clickedItem = $scope.items[$index];
+      $mdBottomSheet.hide(clickedItem);
+      return console.log("clickedItem", clickedItem);
+    };
+  }]);
+
+}).call(this);
+
+(function() {
+  var app;
+
+  app = angular.module('app');
+
+  app.controller('index', ["$rootScope", "$scope", function($rootScope, $scope) {
+    $rootScope.page_title = "Chat";
+    return $scope.chatId = "chat-123";
+  }]);
+
+}).call(this);
+
+(function() {
+  var app;
+
+  app = angular.module('app');
+
+  app.controller('index.room', ["$rootScope", "$scope", "$stateParams", function($rootScope, $scope, $stateParams) {
+    return $scope.roomId = $stateParams.room_id;
+  }]);
+
+}).call(this);
+
+(function() {
+  var app;
+
+  app = angular.module('app');
+
+  app.controller('simpleDialog', ["$scope", "$mdDialog", function($scope, $mdDialog) {
+    return $scope.close = function() {
+      return $mdDialog.cancel();
+    };
+  }]);
+
+}).call(this);
+
+(function() {
+  var app;
+
+  app = angular.module('app');
+
+  app.filter("newlines", function() {
+    return function(text) {
+      return text.replace(/\n/g, "<br>");
+    };
+  });
+
+}).call(this);
+
+(function() {
+  var app;
+
   app = angular.module("app");
 
   app.service("accountData", function() {
@@ -1431,11 +1431,11 @@
       getYoutubeUrls: getYoutubeUrls,
       notification: notification,
       hasVimeoUrl: function(url) {
-        return getVimeoUrls(url) !== null;
+        return getVimeoUrls(url) != null;
       },
       getVimeoIdFromUrl: function(url) {
         var ref;
-        return (ref = getVimeoUrls(url)) !== null ? ref[3] : void 0;
+        return (ref = getVimeoUrls(url)) != null ? ref[3] : void 0;
       },
       cameraIsSupported: function() {
         var cameraSupported;
@@ -1531,11 +1531,11 @@
         return this.on("update_platform");
       },
       hasYoutubeUrl: function(url) {
-        return getYoutubeUrls(url) !== null;
+        return getYoutubeUrls(url) != null;
       },
       getYoutubeIdFromUrl: function(url) {
         var ref;
-        return youtubeEmbedUtils.getIdFromURL((ref = getYoutubeUrls(url)) !== null ? ref[0] : void 0);
+        return youtubeEmbedUtils.getIdFromURL((ref = getYoutubeUrls(url)) != null ? ref[0] : void 0);
       },
       upload_to_imgur: function(file, options) {
         imgurUpload.setClientId("3631cecbf2bf2cf");
@@ -1801,7 +1801,7 @@
             pagehide: h
           };
           evt = evt || window.event;
-          if ((evt !== null ? evt.type : void 0) in evtMap) {
+          if ((evt != null ? evt.type : void 0) in evtMap) {
             return callback(evtMap[evt.type]);
           } else {
             return callback(this[hidden] ? 'hidden' : 'visible');
