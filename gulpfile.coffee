@@ -31,6 +31,7 @@ notify = require("gulp-notify")
 
 fixCompare = require("gulp-fix-compare")
 
+bowerTags = require("gulp-bower-generate-tags")
 
 errorHandler = notify.onError("Error: <%= error.message %>")
 
@@ -166,7 +167,19 @@ gulp.task "lintcode", ->
   gulp.start("lint")
 
 
+# TODO: rename task
+gulp.task "bower", ->
+  options =
+    bowerDirectory: "public/bower_components"
+    relativeBowerDirectory: "/bower_components"
+    destinationFile: "views/bower-include.ejs"
+
+  gulp.src("bower.json")
+    .pipe(bowerTags(options));
+
+
 gulp.task "watch", ->
+  gulp.watch "bower.json", ["bower"]
   gulp.watch "less/**/*.less", ["less"]
   gulp.watch "public/css/*.css", ["autoprefixer"]
   gulp.watch "public/views/**/*.html", ["partials"]
