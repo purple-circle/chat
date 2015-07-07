@@ -1,5 +1,5 @@
 app = angular.module('app')
-app.directive "mediaPreview", ($mdDialog) ->
+app.directive "mediaPreview", ($mdDialog, asyncJsLoad) ->
   templateUrl: "directives/chat/media-preview.html"
   scope:
     message: "="
@@ -8,6 +8,9 @@ app.directive "mediaPreview", ($mdDialog) ->
 
     $scope.youtubeOptions =
       autoplay: false
+
+    if $scope.message.youtubeId and not window.YT?
+      asyncJsLoad.addYoutube()
 
     $scope.openImage = (image) ->
       ga('send', 'event', 'openImage', $scope.chatId, image)

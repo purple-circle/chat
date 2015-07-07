@@ -74,6 +74,64 @@
 
   app = angular.module('app');
 
+  app.controller('GridBottomSheetCtrl', ["$scope", "$mdBottomSheet", function($scope, $mdBottomSheet) {
+    $scope.items = [
+      {
+        name: 'Yolo',
+        icon: 'twitter'
+      }
+    ];
+    return $scope.listItemClick = function($index) {
+      var clickedItem;
+      clickedItem = $scope.items[$index];
+      $mdBottomSheet.hide(clickedItem);
+      return console.log("clickedItem", clickedItem);
+    };
+  }]);
+
+}).call(this);
+
+(function() {
+  var app;
+
+  app = angular.module('app');
+
+  app.controller('index', ["$rootScope", "$scope", function($rootScope, $scope) {
+    $rootScope.page_title = "Chat";
+    return $scope.chatId = "chat-123";
+  }]);
+
+}).call(this);
+
+(function() {
+  var app;
+
+  app = angular.module('app');
+
+  app.controller('index.room', ["$rootScope", "$scope", "$stateParams", function($rootScope, $scope, $stateParams) {
+    return $scope.roomId = $stateParams.room_id;
+  }]);
+
+}).call(this);
+
+(function() {
+  var app;
+
+  app = angular.module('app');
+
+  app.controller('simpleDialog', ["$scope", "$mdDialog", function($scope, $mdDialog) {
+    return $scope.close = function() {
+      return $mdDialog.cancel();
+    };
+  }]);
+
+}).call(this);
+
+(function() {
+  var app;
+
+  app = angular.module('app');
+
   app.directive('bouncyLoader', function() {
     return {
       restrict: 'E',
@@ -512,7 +570,7 @@
 
   app = angular.module('app');
 
-  app.directive("mediaPreview", ["$mdDialog", function($mdDialog) {
+  app.directive("mediaPreview", ["$mdDialog", "asyncJsLoad", function($mdDialog, asyncJsLoad) {
     return {
       templateUrl: "directives/chat/media-preview.html",
       scope: {
@@ -523,6 +581,9 @@
         $scope.youtubeOptions = {
           autoplay: false
         };
+        if ($scope.message.youtubeId && (window.YT == null)) {
+          asyncJsLoad.addYoutube();
+        }
         $scope.openImage = function(image) {
           ga('send', 'event', 'openImage', $scope.chatId, image);
           return $mdDialog.show({
@@ -1309,64 +1370,6 @@
 
   app = angular.module('app');
 
-  app.controller('GridBottomSheetCtrl', ["$scope", "$mdBottomSheet", function($scope, $mdBottomSheet) {
-    $scope.items = [
-      {
-        name: 'Yolo',
-        icon: 'twitter'
-      }
-    ];
-    return $scope.listItemClick = function($index) {
-      var clickedItem;
-      clickedItem = $scope.items[$index];
-      $mdBottomSheet.hide(clickedItem);
-      return console.log("clickedItem", clickedItem);
-    };
-  }]);
-
-}).call(this);
-
-(function() {
-  var app;
-
-  app = angular.module('app');
-
-  app.controller('index', ["$rootScope", "$scope", function($rootScope, $scope) {
-    $rootScope.page_title = "Chat";
-    return $scope.chatId = "chat-123";
-  }]);
-
-}).call(this);
-
-(function() {
-  var app;
-
-  app = angular.module('app');
-
-  app.controller('index.room', ["$rootScope", "$scope", "$stateParams", function($rootScope, $scope, $stateParams) {
-    return $scope.roomId = $stateParams.room_id;
-  }]);
-
-}).call(this);
-
-(function() {
-  var app;
-
-  app = angular.module('app');
-
-  app.controller('simpleDialog', ["$scope", "$mdDialog", function($scope, $mdDialog) {
-    return $scope.close = function() {
-      return $mdDialog.cancel();
-    };
-  }]);
-
-}).call(this);
-
-(function() {
-  var app;
-
-  app = angular.module('app');
-
   app.filter("newlines", function() {
     return function(text) {
       return text.replace(/\n/g, "<br>");
@@ -1559,6 +1562,37 @@
       }
     };
   }]);
+
+}).call(this);
+
+(function() {
+  var app;
+
+  app = angular.module('app');
+
+  app.factory('asyncJsLoad', function() {
+    var addFile, addYoutube, cache;
+    cache = {};
+    addFile = function(url) {
+      var script;
+      if (cache[url]) {
+        return true;
+      }
+      script = document.createElement('script');
+      script.src = url;
+      script.type = 'text/javascript';
+      script.async = true;
+      document.getElementsByTagName('head')[0].appendChild(script);
+      return cache[url] = true;
+    };
+    addYoutube = function() {
+      return addFile('https://www.youtube.com/iframe_api');
+    };
+    return {
+      addFile: addFile,
+      addYoutube: addYoutube
+    };
+  });
 
 }).call(this);
 
