@@ -262,7 +262,7 @@
 
   app = angular.module('app');
 
-  app.directive("chat", ["$rootScope", "$mdSidenav", function($rootScope, $mdSidenav) {
+  app.directive("chat", ["$rootScope", function($rootScope) {
     return {
       templateUrl: "directives/chat/chat.html",
       scope: {
@@ -275,12 +275,6 @@
           $scope.currentRoom = room;
           return $scope.roomId = room._id;
         });
-        $scope.toggleLeft = function() {
-          return $mdSidenav('left').toggle();
-        };
-        $scope.closeLeft = function() {
-          return $mdSidenav('left').close();
-        };
         return $scope.loadMore = function() {
           return $rootScope.$broadcast("load-more-messages", $scope.roomId);
         };
@@ -1352,16 +1346,24 @@
 
   app = angular.module('app');
 
-  app.directive('toolbar', function() {
+  app.directive('toolbar', ["$mdSidenav", function($mdSidenav) {
     return {
       restrict: 'E',
       scope: {
         chatId: '=',
         currentRoom: '='
       },
-      templateUrl: 'directives/chat/toolbar.html'
+      templateUrl: 'directives/chat/toolbar.html',
+      link: function($scope) {
+        $scope.toggleLeft = function() {
+          return $mdSidenav('left').toggle();
+        };
+        return $scope.closeLeft = function() {
+          return $mdSidenav('left').close();
+        };
+      }
     };
-  });
+  }]);
 
 }).call(this);
 
