@@ -173,6 +173,17 @@ gulp.task "bower", ->
     bowerDirectory: "public/bower_components"
     relativeBowerDirectory: "/bower_components"
     destinationFile: "views/bower-include.ejs"
+    priority: ['moment', 'angular'],
+    overwrite:
+      angular: 'angular.min.js'
+      'angular-material': 'angular-material.min.js'
+      'angular-aria': 'angular-aria.min.js'
+      'angular-animate': 'angular-animate.min.js'
+      'angular-moment': 'angular-moment.min.js'
+      'angular-sanitize': 'angular-sanitize.min.js'
+      'angular-youtube-mb': 'dist/angular-youtube-embed.min.js'
+      'angular-ui-router': 'release/angular-ui-router.min.js'
+      moment: 'min/moment.min.js'
 
   gulp.src("bower.json")
     .pipe(bowerTags(options));
