@@ -15,8 +15,7 @@ bouncy-loader .typing-indicator {
   display: inline-table;
   padding: 10px;
   background-color: #E6E7ED;
-  -webkit-animation: 2s bulge infinite ease-out;
-          animation: 2s bulge infinite ease-out;
+  animation: 2s bulge infinite ease-out;
 }
 bouncy-loader .typing-indicator span {
   height: 5px;
@@ -29,37 +28,22 @@ bouncy-loader .typing-indicator span {
   opacity: 0.4;
 }
 bouncy-loader .typing-indicator span:nth-of-type( 3) {
-  -webkit-animation: 1s blink infinite 0.9999s;
-          animation: 1s blink infinite 0.9999s;
+  animation: 1s blink infinite 0.9999s;
 }
 bouncy-loader .typing-indicator span:nth-of-type( 2) {
-  -webkit-animation: 1s blink infinite 0.6666s;
-          animation: 1s blink infinite 0.6666s;
+  animation: 1s blink infinite 0.6666s;
 }
 bouncy-loader .typing-indicator span:nth-of-type( 1) {
-  -webkit-animation: 1s blink infinite 0.3333s;
-          animation: 1s blink infinite 0.3333s;
-}
-@-webkit-keyframes blink {
-  50% {
-    opacity: 1;
-  }
+  animation: 1s blink infinite 0.3333s;
 }
 @keyframes blink {
   50% {
     opacity: 1;
   }
 }
-@-webkit-keyframes bulge {
-  50% {
-    -webkit-transform: scale(1.05);
-            transform: scale(1.05);
-  }
-}
 @keyframes bulge {
   50% {
-    -webkit-transform: scale(1.05);
-            transform: scale(1.05);
+    transform: scale(1.05);
   }
 }
 
@@ -148,7 +132,6 @@ md-dialog img.image-preview {
   margin: auto;
   max-height: 600px;
   max-width: 100%;
-  cursor: -webkit-zoom-in;
   cursor: zoom-in;
 }
 
@@ -209,7 +192,7 @@ media-preview .media-preview img {
 }
 media-preview .media-preview img.image-gallery {
   float: left;
-  max-width: 45%;
+  min-width: 45%;
   max-height: 120px;
   margin: 2px;
 }
@@ -237,7 +220,6 @@ media-preview .youtube-thumbnail-container .youtube-play-button:hover {
 @media (min-width: 1100px) {
   html,
   body {
-    background-image: -webkit-radial-gradient(#ffff00, #f06d06);
     background-image: radial-gradient(#ffff00, #f06d06);
   }
   md-sidenav {
