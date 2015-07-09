@@ -46,10 +46,12 @@ app.directive 'messageForm', ($rootScope, $timeout, $mdSidenav, $mdDialog, api, 
       if key is "Up"
         message = api.messageHistory.up($scope.roomId)
         if message
-          $scope.message = message
+          $timeout ->
+            $scope.message = message
 
       if key is "Down"
-        $scope.message = api.messageHistory.down($scope.roomId)
+        $timeout ->
+          $scope.message = api.messageHistory.down($scope.roomId)
 
 
     $scope.saveMessage = ->

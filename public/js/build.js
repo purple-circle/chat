@@ -694,11 +694,15 @@
           if (key === "Up") {
             message = api.messageHistory.up($scope.roomId);
             if (message) {
-              $scope.message = message;
+              $timeout(function() {
+                return $scope.message = message;
+              });
             }
           }
           if (key === "Down") {
-            return $scope.message = api.messageHistory.down($scope.roomId);
+            return $timeout(function() {
+              return $scope.message = api.messageHistory.down($scope.roomId);
+            });
           }
         };
         $scope.saveMessage = function() {
