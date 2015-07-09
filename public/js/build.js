@@ -1737,7 +1737,7 @@
   app = angular.module("app");
 
   app.factory("messageHistory", function() {
-    var down, getMessageHistory, globalHistory, historyLocation, saveMessageHistory, up;
+    var down, getMessageHistory, globalHistory, historyLocation, last, saveMessageHistory, up;
     getMessageHistory = function() {
       var history;
       history = localStorage.getItem("message-history");
@@ -1748,6 +1748,9 @@
     };
     globalHistory = getMessageHistory();
     historyLocation = globalHistory.length;
+    last = function(list) {
+      return list[list.length - 1];
+    };
     saveMessageHistory = function(message) {
       var history;
       if (!localStorage) {
@@ -1755,6 +1758,9 @@
       }
       history = localStorage.getItem("message-history") || "[]";
       history = JSON.parse(history);
+      if (last(history) === message) {
+        return false;
+      }
       history.push(message);
       globalHistory = history;
       historyLocation = history.length;

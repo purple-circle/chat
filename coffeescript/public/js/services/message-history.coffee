@@ -11,12 +11,18 @@ app.factory "messageHistory", ->
   globalHistory = getMessageHistory()
   historyLocation = globalHistory.length
 
+  last = (list) ->
+    list[list.length - 1]
+
   saveMessageHistory = (message) ->
     if !localStorage
       return
 
     history = localStorage.getItem("message-history") || "[]"
     history = JSON.parse(history)
+
+    if last(history) is message
+      return false
 
     history.push(message)
     globalHistory = history
