@@ -8,7 +8,7 @@ app.directive 'loadingImage', ->
   link: ($scope, element, attrs) ->
     $scope.loaded = false
 
-    if !$scope.url && !$scope.urlText
+    if !$scope.url? && !$scope.urlText?
       $scope.error = true
       return
 

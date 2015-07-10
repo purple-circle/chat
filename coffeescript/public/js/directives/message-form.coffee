@@ -138,7 +138,7 @@ app.directive 'messageForm', ($rootScope, $timeout, $mdSidenav, $mdDialog, api, 
       , 1000
 
     $scope.uploadFile = (element) ->
-      if !element?.files?[0]
+      if !element?.files?[0]?
         return
 
       ga('send', 'event', 'uploaded image', $scope.chatId, $scope.roomId)

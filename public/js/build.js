@@ -493,7 +493,7 @@
       link: function($scope, element, attrs) {
         var img;
         $scope.loaded = false;
-        if (!$scope.url && !$scope.urlText) {
+        if (($scope.url == null) && ($scope.urlText == null)) {
           $scope.error = true;
           return;
         }
@@ -532,11 +532,11 @@
         return $scope.login = function() {
           var data;
           $scope.errors = {};
-          if (!$scope.username) {
+          if ($scope.username == null) {
             $scope.errors.username = true;
             return;
           }
-          if (!$scope.password) {
+          if ($scope.password == null) {
             $scope.errors.password = true;
             return;
           }
@@ -787,7 +787,7 @@
         };
         return $scope.uploadFile = function(element) {
           var ref, upload_error, upload_notify, upload_success;
-          if (!(element != null ? (ref = element.files) != null ? ref[0] : void 0 : void 0)) {
+          if ((element != null ? (ref = element.files) != null ? ref[0] : void 0 : void 0) == null) {
             return;
           }
           ga('send', 'event', 'uploaded image', $scope.chatId, $scope.roomId);

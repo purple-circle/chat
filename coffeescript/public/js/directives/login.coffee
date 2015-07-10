@@ -13,11 +13,11 @@ app.directive 'login', (api, accountData) ->
 
     $scope.login = ->
       $scope.errors = {}
-      if !$scope.username
+      if !$scope.username?
         $scope.errors.username = true
         return
 
-      if !$scope.password
+      if !$scope.password?
         $scope.errors.password = true
         return
 
