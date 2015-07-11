@@ -41,6 +41,11 @@ app.config ($stateProvider, $locationProvider) ->
       url: 'room/:room_id'
       controller: 'index.room'
 
+    .state 'dashboard',
+      url: '/dashboard'
+      templateUrl: 'dashboard.html'
+      controller: 'dashboard'
+
 app.run ($rootScope) ->
   $rootScope.page_title = "Loading chat.."
 

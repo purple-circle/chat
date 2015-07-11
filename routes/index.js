@@ -31,6 +31,14 @@
     return indexPage(req, res);
   });
 
+  router.get("/dashboard", function(req, res) {
+    return indexPage(req, res);
+  });
+
+  router.get("/dashboard/*", function(req, res) {
+    return indexPage(req, res);
+  });
+
   router.get("/logout", function(req, res) {
     req.logout();
     return res.redirect("/");

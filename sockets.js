@@ -2,8 +2,9 @@
   require("newrelic");
 
   module.exports = function(server, sessionStore) {
-    var Q, chat, default_chat_id, imgur, io, rooms, users;
+    var Q, api, chat, default_chat_id, imgur, io, rooms, users;
     io = require("socket.io").listen(server);
+    api = require("./models/api");
     chat = require("./models/chat");
     rooms = require("./models/rooms");
     imgur = require("./models/imgur");
@@ -138,8 +139,15 @@
         };
         return users.login(data).then(success, error);
       });
-      return socket.on("get_online_count", function(data) {
+      socket.on("get_online_count", function(data) {
         return broadcastClientCount(data);
+      });
+      return socket.on("api_stats", function() {
+        console.log("api_stats");
+        return api.api_stats().then(function(result) {
+          console.log("api result", result);
+          return socket.emit("api_stats", result);
+        });
       });
     });
   };

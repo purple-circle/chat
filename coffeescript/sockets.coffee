@@ -1,6 +1,7 @@
 require("newrelic")
 module.exports = (server, sessionStore) ->
   io = require("socket.io").listen(server)
+  api = require("./models/api")
   chat = require("./models/chat")
   rooms = require("./models/rooms")
   imgur = require("./models/imgur")
@@ -126,3 +127,12 @@ module.exports = (server, sessionStore) ->
 
     socket.on "get_online_count", (data) ->
       broadcastClientCount(data)
+
+    socket.on "api_stats", ->
+      console.log "api_stats"
+      api
+        .api_stats()
+        .then (result) ->
+          console.log "api result", result
+          socket.emit "api_stats", result
+

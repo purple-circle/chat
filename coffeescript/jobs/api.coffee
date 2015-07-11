@@ -87,6 +87,8 @@ jobs.process "api.api_stats", (job, done) ->
   Log = mongoose.model 'api_logs'
   Log
     .find()
+    .limit(1)
+    .sort("-created_at")
     .exec()
     .then (result) ->
       done(null, result)

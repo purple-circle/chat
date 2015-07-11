@@ -28,6 +28,10 @@
     }).state('root.index.room', {
       url: 'room/:room_id',
       controller: 'index.room'
+    }).state('dashboard', {
+      url: '/dashboard',
+      templateUrl: 'dashboard.html',
+      controller: 'dashboard'
     });
   }]);
 
@@ -87,6 +91,17 @@
       $mdBottomSheet.hide(clickedItem);
       return console.log("clickedItem", clickedItem);
     };
+  }]);
+
+}).call(this);
+
+(function() {
+  var app;
+
+  app = angular.module('app');
+
+  app.controller('dashboard', ["$rootScope", "$scope", function($rootScope, $scope) {
+    return $rootScope.page_title = "Dashboard";
   }]);
 
 }).call(this);
@@ -1374,19 +1389,6 @@
 (function() {
   var app;
 
-  app = angular.module('app');
-
-  app.filter("newlines", function() {
-    return function(text) {
-      return text.replace(/\n/g, "<br>");
-    };
-  });
-
-}).call(this);
-
-(function() {
-  var app;
-
   app = angular.module("app");
 
   app.service("accountData", function() {
@@ -1926,6 +1928,58 @@
           return deferred.reject('Timeout');
         }, timeout);
         return deferred.promise;
+      }
+    };
+  }]);
+
+}).call(this);
+
+(function() {
+  var app;
+
+  app = angular.module('app');
+
+  app.filter("newlines", function() {
+    return function(text) {
+      return text.replace(/\n/g, "<br>");
+    };
+  });
+
+}).call(this);
+
+(function() {
+  var app;
+
+  app = angular.module('app');
+
+  app.directive('dashboard', function() {
+    return {
+      restrict: 'E',
+      templateUrl: 'directives/dashboard/dashboard.html',
+      link: function($scope, element, attrs) {
+        return console.log("dashboard");
+      }
+    };
+  });
+
+}).call(this);
+
+(function() {
+  var app;
+
+  app = angular.module('app');
+
+  app.directive('stats', ["$timeout", "api", function($timeout, api) {
+    return {
+      restrict: 'E',
+      templateUrl: 'directives/dashboard/stats.html',
+      link: function($scope, element, attrs) {
+        return api.api_stats().then(function(stats) {
+          console.log("stats", stats);
+          return $timeout(function() {
+            return $scope.stats = stats;
+          });
+        });
       }
     };
   }]);

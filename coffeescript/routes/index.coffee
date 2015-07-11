@@ -25,6 +25,12 @@ router.get "/", (req, res) ->
 router.get "/room/*", (req, res) ->
   indexPage req, res
 
+router.get "/dashboard", (req, res) ->
+  indexPage req, res
+
+router.get "/dashboard/*", (req, res) ->
+  indexPage req, res
+
 router.get "/logout", (req, res) ->
   req.logout()
   res.redirect "/"
