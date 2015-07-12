@@ -6,6 +6,5 @@ app.directive 'stats', ($timeout, api) ->
     api
       .api_stats()
       .then (stats) ->
-        console.log "stats", stats
         $timeout ->
           $scope.stats = stats

@@ -147,6 +147,19 @@
 
   app = angular.module('app');
 
+  app.filter("newlines", function() {
+    return function(text) {
+      return text.replace(/\n/g, "<br>");
+    };
+  });
+
+}).call(this);
+
+(function() {
+  var app;
+
+  app = angular.module('app');
+
   app.directive('bouncyLoader', function() {
     return {
       restrict: 'E',
@@ -1939,19 +1952,6 @@
 
   app = angular.module('app');
 
-  app.filter("newlines", function() {
-    return function(text) {
-      return text.replace(/\n/g, "<br>");
-    };
-  });
-
-}).call(this);
-
-(function() {
-  var app;
-
-  app = angular.module('app');
-
   app.directive('dashboard', function() {
     return {
       restrict: 'E',
@@ -1975,7 +1975,6 @@
       templateUrl: 'directives/dashboard/stats.html',
       link: function($scope, element, attrs) {
         return api.api_stats().then(function(stats) {
-          console.log("stats", stats);
           return $timeout(function() {
             return $scope.stats = stats;
           });
