@@ -2,7 +2,7 @@
   'use strict';
   var app, secondsOnSite;
 
-  app = angular.module('app', ['ui.router', 'ui.router.compat', 'templates', 'ngMaterial', 'youtube-embed', 'vimeoEmbed', 'ngSanitize', 'batteryLevel', 'luegg.directives', 'angularMoment', 'imgurUpload']);
+  app = angular.module('app', ['ui.router', 'ui.router.compat', 'templates', 'ngMaterial', 'youtube-embed', 'vimeoEmbed', 'ngSanitize', 'batteryLevel', 'luegg.directives', 'angularMoment', 'imgurUpload', 'ngMap']);
 
   moment.locale('en', {
     calendar: {

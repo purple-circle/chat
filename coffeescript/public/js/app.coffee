@@ -12,6 +12,7 @@ app = angular.module('app', [
   'luegg.directives' # scroll glue
   'angularMoment'
   'imgurUpload'
+  'ngMap'
 ])
 
 moment.locale 'en',

@@ -21,6 +21,7 @@
     "fontawesome": "~4.3.0",
     "angular-moment": "~0.10.1",
     "angular-vimeo-embed": "~0.1.2",
-    "angular-imgur-upload": "~0.0.1"
+    "angular-imgur-upload": "~0.0.1",
+    "ngmap": "~1.7.11"
   }
 }
