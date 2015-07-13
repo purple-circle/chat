@@ -13,6 +13,7 @@ app = angular.module('app', [
   'angularMoment'
   'imgurUpload'
   'ngMap'
+  'googlechart'
 ])
 
 moment.locale 'en',

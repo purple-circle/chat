@@ -2,7 +2,7 @@
   'use strict';
   var app, secondsOnSite;
 
-  app = angular.module('app', ['ui.router', 'ui.router.compat', 'templates', 'ngMaterial', 'youtube-embed', 'vimeoEmbed', 'ngSanitize', 'batteryLevel', 'luegg.directives', 'angularMoment', 'imgurUpload', 'ngMap']);
+  app = angular.module('app', ['ui.router', 'ui.router.compat', 'templates', 'ngMaterial', 'youtube-embed', 'vimeoEmbed', 'ngSanitize', 'batteryLevel', 'luegg.directives', 'angularMoment', 'imgurUpload', 'ngMap', 'googlechart']);
 
   moment.locale('en', {
     calendar: {
@@ -1976,14 +1976,15 @@
           return;
         }
         return api.api_stats().then(function(stats) {
-          return $scope.stats = stats.reduce(function(memo, stat) {
-            var base, day, name;
+          var cols, columnLength, dataRows, day, i, j, name, results, row, rows, stat;
+          $scope.stats = stats.reduce(function(memo, stat) {
+            var base, day, name1;
             day = moment(stat.created_at).format("YYYYMMDD");
             if (memo[day] == null) {
               memo[day] = {};
             }
-            if ((base = memo[day])[name = stat.name] == null) {
-              base[name] = {
+            if ((base = memo[day])[name1 = stat.name] == null) {
+              base[name1] = {
                 date: stat.created_at,
                 count: 0,
                 name: stat.name
@@ -1992,6 +1993,74 @@
             memo[day][stat.name].count++;
             return memo;
           }, {});
+          cols = [];
+          for (day in $scope.stats) {
+            stat = $scope.stats[day];
+            for (row in stat) {
+              name = stat[row].name;
+              if (cols.indexOf(name) === -1) {
+                cols.push(name);
+              }
+            }
+          }
+          columnLength = cols.length - 1;
+          cols = cols.map(function(col, i) {
+            col = i === 0 ? {
+              label: 'Date',
+              type: 'string'
+            } : {
+              label: col,
+              type: 'number'
+            };
+            return col;
+          });
+          dataRows = [];
+          for (day in $scope.stats) {
+            stat = $scope.stats[day];
+            rows = (function() {
+              results = [];
+              for (var j = 0; 0 <= columnLength ? j <= columnLength : j >= columnLength; 0 <= columnLength ? j++ : j--){ results.push(j); }
+              return results;
+            }).apply(this).map(function(row) {
+              return {
+                v: 0
+              };
+            });
+            rows[0] = {
+              v: day
+            };
+            i = 0;
+            for (row in stat) {
+              i++;
+              rows[i] = {
+                v: stat[row].count
+              };
+            }
+            dataRows.push({
+              c: rows
+            });
+          }
+          return $scope.chartObject = {
+            'type': 'AreaChart',
+            'displayed': true,
+            'options': {
+              'title': 'Api stats',
+              'fill': 20,
+              'vAxis': {
+                'title': 'Api calls',
+                'gridlines': {
+                  'count': 10
+                }
+              },
+              'hAxis': {
+                'title': 'Date'
+              }
+            },
+            'data': {
+              'cols': cols,
+              'rows': dataRows
+            }
+          };
         });
       }
     };

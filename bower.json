@@ -22,6 +22,7 @@
     "angular-moment": "~0.10.1",
     "angular-vimeo-embed": "~0.1.2",
     "angular-imgur-upload": "~0.0.1",
-    "ngmap": "~1.7.11"
+    "ngmap": "~1.7.11",
+    "angular-google-chart": "~0.0.11"
   }
 }

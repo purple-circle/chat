@@ -1,3 +1,9 @@
+
+<div google-chart chart="chartObject"></div>
+
+
+<hr>
+
 <div ng-repeat="(statDay, dates) in stats">
   <h3>{{statDay}}</h3>
   <div ng-repeat="day in dates">
@@ -9,3 +15,7 @@
 </div>
 
 <pre>{{stats | json:2}}</pre>
+
+<hr>
+
+<pre>{{chartObject | json:2}}</pre>
