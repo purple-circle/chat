@@ -95,7 +95,7 @@
   jobs.process("api.api_stats", function(job, done) {
     var Log;
     Log = mongoose.model('api_logs');
-    return Log.find().limit(1).sort("-created_at").exec().then(function(result) {
+    return Log.find().limit(300).sort("-created_at").exec().then(function(result) {
       return done(null, result);
     }, done);
   });

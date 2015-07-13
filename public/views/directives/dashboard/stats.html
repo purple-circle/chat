@@ -1,2 +1,11 @@
-stats:
+<div ng-repeat="(statDay, dates) in stats">
+  <h3>{{statDay}}</h3>
+  <div ng-repeat="day in dates">
+    <progress min="0" max="100" value="{{day.count}}"></progress>
+    <strong>{{day.count}}</strong>
+    {{day.name}}
+    {{day.date | amDateFormat:'dddd, MMMM Do YYYY'}}
+  </div>
+</div>
+
 <pre>{{stats | json:2}}</pre>

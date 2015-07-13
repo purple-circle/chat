@@ -3,4 +3,3 @@ app.directive 'dashboard', ->
   restrict: 'E'
   templateUrl: 'directives/dashboard/dashboard.html'
   link: ($scope, element, attrs) ->
-    console.log "dashboard"
