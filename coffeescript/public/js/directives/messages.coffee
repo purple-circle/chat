@@ -1,21 +1,19 @@
 app = angular.module('app')
-app.directive "messages", ($rootScope, $timeout, $interval, api) ->
-  templateUrl: "directives/chat/messages.html"
+app.directive 'messages', ($rootScope, $timeout, $interval, api) ->
+  templateUrl: 'directives/chat/messages.html'
   scope:
-    room: "="
-    chatId: "="
+    room: '='
+    chatId: '='
   link: ($scope) ->
-
-    # TODO: rename, this is for message paging
-    page = 0
-
     $scope.messages = {}
     $scope.messagesFetched = {}
 
+    # TODO: rename, this is for message paging
+    page = 0
     messagesOpened = new Date().getTime()
 
     checkUserMentions = (user_mentions, from) ->
-      if !user_mentions
+      if not user_mentions
         return false
 
       myUsername = api.getUsername()
@@ -36,7 +34,7 @@ app.directive "messages", ($rootScope, $timeout, $interval, api) ->
 
 
     processMessage = (row) ->
-      if !$scope.messages[row.room_id]
+      if not $scope.messages[row.room_id]
         $scope.messages[row.room_id] = []
 
       # Prevent duplicate messages, hopefully
@@ -60,7 +58,7 @@ app.directive "messages", ($rootScope, $timeout, $interval, api) ->
       notify_user = checkUserMentions(row?.metadata?.user_mentions, row.from)
       if notify_user
         if new Date(row.created_at).getTime() > messagesOpened
-          $rootScope.$broadcast("tab-beep")
+          $rootScope.$broadcast('tab-beep')
 
       data =
         images: false
@@ -69,7 +67,7 @@ app.directive "messages", ($rootScope, $timeout, $interval, api) ->
         youtubeId: youtubeId
         vimeoId: vimeoId
         notify_user: notify_user
-        isGreenText: row.original_message[0].trim() is ">"
+        isGreenText: row.original_message[0].trim() is '>'
 
       $scope.messages[row.room_id].push(angular.extend(row, data))
 
@@ -84,12 +82,12 @@ app.directive "messages", ($rootScope, $timeout, $interval, api) ->
       if page_number > 0
         $timeout ->
           last_message = messages.length - 1
-          document.getElementsByClassName("page-#{page_number}")?[last_message]?.scrollIntoView()
+          document.getElementsByClassName("page-#{page_number}")?[last_message]?.scrollIntoView?()
 
 
     appendUrlDataToMessage = (data) ->
       message = getMessageById(data.message.room_id, data.message._id)
-      if !message
+      if not message
         return false
 
       message.url_data = data.url_data
@@ -101,11 +99,11 @@ app.directive "messages", ($rootScope, $timeout, $interval, api) ->
           processMessages(room_id, messages, page_number)
 
 
-    $rootScope.$on "getMessages", (event, room_id) ->
+    $rootScope.$on 'getMessages', (event, room_id) ->
       ga('send', 'event', 'messages', 'getMessages', $scope.chatId, room_id)
       getMessages(room_id, page)
 
-    $rootScope.$on "load-more-messages", (event, room_id) ->
+    $rootScope.$on 'load-more-messages', (event, room_id) ->
       ga('send', 'event', 'messages', 'load-more-messages', $scope.chatId, room_id)
       page++
       getMessages(room_id, page)
@@ -113,13 +111,13 @@ app.directive "messages", ($rootScope, $timeout, $interval, api) ->
     listenToMessages = ->
       api
         .socket
-        .on "save_chat_message", (message) ->
+        .on 'save_chat_message', (message) ->
           processMessage(message)
-          $rootScope.$broadcast("message-notification", message.room_id)
+          $rootScope.$broadcast('message-notification', message.room_id)
 
       api
         .socket
-        .on "url_data", (url_data) ->
+        .on 'url_data', (url_data) ->
           appendUrlDataToMessage(url_data)
 
 

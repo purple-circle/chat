@@ -34,5 +34,5 @@ app.factory 'tabActive', ->
     else
       window.onpageshow = window.onpagehide = window.onfocus = window.onblur = onchange
     # set the initial state (but only if browser supports the Page Visibility API)
-    if document[hidden] != undefined
+    if document[hidden] isnt undefined
       onchange type: if document[hidden] then 'blur' else 'focus'

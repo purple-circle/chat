@@ -7,17 +7,17 @@ app.directive 'login', (api, accountData) ->
 
     api
       .socket
-      .on "login_error", (error) ->
+      .on 'login_error', (error) ->
         $scope.login_in_progress = false
         $scope.errors = error
 
     $scope.login = ->
       $scope.errors = {}
-      if !$scope.username?
+      if not $scope.username?
         $scope.errors.username = true
         return
 
-      if !$scope.password?
+      if not $scope.password?
         $scope.errors.password = true
         return
 

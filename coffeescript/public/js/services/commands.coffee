@@ -27,25 +27,25 @@ app.service "commands", ($rootScope, $mdDialog, api) ->
 
   check = (data) ->
     message = data.message
-    if message[0] isnt "/"
+    if message[0] isnt '/'
       return false
 
-    content = message.split(" ")
-    command = content[0].replace("/", "")
+    content = message.split(' ')
+    command = content[0].replace('/', '')
 
-    if command is "topic"
-      setTopic(content.slice(1).join(" "), data.chat_id, data.room_id)
+    if command is 'topic'
+      setTopic(content.slice(1).join(' '), data.chat_id, data.room_id)
       return true
 
-    if command is "join" or command is "j"
-      $rootScope.$broadcast("joinRoom", content.slice(1).join(" "))
+    if command is 'join' or command is 'j'
+      $rootScope.$broadcast('joinRoom', content.slice(1).join(' '))
       return true
 
-    if command is "create"
-      create_room(content.slice(1).join(" "), data.chat_id, data.from)
+    if command is 'create'
+      create_room(content.slice(1).join(' '), data.chat_id, data.from)
       return true
 
-    if command is "help"
+    if command is 'help'
       $mdDialog
         .show
           templateUrl: 'directives/chat/help.html'
@@ -53,7 +53,7 @@ app.service "commands", ($rootScope, $mdDialog, api) ->
 
       return true
 
-    if command is "register" or command is "signup"
+    if command is 'register' or command is 'signup'
       $mdDialog
         .show
           templateUrl: 'directives/chat/signup-dialog.html'
@@ -61,7 +61,7 @@ app.service "commands", ($rootScope, $mdDialog, api) ->
 
       return true
 
-    if command is "login" or command is "signin"
+    if command is 'login' or command is 'signin'
       $mdDialog
         .show
           templateUrl: 'directives/chat/login-dialog.html'
@@ -69,8 +69,8 @@ app.service "commands", ($rootScope, $mdDialog, api) ->
 
       return true
 
-    # if command is "update_platform"
-    #   console.log "Updating platform"
+    # if command is 'update_platform'
+    #   console.log 'Updating platform'
     #   api
     #     .update_platform()
     #     .then ->

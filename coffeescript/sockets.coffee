@@ -129,10 +129,8 @@ module.exports = (server, sessionStore) ->
       broadcastClientCount(data)
 
     socket.on "api_stats", ->
-      console.log "api_stats"
       api
         .api_stats()
         .then (result) ->
-          console.log "api result", result
           socket.emit "api_stats", result
 

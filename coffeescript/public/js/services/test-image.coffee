@@ -13,11 +13,11 @@ app.service 'testImage', ($q) ->
   test: (url) ->
     deferred = $q.defer()
 
-    if !url
+    if not url
       deferred.reject('No url provided')
       return deferred.promise
 
-    if !urlIsImage(url)
+    if not urlIsImage(url)
       deferred.reject('Provided url doesn\'t contain image')
       return deferred.promise
 
@@ -28,11 +28,11 @@ app.service 'testImage', ($q) ->
 
     img.onerror = img.onabort = ->
       deferred.reject('Image error or aborted')
-      if !timedOut
+      if not timedOut
         clearTimeout timer
 
     img.onload = ->
-      if !timedOut
+      if not timedOut
         clearTimeout timer
         deferred.resolve(url)
 

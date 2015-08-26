@@ -1,6 +1,6 @@
 app = angular.module('app')
 app.directive 'camera', ($timeout, $mdDialog, api) ->
-  templateUrl: "directives/chat/camera.html"
+  templateUrl: 'directives/chat/camera.html'
   restrict: 'E'
   link: ($scope, element, attrs) ->
     $scope.imageTaken = false
@@ -21,10 +21,11 @@ app.directive 'camera', ($timeout, $mdDialog, api) ->
     convertCanvasToImage = (canvas) ->
       image = new Image
 
-      try
-        picture = canvas.toDataURL('image/jpeg', 0.9).split(',')[1]
-      catch e
-        picture = canvas.toDataURL().split(',')[1]
+      picture =
+        try
+          canvas.toDataURL('image/jpeg', 0.9).split(',')[1]
+        catch e
+          canvas.toDataURL().split(',')[1]
 
       picture
 

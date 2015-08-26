@@ -1,4 +1,4 @@
 app = angular.module('app')
-app.filter "newlines", ->
+app.filter 'newlines', ($sce) ->
   (text) ->
-    text.replace /\n/g, "<br>"
+    $sce.trustAsHtml(text.replace(/(\n|&#10;)/g, '<br>'))

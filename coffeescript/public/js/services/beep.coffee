@@ -1,14 +1,14 @@
 app = angular.module('app')
 app.factory 'beep', ->
-
   create: (hertz) ->
-    if !webkitAudioContext? and !AudioContext?
+    if not webkitAudioContext? and not AudioContext?
       return
 
-    if AudioContext
-      audioContextFunction = AudioContext
-    else
-      audioContextFunction = webkitAudioContext
+    audioContextFunction =
+      if AudioContext
+        AudioContext
+      else
+        webkitAudioContext
 
     window.beepAudioContext = window.beepAudioContext or new audioContextFunction()
     oscillator = window.beepAudioContext.createOscillator()

@@ -1,6 +1,5 @@
 app = angular.module('app')
 app.factory 'notification', ($mdToast) ->
-
   hide: ->
     $mdToast.hide()
 

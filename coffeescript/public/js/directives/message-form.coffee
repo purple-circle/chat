@@ -9,7 +9,7 @@ app.directive 'messageForm', ($rootScope, $timeout, $mdSidenav, $mdDialog, api, 
   link: ($scope) ->
 
     # TODO: refactor to service
-    $rootScope.$on "currentRoom", (event, room) ->
+    $rootScope.$on 'currentRoom', (event, room) ->
       $scope.currentRoom = room
       $scope.roomId = room._id
 
@@ -22,10 +22,10 @@ app.directive 'messageForm', ($rootScope, $timeout, $mdSidenav, $mdDialog, api, 
     hideProgressBarTimeout = null
 
     createMessage = (data) ->
-      if !data.message
+      if not data.message
         return
 
-      if !data.from
+      if not data.from
         return
 
       data.room_id = $scope.roomId
@@ -43,13 +43,13 @@ app.directive 'messageForm', ($rootScope, $timeout, $mdSidenav, $mdDialog, api, 
 
 
     $scope.browseHistory = (key) ->
-      if key is "Up"
+      if key is 'Up'
         message = api.messageHistory.up($scope.roomId)
         if message
           $timeout ->
             $scope.message = message
 
-      if key is "Down"
+      if key is 'Down'
         $timeout ->
           $scope.message = api.messageHistory.down($scope.roomId)
 
@@ -58,13 +58,13 @@ app.directive 'messageForm', ($rootScope, $timeout, $mdSidenav, $mdDialog, api, 
       $scope.focusUsername = false
       $scope.focusMessage = false
 
-      if !$scope.from
+      if not $scope.from
         api.notification.set('Please set a username')
         $scope.focusUsername = true
         ga('send', 'event', 'messages', 'empty username', $scope.roomId)
         return
 
-      if !$scope.message
+      if not $scope.message
         api.notification.set('No empty messages :<')
         $scope.focusMessage = true
         ga('send', 'event', 'messages', 'empty saveMessage', $scope.roomId)
@@ -94,11 +94,11 @@ app.directive 'messageForm', ($rootScope, $timeout, $mdSidenav, $mdDialog, api, 
 
 
     $scope.setUsername = ->
-      if !localStorage?
+      if not localStorage?
         return false
 
       ga('send', 'event', 'setUsername', $scope.chatId, $scope.from)
-      localStorage.setItem "name", $scope.from
+      localStorage.setItem 'name', $scope.from
 
     postImage = (imgur) ->
       data =
@@ -125,8 +125,8 @@ app.directive 'messageForm', ($rootScope, $timeout, $mdSidenav, $mdDialog, api, 
           window.camera?.stop()
 
     $scope.selectFile = ->
-      document.getElementById("image-upload").click()
-      document.getElementsByClassName("select-file-container")[0].blur()
+      document.getElementById('image-upload').click()
+      document.getElementsByClassName('select-file-container')[0].blur()
 
 
     hideProgressBar = ->
@@ -138,7 +138,7 @@ app.directive 'messageForm', ($rootScope, $timeout, $mdSidenav, $mdDialog, api, 
       , 1000
 
     $scope.uploadFile = (element) ->
-      if !element?.files?[0]?
+      if not element?.files?[0]?
         return
 
       ga('send', 'event', 'uploaded image', $scope.chatId, $scope.roomId)
@@ -150,7 +150,7 @@ app.directive 'messageForm', ($rootScope, $timeout, $mdSidenav, $mdDialog, api, 
             hideProgressBar()
 
       upload_error = (err) ->
-        console.log "err", err
+        console.log 'err', err
         ga('send', 'event', 'image upload error', $scope.chatId, JSON.stringify(err))
         hideProgressBar()
 

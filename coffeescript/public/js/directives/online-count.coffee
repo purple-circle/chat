@@ -5,7 +5,6 @@ app.directive 'onlineCount', ($timeout, api) ->
     chatId: '='
     roomId: '='
   link: ($scope, element, attrs) ->
-
     data =
       chatId: $scope.chatId
       roomId: $scope.roomId
@@ -14,6 +13,6 @@ app.directive 'onlineCount', ($timeout, api) ->
 
     api
       .socket
-      .on "get_online_count", (result) ->
+      .on 'get_online_count', (result) ->
         ga('send', 'event', 'onlineCount', $scope.chatId, result)
         element.html result

@@ -1,8 +1,8 @@
-app = angular.module("app")
-app.factory "messageHistory", ->
+app = angular.module('app')
+app.factory 'messageHistory', ->
 
   getMessageHistory = ->
-    history = localStorage.getItem("message-history")
+    history = localStorage.getItem('message-history')
     if !history
       return []
 
@@ -18,7 +18,7 @@ app.factory "messageHistory", ->
     if !localStorage
       return
 
-    history = localStorage.getItem("message-history") || "[]"
+    history = localStorage.getItem('message-history') or '[]'
     history = JSON.parse(history)
 
     if last(history) is message
@@ -26,10 +26,9 @@ app.factory "messageHistory", ->
 
     history.push(message)
     globalHistory = history
-
     historyLocation = history.length
 
-    localStorage.setItem("message-history", JSON.stringify(history))
+    localStorage.setItem('message-history', JSON.stringify(history))
 
   up = (room_id) ->
     if historyLocation < 0
@@ -49,7 +48,6 @@ app.factory "messageHistory", ->
       return ''
 
     historyLocation++
-
     ga('send', 'event', 'browseHistory', 'Down', room_id)
 
     globalHistory[historyLocation]

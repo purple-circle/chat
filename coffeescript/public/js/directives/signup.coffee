@@ -1,23 +1,23 @@
 app = angular.module('app')
 app.directive 'signup', (api, accountData) ->
-  templateUrl: "directives/chat/signup.html"
+  templateUrl: 'directives/chat/signup.html'
   restrict: 'E'
   link: ($scope, element, attrs) ->
     $scope.username = api.getUsername()
 
     api
       .socket
-      .on "signup_error", (error) ->
+      .on 'signup_error', (error) ->
         $scope.signup_in_progress = false
         $scope.errors = error
 
     $scope.signup = ->
       $scope.errors = {}
-      if !$scope.username
+      if not $scope.username
         $scope.errors.username = true
         return
 
-      if !$scope.password
+      if not $scope.password
         $scope.errors.password = true
         return
 

@@ -43,11 +43,11 @@ app.factory 'api', ($q, youtubeEmbedUtils, imgurUpload, messageHistory, animals,
     cameraSupported
 
   saveImgurData: (data) ->
-    socket.emit("save_imgur", data)
+    socket.emit('save_imgur', data)
 
   getUsername: ->
-    name = localStorage?.getItem("name") || "#{animals.getRandom()}-#{Math.ceil(Math.random()*100)}"
-    localStorage?.setItem("name", name)
+    name = localStorage?.getItem('name') ? "#{animals.getRandom()}-#{Math.ceil(Math.random()*100)}"
+    localStorage?.setItem('name', name)
     ga('send', 'event', 'usernames', 'randomName', name)
     name
 
@@ -77,42 +77,42 @@ app.factory 'api', ($q, youtubeEmbedUtils, imgurUpload, messageHistory, animals,
     deferred.promise
 
   i_am_typing: (data) ->
-    socket.emit("i_am_typing", data)
+    socket.emit('i_am_typing', data)
 
   api_stats: ->
-    socket.emit("api_stats")
-    this.on("api_stats")
+    socket.emit('api_stats')
+    this.on('api_stats')
 
   get_topic: ({chat_id, room_id}) ->
-    socket.emit("load_topic", {chat_id, room_id})
-    this.on("topic")
+    socket.emit('load_topic', {chat_id, room_id})
+    this.on('topic')
 
   set_topic: (data) ->
-    socket.emit("save_topic", data)
+    socket.emit('save_topic', data)
 
   create_room: (data) ->
-    socket.emit("create_room", data)
-    this.on("room_created")
+    socket.emit('create_room', data)
+    this.on('room_created')
 
   load_rooms: (data) ->
-    socket.emit("load_rooms", data)
-    this.on("rooms")
+    socket.emit('load_rooms', data)
+    this.on('rooms')
 
   get_online_count: (data) ->
-    socket.emit("get_online_count", data)
-    this.on("get_online_count")
+    socket.emit('get_online_count', data)
+    this.on('get_online_count')
 
   load_chat_messages_for_room: (data) ->
-    socket.emit("load_chat_messages_for_room", data)
-    this.on("load_chat_messages_for_room")
+    socket.emit('load_chat_messages_for_room', data)
+    this.on('load_chat_messages_for_room')
 
   save_chat_messages: (data) ->
-    socket.emit("save_chat_message", data)
-    this.on("save_chat_message")
+    socket.emit('save_chat_message', data)
+    this.on('save_chat_message')
 
   update_platform: ->
-    socket.emit("update_platform")
-    this.on("update_platform")
+    socket.emit('update_platform')
+    this.on('update_platform')
 
   hasYoutubeUrl: (url) ->
     getYoutubeUrls(url)?
@@ -121,16 +121,16 @@ app.factory 'api', ($q, youtubeEmbedUtils, imgurUpload, messageHistory, animals,
     youtubeEmbedUtils.getIdFromURL(getYoutubeUrls(url)?[0])
 
   upload_to_imgur: (file, options) ->
-    imgurUpload.setClientId("3631cecbf2bf2cf")
+    imgurUpload.setClientId('3631cecbf2bf2cf')
     imgurUpload.upload file, options
 
   signup: (data) ->
-    socket.emit("signup", data)
-    this.on("signup")
+    socket.emit('signup', data)
+    this.on('signup')
 
   login: (data) ->
-    socket.emit("login", data)
-    this.on("login")
+    socket.emit('login', data)
+    this.on('login')
 
   # userid for future use
   userIsSender: (sid, userid) ->

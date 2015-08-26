@@ -1,8 +1,8 @@
 app = angular.module('app')
-app.directive "mediaPreview", ($mdDialog, asyncJsLoad) ->
-  templateUrl: "directives/chat/media-preview.html"
+app.directive 'mediaPreview', ($mdDialog, asyncJsLoad) ->
+  templateUrl: 'directives/chat/media-preview.html'
   scope:
-    message: "="
+    message: '='
   link: ($scope) ->
     $scope.loaded = false
 

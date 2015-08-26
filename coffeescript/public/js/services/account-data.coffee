@@ -1,3 +1,3 @@
-app = angular.module("app")
-app.service "accountData", ->
+app = angular.module('app')
+app.service 'accountData', ->
   account: false

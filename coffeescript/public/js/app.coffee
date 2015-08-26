@@ -49,11 +49,9 @@ app.config ($stateProvider, $locationProvider) ->
       controller: 'dashboard'
 
 app.run ($rootScope) ->
-  $rootScope.page_title = "Loading chat.."
-
+  $rootScope.page_title = 'Loading chat..'
   $rootScope.$on '$stateChangeStart', (event, toState) ->
     ga('send', 'pageview', toState.url)
-
 
 
 secondsOnSite = 0
@@ -70,11 +68,9 @@ if /PhantomJS/.test(window.navigator.userAgent)
   ga('send', 'event', 'PhantomJS', 'window.navigator.userAgent')
 
 
-
 window.onerror = (msg, url, line, col, orig_error) ->
   if !JSON
     return false
 
   error = {msg, url, line, col, error: orig_error}
-
   ga('send', 'event', 'error', orig_error, JSON.stringify(error))

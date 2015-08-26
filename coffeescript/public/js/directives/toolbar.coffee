@@ -6,7 +6,6 @@ app.directive 'toolbar', ($mdSidenav) ->
     currentRoom: '='
   templateUrl: 'directives/chat/toolbar.html'
   link: ($scope) ->
-
     $scope.toggleLeft = ->
       $mdSidenav('left').toggle()
 

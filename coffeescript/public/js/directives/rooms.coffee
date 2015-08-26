@@ -1,21 +1,18 @@
 app = angular.module('app')
-
-app.directive "rooms", ($rootScope, $timeout, $state, $stateParams, api, chatRooms) ->
-  templateUrl: "directives/chat/rooms.html"
+app.directive 'rooms', ($rootScope, $timeout, $state, $stateParams, api, chatRooms) ->
+  templateUrl: 'directives/chat/rooms.html'
   scope:
-    chatId: "="
+    chatId: '='
   link: ($scope) ->
     $scope.rooms = []
-
     $scope.peopleTyping = {}
     $scope.peopleTypingTimeout = {}
-
 
     # TODO: move to room-typing directive
     listenToTyping = ->
       api
         .socket
-        .on "typing", (data) ->
+        .on 'typing', (data) ->
           if data.chatId isnt $scope.chatId
             return false
 
@@ -27,11 +24,8 @@ app.directive "rooms", ($rootScope, $timeout, $state, $stateParams, api, chatRoo
           if data.from is myUsername
             return false
 
-          if !$scope.peopleTyping[data.chatId]
-            $scope.peopleTyping[data.chatId] = {}
-
-          if !$scope.peopleTyping[data.chatId][data.roomId]
-            $scope.peopleTyping[data.chatId][data.roomId] = true
+          $scope.peopleTyping[data.chatId] ?= {}
+          $scope.peopleTyping[data.chatId][data.roomId] ?= true
 
           if $scope.peopleTypingTimeout[data.from]
             $timeout.cancel($scope.peopleTypingTimeout[data.from])
@@ -39,7 +33,6 @@ app.directive "rooms", ($rootScope, $timeout, $state, $stateParams, api, chatRoo
           $scope.peopleTypingTimeout[data.from] = $timeout ->
             $scope.peopleTyping[data.chatId][data.roomId] = false
           , 3000
-
 
 
     getTopic = (room_id) ->
@@ -58,12 +51,12 @@ app.directive "rooms", ($rootScope, $timeout, $state, $stateParams, api, chatRoo
 
     $scope.setActiveRoom = (room) ->
       if localStorage
-        localStorage.setItem "selected-room", room._id
+        localStorage.setItem 'selected-room', room._id
 
-      if !room.$messagesFetched
+      if not room.$messagesFetched
         $timeout ->
           room.$messagesFetched = true
-          $rootScope.$broadcast("getMessages", room._id)
+          $rootScope.$broadcast('getMessages', room._id)
 
       previousSelectedRoom = getSelectedRoom()
       previousSelectedRoom?.$selected = false
@@ -72,31 +65,30 @@ app.directive "rooms", ($rootScope, $timeout, $state, $stateParams, api, chatRoo
       room.messages = 0
 
       # TODO: refactor to service
-      $rootScope.$broadcast("currentRoom", room)
+      $rootScope.$broadcast('currentRoom', room)
 
-
-      if !room.$topicFetched
+      if not room.$topicFetched
         room.$topicFetched = true
         getTopic(room._id)
 
       ga('send', 'event', 'rooms', 'setActiveRoom', room.name, room._id)
 
       if room._id isnt $stateParams.room_id
-        $state.transitionTo "root.index.room", room_id: room._id
+        $state.transitionTo 'root.index.room', room_id: room._id
 
       $timeout ->
-        document.getElementsByClassName("typing-container")?[0].scrollIntoView()
+        document.getElementsByClassName('typing-container')?[0].scrollIntoView()
 
 
     listenToTopicChange = ->
       api
         .socket
-        .on "topic", (topic) ->
+        .on 'topic', (topic) ->
           room = getSelectedRoom()
           room.topic = topic?.topic
 
     listenToMessageNotifications = ->
-      $rootScope.$on "message-notification", (event, room_id) ->
+      $rootScope.$on 'message-notification', (event, room_id) ->
         for room in $scope.rooms when room.$selected isnt true
           if room._id is room_id
             room.messages++
@@ -112,7 +104,7 @@ app.directive "rooms", ($rootScope, $timeout, $state, $stateParams, api, chatRoo
 
       icon = "http://i.imgur.com/#{random}.png"
       data =
-        name: "Room #1"
+        name: 'Room #1'
         chat_id: $scope.chatId
         icon: icon
 
@@ -136,17 +128,17 @@ app.directive "rooms", ($rootScope, $timeout, $state, $stateParams, api, chatRoo
           $scope.rooms = rooms
           selected_room = $scope.rooms[0]
 
-          previousRoom = localStorage?.getItem("selected-room")
+          previousRoom = localStorage?.getItem('selected-room')
           if previousRoom
             for room in $scope.rooms when room._id is previousRoom
               selected_room = room
 
           $scope.setActiveRoom(selected_room)
 
-      $rootScope.$on "joinRoom", (event, room_name) ->
+      $rootScope.$on 'joinRoom', (event, room_name) ->
         joinRoom(room_name)
 
-      $rootScope.$on "room-created", (event, room) ->
+      $rootScope.$on 'room-created', (event, room) ->
         $scope.rooms.push(room)
 
 

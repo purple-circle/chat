@@ -1,6 +1,5 @@
 app = angular.module('app')
 app.factory 'asyncJsLoad', ->
-
   cache = {}
   addFile = (url) ->
     if cache[url]
