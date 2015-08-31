@@ -1,19 +1,19 @@
-require("newrelic")
+require('newrelic')
 module.exports = (server, sessionStore) ->
-  io = require("socket.io").listen(server)
-  api = require("./models/api")
-  chat = require("./models/chat")
-  rooms = require("./models/rooms")
-  imgur = require("./models/imgur")
-  users = require("./models/user")
-  Q = require("q")
+  io = require('socket.io').listen(server)
+  api = require('./models/api')
+  chat = require('./models/chat')
+  rooms = require('./models/rooms')
+  imgur = require('./models/imgur')
+  users = require('./models/user')
+  Q = require('q')
 
   io.use (socket, next) ->
     sessionStore socket.request, socket.request.res, next
 
-  default_chat_id = "chat-123"
+  default_chat_id = 'chat-123'
 
-  io.on "connection", (socket) ->
+  io.on 'connection', (socket) ->
     socket.join(default_chat_id)
 
     broadcastClientCount = (data) ->
@@ -23,13 +23,13 @@ module.exports = (server, sessionStore) ->
         roomData = io.sockets.adapter.rooms[chatId]
 
       clientsCount = Object.keys(roomData).length
-      io.to(chatId).emit "get_online_count", clientsCount
+      io.to(chatId).emit 'get_online_count', clientsCount
 
 
-    socket.on "disconnect", ->
+    socket.on 'disconnect', ->
       broadcastClientCount(null)
 
-    socket.on "load_chat_messages_for_room", (data) ->
+    socket.on 'load_chat_messages_for_room', (data) ->
       chat
         .load_messages_for_room(data)
         .then (messages) ->
@@ -49,19 +49,19 @@ module.exports = (server, sessionStore) ->
                   for message in messages when url.url is message.metadata?.urls?[0]
                     message.url_data = url
 
-                socket.emit "load_chat_messages_for_room", messages
+                socket.emit 'load_chat_messages_for_room', messages
               , (err) ->
-                socket.emit "load_chat_messages_for_room", messages
+                socket.emit 'load_chat_messages_for_room', messages
           else
-            socket.emit "load_chat_messages_for_room", messages
+            socket.emit 'load_chat_messages_for_room', messages
 
-    socket.on "save_imgur", (data) ->
+    socket.on 'save_imgur', (data) ->
       imgur.save(data)
 
-    socket.on "i_am_typing", (data) ->
-      io.to(default_chat_id).emit "typing", data
+    socket.on 'i_am_typing', (data) ->
+      io.to(default_chat_id).emit 'typing', data
 
-    socket.on "save_chat_message", (data) ->
+    socket.on 'save_chat_message', (data) ->
       chat
         .save(data)
         .then (result) ->
@@ -74,63 +74,63 @@ module.exports = (server, sessionStore) ->
                   message: result
                   url_data: url_data
 
-                socket.emit "url_data", data
-                socket.broadcast.emit "url_data", data
+                socket.emit 'url_data', data
+                socket.broadcast.emit 'url_data', data
 
-          io.to(default_chat_id).emit "save_chat_message", result
+          io.to(default_chat_id).emit 'save_chat_message', result
 
-    socket.on "load_topic", (data) ->
+    socket.on 'load_topic', (data) ->
       chat
         .load_topic(data)
         .then (result) ->
-          socket.emit "topic", result
+          socket.emit 'topic', result
 
-    socket.on "save_topic", (data) ->
+    socket.on 'save_topic', (data) ->
       chat
         .save_topic(data)
         .then (result) ->
-          io.to(default_chat_id).emit "topic", result
+          io.to(default_chat_id).emit 'topic', result
 
-    socket.on "load_rooms", (data) ->
+    socket.on 'load_rooms', (data) ->
       rooms
         .get_rooms(data)
         .then (result) ->
-          io.to(default_chat_id).emit "rooms", result
+          io.to(default_chat_id).emit 'rooms', result
 
-    socket.on "create_room", (data) ->
+    socket.on 'create_room', (data) ->
       rooms
         .create(data)
         .then (result) ->
-          io.to(default_chat_id).emit "room_created", result
+          io.to(default_chat_id).emit 'room_created', result
 
-    socket.on "signup", (data) ->
+    socket.on 'signup', (data) ->
       error = (error) ->
-        socket.emit "signup_error", {error}
+        socket.emit 'signup_error', {error}
 
       success = (account) ->
-        socket.emit "signup", {account}
+        socket.emit 'signup', {account}
 
       users
         .localSignup(data)
         .then success, error
 
-    socket.on "login", (data) ->
+    socket.on 'login', (data) ->
       error = (error) ->
-        socket.emit "login_error", {error}
+        socket.emit 'login_error', {error}
 
       success = (account) ->
-        socket.emit "login", {account}
+        socket.emit 'login', {account}
 
       users
         .login(data)
         .then success, error
 
-    socket.on "get_online_count", (data) ->
+    socket.on 'get_online_count', (data) ->
       broadcastClientCount(data)
 
-    socket.on "api_stats", ->
+    socket.on 'api_stats', ->
       api
         .api_stats()
         .then (result) ->
-          socket.emit "api_stats", result
+          socket.emit 'api_stats', result
 

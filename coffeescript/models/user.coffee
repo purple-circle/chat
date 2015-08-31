@@ -1,15 +1,12 @@
-Q = require("q")
-api = require("../models/api")
-user = {}
-
-
-
-passport = require("passport")
-mongoose = require("mongoose")
-LocalStrategy = require("passport-local").Strategy
+Q = require('q')
+api = require('../models/api')
+passport = require('passport')
+mongoose = require('mongoose')
+LocalStrategy = require('passport-local').Strategy
 
 Users = mongoose.model 'users'
 passport.use new LocalStrategy(Users.authenticate())
+user = {}
 
 rejectPromise = ->
   deferred = Q.defer()
@@ -43,18 +40,18 @@ user.login = (data) ->
 user.create_default_picture_album = (userid) ->
   data =
     user_id: userid
-    title: "Default album"
+    title: 'Default album'
     default: true
 
   user.create_picture_album(data)
 
 user.check_username = (username) ->
-  api.createQueue("api.check_username", username)
+  api.createQueue('api.check_username', username)
 
 user.create = (data) ->
   deferred = Q.defer()
   api
-    .createQueue("api.createUser", data)
+    .createQueue('api.createUser', data)
     .then (result) ->
       user
         .create_default_picture_album(result._id)
@@ -66,12 +63,12 @@ user.create = (data) ->
   deferred.promise
 
 user.edit = (id, data) ->
-  api.createQueue("api.edit_user", {id, data})
+  api.createQueue('api.edit_user', {id, data})
 
 user.localSignup = (data) ->
   deferred = Q.defer()
   api
-    .createQueue("api.localSignupUser", data)
+    .createQueue('api.localSignupUser', data)
     .then (result) ->
       user
         .create_default_picture_album(result._id)
@@ -83,32 +80,32 @@ user.localSignup = (data) ->
   deferred.promise
 
 user.getUser = (id) ->
-  api.createQueue("api.getUser", {_id: id})
+  api.createQueue('api.getUser', {_id: id})
 
 user.savePicture = (id, data) ->
   user
     .getUser(id)
     .then (profile) ->
-      if !profile
+      if not profile
         return rejectPromise()
 
-      api.createQueue("api.saveProfilePicture", {id, data})
+      api.createQueue('api.saveProfilePicture', {id, data})
 
 user.getPictures = (id) ->
-  api.createQueue("api.getProfilePictures", id)
+  api.createQueue('api.getProfilePictures', id)
 
 user.create_picture_album = (data) ->
-  if !data.user_id
+  if not data.user_id
     return rejectPromise()
 
-  api.createQueue("api.create_profile_picture_album", data)
+  api.createQueue('api.create_profile_picture_album', data)
 
 user.get_profile_picture_albums = (id) ->
-  api.createQueue("api.get_profile_picture_albums", id)
+  api.createQueue('api.get_profile_picture_albums', id)
 
 
 user.get_profile_picture = (user_id, picture_id) ->
-  api.createQueue("api.get_profile_picture", {user_id, picture_id})
+  api.createQueue('api.get_profile_picture', {user_id, picture_id})
 
 user.set_profile_picture = (user_id, picture_id) ->
   deferred = Q.defer()

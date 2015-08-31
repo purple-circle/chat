@@ -1,23 +1,23 @@
 require('newrelic')
 mongoose = require('mongoose')
-kue = require("kue")
+kue = require('kue')
 jobs = kue.createQueue()
 
-settings = require("../settings")
-require("../mongo")(settings)
+settings = require('../settings')
+require('../mongo')(settings)
 
 twitter = require('twitter-text')
 
-request = require("request")
-Q = require("q")
+request = require('request')
+Q = require('q')
 
 
 twitter_text_options =
-  usernameUrlBase: "/profile/"
-  hashtagUrlBase: "/tag/"
+  usernameUrlBase: '/profile/'
+  hashtagUrlBase: '/tag/'
   targetBlank: true
 
-console.log "api worker running"
+console.log 'api worker running'
 selectUserFields = '-salt -hash'
 
 
@@ -28,7 +28,7 @@ getOpenGraphData = (url) ->
     .findOne()
     .where('url')
     .equals(url)
-    .sort("-created_at")
+    .sort('-created_at')
     .exec()
 
 
@@ -38,7 +38,7 @@ getUrlDataRetry = (url, done, retry_count) ->
 
   getOpenGraphData(url)
     .then (result) ->
-      if !result?
+      if not result?
         console.log "No results yet, retrying #{retry_seconds} seconds", url
         retry_count++
 
@@ -61,7 +61,7 @@ getUrlContent = (url) ->
   deferred = Q.defer()
 
   request url, (error, response, data) ->
-    if !error && response.statusCode is 200
+    if not error && response.statusCode is 200
       deferred.resolve data
     else
       deferred.reject {error}
@@ -70,7 +70,7 @@ getUrlContent = (url) ->
 
 
 
-jobs.process "stats.save_api_log", (job, done) ->
+jobs.process 'stats.save_api_log', (job, done) ->
   Log = mongoose.model 'api_logs'
 
   data =
@@ -83,19 +83,19 @@ jobs.process "stats.save_api_log", (job, done) ->
     else
       done null, log
 
-jobs.process "api.api_stats", (job, done) ->
+jobs.process 'api.api_stats', (job, done) ->
   Log = mongoose.model 'api_logs'
   Log
     .find()
     .limit(300)
-    .sort("-created_at")
+    .sort('-created_at')
     .exec()
     .then (result) ->
       done(null, result)
     , done
 
 
-jobs.process "api.save_imgur", (job, done) ->
+jobs.process 'api.save_imgur', (job, done) ->
   imgurData = job.data.data
   imgurData.chat_id = job.data.chat_id
   imgurData.room_id = job.data.room_id
@@ -110,7 +110,7 @@ jobs.process "api.save_imgur", (job, done) ->
       done null, imgur
 
 
-jobs.process "api.load_topic", (job, done) ->
+jobs.process 'api.load_topic', (job, done) ->
   Topics = mongoose.model 'topics'
   Topics
     .findOne()
@@ -119,13 +119,13 @@ jobs.process "api.load_topic", (job, done) ->
     .where('room_id')
     .equals(job.data.room_id)
     .limit(1)
-    .sort("-created_at")
+    .sort('-created_at')
     .exec()
     .then (result) ->
       done(null, result)
     , done
 
-jobs.process "api.save_topic", (job, done) ->
+jobs.process 'api.save_topic', (job, done) ->
   Topics = mongoose.model 'topics'
   topic = new Topics(job.data)
   topic.save (err) ->
@@ -134,7 +134,7 @@ jobs.process "api.save_topic", (job, done) ->
     else
       done null, topic
 
-jobs.process "api.load_chat_messages_for_room", (job, done) ->
+jobs.process 'api.load_chat_messages_for_room', (job, done) ->
   limit = 10
   page = job.data.page or 0
 
@@ -147,7 +147,7 @@ jobs.process "api.load_chat_messages_for_room", (job, done) ->
     .equals(job.data.room_id)
     .limit(limit)
     .skip(page * limit)
-    .sort("-created_at")
+    .sort('-created_at')
     .exec()
     .then (result) ->
       done(null, result)
@@ -162,11 +162,11 @@ unique = (list) ->
 objectLength = (obj) ->
   Object.keys(obj).length
 
-jobs.process "api.store_twitter_tags", (job, done) ->
+jobs.process 'api.store_twitter_tags', (job, done) ->
   twitterTags = require('twitter-tag-scraper')
   tags = twitterTags.parseHtml(job.data.content)
-  if !objectLength(tags)
-    done({error: "No tags"})
+  if not objectLength(tags)
+    done({error: 'No tags'})
     return
 
   data =
@@ -182,11 +182,11 @@ jobs.process "api.store_twitter_tags", (job, done) ->
       done null, tag
 
 
-jobs.process "api.store_open_graph_tags", (job, done) ->
+jobs.process 'api.store_open_graph_tags', (job, done) ->
   ogTags = require('open-graph-tag-scraper')
   tags = ogTags.parseHtml(job.data.content)
-  if !objectLength(tags)
-    done({error: "No tags"})
+  if not objectLength(tags)
+    done({error: 'No tags'})
     return
 
   data =
@@ -203,11 +203,11 @@ jobs.process "api.store_open_graph_tags", (job, done) ->
 
 
 
-jobs.process "api.process_urls_from_message", (job, done) ->
+jobs.process 'api.process_urls_from_message', (job, done) ->
   urls = job.data.metadata?.urls
 
-  if !urls.length
-    done({error: "No urls"})
+  if not urls.length
+    done({error: 'No urls'})
     return
 
 
@@ -231,17 +231,17 @@ jobs.process "api.process_urls_from_message", (job, done) ->
         done null, url
 
 
-jobs.process "api.getOpenGraphData", (job, done) ->
+jobs.process 'api.getOpenGraphData', (job, done) ->
   getOpenGraphData(job.data)
     .then (result) ->
       done null, result
     , done
 
-jobs.process "api.getUrlDataRetry", (job, done) ->
+jobs.process 'api.getUrlDataRetry', (job, done) ->
   getUrlDataRetry(job.data, done, 0)
 
 
-jobs.process "api.save_chat_message", (job, done) ->
+jobs.process 'api.save_chat_message', (job, done) ->
   user_mentions = twitter.extractMentions(job.data.message)
   hashtags = twitter.extractHashtags(job.data.message)
   urls = twitter.extractUrls(job.data.message)
@@ -277,7 +277,7 @@ jobs.process "api.save_chat_message", (job, done) ->
           .save()
 
 
-jobs.process "api.create_room", (job, done) ->
+jobs.process 'api.create_room', (job, done) ->
   Rooms = mongoose.model 'rooms'
   room = new Rooms(job.data)
   room.save (err) ->
@@ -287,7 +287,7 @@ jobs.process "api.create_room", (job, done) ->
       done null, room
 
 
-jobs.process "api.get_rooms", (job, done) ->
+jobs.process 'api.get_rooms', (job, done) ->
   Rooms = mongoose.model 'rooms'
   Rooms
     .find()
@@ -299,7 +299,7 @@ jobs.process "api.get_rooms", (job, done) ->
     , done
 
 
-jobs.process "api.check_username", (job, done) ->
+jobs.process 'api.check_username', (job, done) ->
   Users = mongoose.model 'users'
   Users
     .findOne({username: job.data})
@@ -310,7 +310,7 @@ jobs.process "api.check_username", (job, done) ->
     , done
 
 
-jobs.process "api.localSignupUser", (job, done) ->
+jobs.process 'api.localSignupUser', (job, done) ->
   User = mongoose.model 'users'
   User.register new User(username: job.data.username), job.data.password, (err, account) ->
     if err
@@ -320,7 +320,7 @@ jobs.process "api.localSignupUser", (job, done) ->
 
 
 
-jobs.process "api.create_profile_picture_album", (job, done) ->
+jobs.process 'api.create_profile_picture_album', (job, done) ->
   ProfilePictureAlbum = mongoose.model 'profile_picture_albums'
   album = new ProfilePictureAlbum(job.data)
   album.save (err) ->
@@ -329,7 +329,7 @@ jobs.process "api.create_profile_picture_album", (job, done) ->
     else
       done null, album
 
-jobs.process "api.get_profile_picture_albums", (job, done) ->
+jobs.process 'api.get_profile_picture_albums', (job, done) ->
   Albums = mongoose.model 'profile_picture_albums'
   Albums
     .find({user_id: job.data})
@@ -339,7 +339,7 @@ jobs.process "api.get_profile_picture_albums", (job, done) ->
     , done
 
 
-jobs.process "api.saveFacebookData", (job, done) ->
+jobs.process 'api.saveFacebookData', (job, done) ->
   Facebook = mongoose.model 'facebook_user_data'
   facebook = new Facebook(job.data)
   facebook.save (err) ->
@@ -349,7 +349,7 @@ jobs.process "api.saveFacebookData", (job, done) ->
       done null, facebook
 
 
-jobs.process "api.saveGoogleData", (job, done) ->
+jobs.process 'api.saveGoogleData', (job, done) ->
   Google = mongoose.model 'google_user_data'
   google = new Google(job.data)
   google.save (err) ->
@@ -358,7 +358,7 @@ jobs.process "api.saveGoogleData", (job, done) ->
     else
       done null, google
 
-jobs.process "api.saveInstagramData", (job, done) ->
+jobs.process 'api.saveInstagramData', (job, done) ->
   Instagram = mongoose.model 'instagram_user_data'
   instagram = new Instagram(job.data)
   instagram.save (err) ->

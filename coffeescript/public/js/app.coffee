@@ -69,7 +69,7 @@ if /PhantomJS/.test(window.navigator.userAgent)
 
 
 window.onerror = (msg, url, line, col, orig_error) ->
-  if !JSON
+  if not JSON?
     return false
 
   error = {msg, url, line, col, error: orig_error}
