@@ -1,21 +1,21 @@
 (function() {
   var LocalStrategy, Q, Users, api, mongoose, passport, rejectPromise, user;
 
-  Q = require("q");
+  Q = require('q');
 
-  api = require("../models/api");
+  api = require('../models/api');
 
-  user = {};
+  passport = require('passport');
 
-  passport = require("passport");
+  mongoose = require('mongoose');
 
-  mongoose = require("mongoose");
-
-  LocalStrategy = require("passport-local").Strategy;
+  LocalStrategy = require('passport-local').Strategy;
 
   Users = mongoose.model('users');
 
   passport.use(new LocalStrategy(Users.authenticate()));
+
+  user = {};
 
   rejectPromise = function() {
     var deferred;
@@ -50,20 +50,20 @@
     var data;
     data = {
       user_id: userid,
-      title: "Default album",
+      title: 'Default album',
       "default": true
     };
     return user.create_picture_album(data);
   };
 
   user.check_username = function(username) {
-    return api.createQueue("api.check_username", username);
+    return api.createQueue('api.check_username', username);
   };
 
   user.create = function(data) {
     var deferred;
     deferred = Q.defer();
-    api.createQueue("api.createUser", data).then(function(result) {
+    api.createQueue('api.createUser', data).then(function(result) {
       return user.create_default_picture_album(result._id).then(function() {
         return deferred.resolve(result);
       });
@@ -72,7 +72,7 @@
   };
 
   user.edit = function(id, data) {
-    return api.createQueue("api.edit_user", {
+    return api.createQueue('api.edit_user', {
       id: id,
       data: data
     });
@@ -81,7 +81,7 @@
   user.localSignup = function(data) {
     var deferred;
     deferred = Q.defer();
-    api.createQueue("api.localSignupUser", data).then(function(result) {
+    api.createQueue('api.localSignupUser', data).then(function(result) {
       return user.create_default_picture_album(result._id).then(function() {
         return deferred.resolve(result);
       });
@@ -90,7 +90,7 @@
   };
 
   user.getUser = function(id) {
-    return api.createQueue("api.getUser", {
+    return api.createQueue('api.getUser', {
       _id: id
     });
   };
@@ -100,7 +100,7 @@
       if (!profile) {
         return rejectPromise();
       }
-      return api.createQueue("api.saveProfilePicture", {
+      return api.createQueue('api.saveProfilePicture', {
         id: id,
         data: data
       });
@@ -108,22 +108,22 @@
   };
 
   user.getPictures = function(id) {
-    return api.createQueue("api.getProfilePictures", id);
+    return api.createQueue('api.getProfilePictures', id);
   };
 
   user.create_picture_album = function(data) {
     if (!data.user_id) {
       return rejectPromise();
     }
-    return api.createQueue("api.create_profile_picture_album", data);
+    return api.createQueue('api.create_profile_picture_album', data);
   };
 
   user.get_profile_picture_albums = function(id) {
-    return api.createQueue("api.get_profile_picture_albums", id);
+    return api.createQueue('api.get_profile_picture_albums', id);
   };
 
   user.get_profile_picture = function(user_id, picture_id) {
-    return api.createQueue("api.get_profile_picture", {
+    return api.createQueue('api.get_profile_picture', {
       user_id: user_id,
       picture_id: picture_id
     });

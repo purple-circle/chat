@@ -3,25 +3,25 @@
 
   require('newrelic');
 
-  express = require("express");
+  express = require('express');
 
-  path = require("path");
+  path = require('path');
 
-  favicon = require("serve-favicon");
+  favicon = require('serve-favicon');
 
-  cookieParser = require("cookie-parser");
+  cookieParser = require('cookie-parser');
 
-  bodyParser = require("body-parser");
+  bodyParser = require('body-parser');
 
-  passport = require("passport");
+  passport = require('passport');
 
-  settings = require("./settings");
+  settings = require('./settings');
 
-  require("./mongo")(settings);
+  require('./mongo')(settings);
 
-  routes = require("./routes/index");
+  routes = require('./routes/index');
 
-  session = require("express-session");
+  session = require('express-session');
 
   RedisStore = require('connect-redis')(session);
 
@@ -45,11 +45,11 @@
 
   app.use(favicon(__dirname + '/public/images/favicons/favicon.ico'));
 
-  app.use(express["static"](path.join(__dirname, "public")));
+  app.use(express["static"](path.join(__dirname, 'public')));
 
-  app.set("views", path.join(__dirname, "views"));
+  app.set('views', path.join(__dirname, 'views'));
 
-  app.set("view engine", "ejs");
+  app.set('view engine', 'ejs');
 
   app.use(bodyParser.json());
 
@@ -57,21 +57,21 @@
     extended: true
   }));
 
-  app.use("/", routes);
+  app.use('/', routes);
 
   app.use(function(req, res, next) {
     var err;
-    err = new Error("Not Found");
+    err = new Error('Not Found');
     err.status = 404;
     return next(err);
   });
 
-  if (app.get("env") === "development") {
+  if (app.get('env') === 'development') {
     app.use(function(err, req, res, next) {
       var view;
-      view = "error";
+      view = 'error';
       if (err.status === 404) {
-        view = "error404";
+        view = 'error404';
       }
       res.status(err.status || 500);
       return res.render(view, {
@@ -84,9 +84,9 @@
 
   app.use(function(err, req, res, next) {
     var view;
-    view = "error";
+    view = 'error';
     if (err.status === 404) {
-      view = "error404";
+      view = 'error404';
     }
     res.status(err.status || 500);
     return res.render(view, {
@@ -96,12 +96,12 @@
     });
   });
 
-  app.set("port", process.env.PORT || 3000);
+  app.set('port', process.env.PORT || 3000);
 
-  server = app.listen(app.get("port"), function() {
-    return console.log("Express server listening on port " + server.address().port);
+  server = app.listen(app.get('port'), function() {
+    return console.log("Express server listening on port " + (server.address().port));
   });
 
-  require("./sockets")(server, sessionStore);
+  require('./sockets')(server, sessionStore);
 
 }).call(this);

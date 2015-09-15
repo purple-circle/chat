@@ -1,9 +1,9 @@
 (function() {
   var Q, api, groups, rejectPromise;
 
-  Q = require("q");
+  Q = require('q');
 
-  api = require("../models/api");
+  api = require('../models/api');
 
   groups = {};
 
@@ -15,14 +15,14 @@
   };
 
   groups.create = function(data) {
-    return api.createQueue("api.createGroup", data).then(function(group) {
+    return api.createQueue('api.createGroup', data).then(function(group) {
       var albumData, joinData;
       joinData = {
         group_id: group._id,
         user_id: group.created_by
       };
       albumData = joinData;
-      albumData.title = "Default album";
+      albumData.title = 'Default album';
       albumData["default"] = true;
       groups.createPictureAlbum(albumData);
       groups.joinGroup(joinData);
@@ -31,7 +31,7 @@
   };
 
   groups.check_group_name = function(name) {
-    return api.createQueue("api.check_group_name", name);
+    return api.createQueue('api.check_group_name', name);
   };
 
   groups.joinGroup = function(data) {
@@ -42,7 +42,7 @@
       if (!group) {
         return rejectPromise();
       }
-      return api.createQueue("api.joinGroup", data);
+      return api.createQueue('api.joinGroup', data);
     });
   };
 
@@ -54,7 +54,7 @@
       if (!group) {
         return rejectPromise();
       }
-      return api.createQueue("api.createGroupPictureAlbum", data);
+      return api.createQueue('api.createGroupPictureAlbum', data);
     });
   };
 
@@ -66,7 +66,7 @@
       if (!group) {
         return rejectPromise();
       }
-      return api.createQueue("api.leaveGroup", data);
+      return api.createQueue('api.leaveGroup', data);
     });
   };
 
@@ -74,11 +74,11 @@
     if (!data.group_id || !data.user_id) {
       return rejectPromise();
     }
-    return api.createQueue("api.checkMembership", data);
+    return api.createQueue('api.checkMembership', data);
   };
 
   groups.getMemberList = function(id) {
-    return api.createQueue("api.getMemberList", id);
+    return api.createQueue('api.getMemberList', id);
   };
 
   groups.savePicture = function(id, data) {
@@ -86,7 +86,7 @@
       if (!group) {
         return rejectPromise();
       }
-      return api.createQueue("api.saveGroupPicture", {
+      return api.createQueue('api.saveGroupPicture', {
         id: id,
         data: data
       });
@@ -94,11 +94,11 @@
   };
 
   groups.getPictures = function(id) {
-    return api.createQueue("api.getGroupPictures", id);
+    return api.createQueue('api.getGroupPictures', id);
   };
 
   groups.getPictureAlbums = function(id) {
-    return api.createQueue("api.getGroupPictureAlbums", id);
+    return api.createQueue('api.getGroupPictureAlbums', id);
   };
 
   groups.update = function(id, data) {
@@ -106,7 +106,7 @@
       if (!group) {
         return rejectPromise();
       }
-      return api.createQueue("api.editGroup", {
+      return api.createQueue('api.editGroup', {
         id: id,
         data: data
       });
@@ -114,15 +114,15 @@
   };
 
   groups.getGroups = function(data) {
-    return api.createQueue("api.getGroups", data);
+    return api.createQueue('api.getGroups', data);
   };
 
   groups.getGroup = function(id) {
-    return api.createQueue("api.getGroup", id);
+    return api.createQueue('api.getGroup', id);
   };
 
   groups.get_group_picture = function(group_id, picture_id) {
-    return api.createQueue("api.get_group_picture", {
+    return api.createQueue('api.get_group_picture', {
       group_id: group_id,
       picture_id: picture_id
     });

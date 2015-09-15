@@ -36,7 +36,7 @@
   }]);
 
   app.run(["$rootScope", function($rootScope) {
-    $rootScope.page_title = "Loading chat..";
+    $rootScope.page_title = 'Loading chat..';
     return $rootScope.$on('$stateChangeStart', function(event, toState) {
       return ga('send', 'pageview', toState.url);
     });
@@ -58,7 +58,7 @@
 
   window.onerror = function(msg, url, line, col, orig_error) {
     var error;
-    if (!JSON) {
+    if (typeof JSON === "undefined" || JSON === null) {
       return false;
     }
     error = {
@@ -88,8 +88,7 @@
     return $scope.listItemClick = function($index) {
       var clickedItem;
       clickedItem = $scope.items[$index];
-      $mdBottomSheet.hide(clickedItem);
-      return console.log("clickedItem", clickedItem);
+      return $mdBottomSheet.hide(clickedItem);
     };
   }]);
 
@@ -101,7 +100,7 @@
   app = angular.module('app');
 
   app.controller('dashboard', ["$rootScope", "$scope", function($rootScope, $scope) {
-    return $rootScope.page_title = "Dashboard";
+    return $rootScope.page_title = 'Dashboard';
   }]);
 
 }).call(this);
@@ -112,8 +111,8 @@
   app = angular.module('app');
 
   app.controller('index', ["$rootScope", "$scope", function($rootScope, $scope) {
-    $rootScope.page_title = "Chat";
-    return $scope.chatId = "chat-123";
+    $rootScope.page_title = 'Chat';
+    return $scope.chatId = 'chat-123';
   }]);
 
 }).call(this);
@@ -163,7 +162,7 @@
 
   app.directive('camera', ["$timeout", "$mdDialog", "api", function($timeout, $mdDialog, api) {
     return {
-      templateUrl: "directives/chat/camera.html",
+      templateUrl: 'directives/chat/camera.html',
       restrict: 'E',
       link: function($scope, element, attrs) {
         var canvas, context, convertCanvasToImage, errBack, hideProgressBar, setup, start, video, videoObj;
@@ -183,12 +182,14 @@
         convertCanvasToImage = function(canvas) {
           var e, image, picture;
           image = new Image;
-          try {
-            picture = canvas.toDataURL('image/jpeg', 0.9).split(',')[1];
-          } catch (_error) {
-            e = _error;
-            picture = canvas.toDataURL().split(',')[1];
-          }
+          picture = (function() {
+            try {
+              return canvas.toDataURL('image/jpeg', 0.9).split(',')[1];
+            } catch (_error) {
+              e = _error;
+              return canvas.toDataURL().split(',')[1];
+            }
+          })();
           return picture;
         };
         setup = function(stream) {
@@ -277,21 +278,21 @@
 
   app = angular.module('app');
 
-  app.directive("chat", ["$rootScope", function($rootScope) {
+  app.directive('chat', ["$rootScope", function($rootScope) {
     return {
-      templateUrl: "directives/chat/chat.html",
+      templateUrl: 'directives/chat/chat.html',
       scope: {
-        chatId: "=",
-        roomId: "="
+        chatId: '=',
+        roomId: '='
       },
       link: function($scope) {
         $scope.currentRoom = false;
-        $rootScope.$on("currentRoom", function(event, room) {
+        $rootScope.$on('currentRoom', function(event, room) {
           $scope.currentRoom = room;
           return $scope.roomId = room._id;
         });
         return $scope.loadMore = function() {
-          return $rootScope.$broadcast("load-more-messages", $scope.roomId);
+          return $rootScope.$broadcast('load-more-messages', $scope.roomId);
         };
       }
     };
@@ -408,10 +409,10 @@
     return {
       restrict: 'A',
       scope: {
-        callback: "&keydown"
+        callback: '&keydown'
       },
       link: function($scope, element, attrs) {
-        return element.bind("keydown", function(event) {
+        return element.bind('keydown', function(event) {
           if (!(event != null ? event.keyIdentifier : void 0)) {
             return;
           }
@@ -430,18 +431,18 @@
 
   app = angular.module('app');
 
-  app.directive("listenToTyping", ["$timeout", "api", function($timeout, api) {
+  app.directive('listenToTyping', ["$timeout", "api", function($timeout, api) {
     return {
-      templateUrl: "directives/chat/listen-to-typing.html",
+      templateUrl: 'directives/chat/listen-to-typing.html',
       scope: {
-        roomId: "=",
-        chatId: "="
+        roomId: '=',
+        chatId: '='
       },
       link: function($scope) {
         $scope.peopleTyping = {};
         $scope.peopleTypingTimeout = {};
-        return api.socket.on("typing", function(data) {
-          var myUsername;
+        return api.socket.on('typing', function(data) {
+          var base, base1, myUsername, name, name1;
           if (data.roomId !== $scope.roomId || data.chatId !== $scope.chatId) {
             return false;
           }
@@ -449,11 +450,11 @@
           if (data.from === myUsername) {
             return false;
           }
-          if (!$scope.peopleTyping[data.chatId]) {
-            $scope.peopleTyping[data.chatId] = {};
+          if ((base = $scope.peopleTyping)[name = data.chatId] == null) {
+            base[name] = {};
           }
-          if (!$scope.peopleTyping[data.chatId][data.roomId]) {
-            $scope.peopleTyping[data.chatId][data.roomId] = [];
+          if ((base1 = $scope.peopleTyping[data.chatId])[name1 = data.roomId] == null) {
+            base1[name1] = [];
           }
           if ($scope.peopleTyping[data.chatId][data.roomId].indexOf(data.from) === -1) {
             $scope.peopleTyping[data.chatId][data.roomId].push(data.from);
@@ -499,11 +500,11 @@
 
   app.directive('loadingImage', function() {
     return {
-      templateUrl: "directives/chat/loading-image.html",
+      templateUrl: 'directives/chat/loading-image.html',
       scope: {
-        url: "=",
-        urlText: "@",
-        loaded: "=?"
+        url: '=',
+        urlText: '@',
+        loaded: '=?'
       },
       link: function($scope, element, attrs) {
         var img;
@@ -540,7 +541,7 @@
       restrict: 'E',
       link: function($scope, element, attrs) {
         $scope.username = api.getUsername();
-        api.socket.on("login_error", function(error) {
+        api.socket.on('login_error', function(error) {
           $scope.login_in_progress = false;
           return $scope.errors = error;
         });
@@ -579,11 +580,11 @@
 
   app = angular.module('app');
 
-  app.directive("mediaPreview", ["$mdDialog", "asyncJsLoad", function($mdDialog, asyncJsLoad) {
+  app.directive('mediaPreview', ["$mdDialog", "asyncJsLoad", function($mdDialog, asyncJsLoad) {
     return {
-      templateUrl: "directives/chat/media-preview.html",
+      templateUrl: 'directives/chat/media-preview.html',
       scope: {
-        message: "="
+        message: '='
       },
       link: function($scope) {
         $scope.loaded = false;
@@ -643,11 +644,11 @@
 
   app = angular.module('app');
 
-  app.directive("messageContent", function() {
+  app.directive('messageContent', function() {
     return {
-      templateUrl: "directives/chat/message-content.html",
+      templateUrl: 'directives/chat/message-content.html',
       scope: {
-        message: "="
+        message: '='
       },
       link: function($scope) {
         return $scope.whitespaces = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
@@ -673,7 +674,7 @@
       templateUrl: 'directives/chat/message-form.html',
       link: function($scope) {
         var createMessage, hideProgressBar, hideProgressBarTimeout, postImage;
-        $rootScope.$on("currentRoom", function(event, room) {
+        $rootScope.$on('currentRoom', function(event, room) {
           $scope.currentRoom = room;
           return $scope.roomId = room._id;
         });
@@ -706,7 +707,7 @@
         };
         $scope.browseHistory = function(key) {
           var message;
-          if (key === "Up") {
+          if (key === 'Up') {
             message = api.messageHistory.up($scope.roomId);
             if (message) {
               $timeout(function() {
@@ -714,7 +715,7 @@
               });
             }
           }
-          if (key === "Down") {
+          if (key === 'Down') {
             return $timeout(function() {
               return $scope.message = api.messageHistory.down($scope.roomId);
             });
@@ -762,7 +763,7 @@
             return false;
           }
           ga('send', 'event', 'setUsername', $scope.chatId, $scope.from);
-          return localStorage.setItem("name", $scope.from);
+          return localStorage.setItem('name', $scope.from);
         };
         postImage = function(imgur) {
           var data;
@@ -789,8 +790,8 @@
           });
         };
         $scope.selectFile = function() {
-          document.getElementById("image-upload").click();
-          return document.getElementsByClassName("select-file-container")[0].blur();
+          document.getElementById('image-upload').click();
+          return document.getElementsByClassName('select-file-container')[0].blur();
         };
         hideProgressBar = function() {
           if (hideProgressBarTimeout) {
@@ -813,7 +814,7 @@
             });
           };
           upload_error = function(err) {
-            console.log("err", err);
+            console.log('err', err);
             ga('send', 'event', 'image upload error', $scope.chatId, JSON.stringify(err));
             return hideProgressBar();
           };
@@ -837,18 +838,18 @@
 
   app = angular.module('app');
 
-  app.directive("messages", ["$rootScope", "$timeout", "$interval", "api", function($rootScope, $timeout, $interval, api) {
+  app.directive('messages', ["$rootScope", "$timeout", "$interval", "api", function($rootScope, $timeout, $interval, api) {
     return {
-      templateUrl: "directives/chat/messages.html",
+      templateUrl: 'directives/chat/messages.html',
       scope: {
-        room: "=",
-        chatId: "="
+        room: '=',
+        chatId: '='
       },
       link: function($scope) {
         var appendUrlDataToMessage, checkUserMentions, getMessageById, getMessages, listenToMessages, messagesOpened, page, processMessage, processMessages;
-        page = 0;
         $scope.messages = {};
         $scope.messagesFetched = {};
+        page = 0;
         messagesOpened = new Date().getTime();
         checkUserMentions = function(user_mentions, from) {
           var i, len, myUsername, name, username;
@@ -902,7 +903,7 @@
           notify_user = checkUserMentions(row != null ? (ref = row.metadata) != null ? ref.user_mentions : void 0 : void 0, row.from);
           if (notify_user) {
             if (new Date(row.created_at).getTime() > messagesOpened) {
-              $rootScope.$broadcast("tab-beep");
+              $rootScope.$broadcast('tab-beep');
             }
           }
           data = {
@@ -912,7 +913,7 @@
             youtubeId: youtubeId,
             vimeoId: vimeoId,
             notify_user: notify_user,
-            isGreenText: row.original_message[0].trim() === ">"
+            isGreenText: row.original_message[0].trim() === '>'
           };
           return $scope.messages[row.room_id].push(angular.extend(row, data));
         };
@@ -928,7 +929,7 @@
             return $timeout(function() {
               var last_message, ref, ref1;
               last_message = messages.length - 1;
-              return (ref = document.getElementsByClassName("page-" + page_number)) != null ? (ref1 = ref[last_message]) != null ? ref1.scrollIntoView() : void 0 : void 0;
+              return (ref = document.getElementsByClassName("page-" + page_number)) != null ? (ref1 = ref[last_message]) != null ? typeof ref1.scrollIntoView === "function" ? ref1.scrollIntoView() : void 0 : void 0 : void 0;
             });
           }
         };
@@ -949,21 +950,21 @@
             return processMessages(room_id, messages, page_number);
           });
         };
-        $rootScope.$on("getMessages", function(event, room_id) {
+        $rootScope.$on('getMessages', function(event, room_id) {
           ga('send', 'event', 'messages', 'getMessages', $scope.chatId, room_id);
           return getMessages(room_id, page);
         });
-        $rootScope.$on("load-more-messages", function(event, room_id) {
+        $rootScope.$on('load-more-messages', function(event, room_id) {
           ga('send', 'event', 'messages', 'load-more-messages', $scope.chatId, room_id);
           page++;
           return getMessages(room_id, page);
         });
         listenToMessages = function() {
-          api.socket.on("save_chat_message", function(message) {
+          api.socket.on('save_chat_message', function(message) {
             processMessage(message);
-            return $rootScope.$broadcast("message-notification", message.room_id);
+            return $rootScope.$broadcast('message-notification', message.room_id);
           });
-          return api.socket.on("url_data", function(url_data) {
+          return api.socket.on('url_data', function(url_data) {
             return appendUrlDataToMessage(url_data);
           });
         };
@@ -993,7 +994,7 @@
           roomId: $scope.roomId
         };
         api.get_online_count(data);
-        return api.socket.on("get_online_count", function(result) {
+        return api.socket.on('get_online_count', function(result) {
           ga('send', 'event', 'onlineCount', $scope.chatId, result);
           return element.html(result);
         });
@@ -1008,11 +1009,11 @@
 
   app = angular.module('app');
 
-  app.directive("rooms", ["$rootScope", "$timeout", "$state", "$stateParams", "api", "chatRooms", function($rootScope, $timeout, $state, $stateParams, api, chatRooms) {
+  app.directive('rooms', ["$rootScope", "$timeout", "$state", "$stateParams", "api", "chatRooms", function($rootScope, $timeout, $state, $stateParams, api, chatRooms) {
     return {
-      templateUrl: "directives/chat/rooms.html",
+      templateUrl: 'directives/chat/rooms.html',
       scope: {
-        chatId: "="
+        chatId: '='
       },
       link: function($scope) {
         var createFirstRoom, getRooms, getSelectedRoom, getTopic, joinRoom, listenToMessageNotifications, listenToTopicChange, listenToTyping;
@@ -1020,8 +1021,8 @@
         $scope.peopleTyping = {};
         $scope.peopleTypingTimeout = {};
         listenToTyping = function() {
-          return api.socket.on("typing", function(data) {
-            var myUsername;
+          return api.socket.on('typing', function(data) {
+            var base, base1, myUsername, name, name1;
             if (data.chatId !== $scope.chatId) {
               return false;
             }
@@ -1033,11 +1034,11 @@
             if (data.from === myUsername) {
               return false;
             }
-            if (!$scope.peopleTyping[data.chatId]) {
-              $scope.peopleTyping[data.chatId] = {};
+            if ((base = $scope.peopleTyping)[name = data.chatId] == null) {
+              base[name] = {};
             }
-            if (!$scope.peopleTyping[data.chatId][data.roomId]) {
-              $scope.peopleTyping[data.chatId][data.roomId] = true;
+            if ((base1 = $scope.peopleTyping[data.chatId])[name1 = data.roomId] == null) {
+              base1[name1] = true;
             }
             if ($scope.peopleTypingTimeout[data.from]) {
               $timeout.cancel($scope.peopleTypingTimeout[data.from]);
@@ -1080,12 +1081,12 @@
         $scope.setActiveRoom = function(room) {
           var previousSelectedRoom;
           if (localStorage) {
-            localStorage.setItem("selected-room", room._id);
+            localStorage.setItem('selected-room', room._id);
           }
           if (!room.$messagesFetched) {
             $timeout(function() {
               room.$messagesFetched = true;
-              return $rootScope.$broadcast("getMessages", room._id);
+              return $rootScope.$broadcast('getMessages', room._id);
             });
           }
           previousSelectedRoom = getSelectedRoom();
@@ -1094,31 +1095,31 @@
           }
           room.$selected = true;
           room.messages = 0;
-          $rootScope.$broadcast("currentRoom", room);
+          $rootScope.$broadcast('currentRoom', room);
           if (!room.$topicFetched) {
             room.$topicFetched = true;
             getTopic(room._id);
           }
           ga('send', 'event', 'rooms', 'setActiveRoom', room.name, room._id);
           if (room._id !== $stateParams.room_id) {
-            $state.transitionTo("root.index.room", {
+            $state.transitionTo('root.index.room', {
               room_id: room._id
             });
           }
           return $timeout(function() {
             var ref;
-            return (ref = document.getElementsByClassName("typing-container")) != null ? ref[0].scrollIntoView() : void 0;
+            return (ref = document.getElementsByClassName('typing-container')) != null ? ref[0].scrollIntoView() : void 0;
           });
         };
         listenToTopicChange = function() {
-          return api.socket.on("topic", function(topic) {
+          return api.socket.on('topic', function(topic) {
             var room;
             room = getSelectedRoom();
             return room.topic = topic != null ? topic.topic : void 0;
           });
         };
         listenToMessageNotifications = function() {
-          return $rootScope.$on("message-notification", function(event, room_id) {
+          return $rootScope.$on('message-notification', function(event, room_id) {
             var i, len, ref, results, room;
             ref = $scope.rooms;
             results = [];
@@ -1155,7 +1156,7 @@
           random = api.getRandomImgurId();
           icon = "http://i.imgur.com/" + random + ".png";
           data = {
-            name: "Room #1",
+            name: 'Room #1',
             chat_id: $scope.chatId,
             icon: icon
           };
@@ -1177,7 +1178,7 @@
             }
             $scope.rooms = rooms;
             selected_room = $scope.rooms[0];
-            previousRoom = typeof localStorage !== "undefined" && localStorage !== null ? localStorage.getItem("selected-room") : void 0;
+            previousRoom = typeof localStorage !== "undefined" && localStorage !== null ? localStorage.getItem('selected-room') : void 0;
             if (previousRoom) {
               ref = $scope.rooms;
               for (j = 0, len1 = ref.length; j < len1; j++) {
@@ -1189,10 +1190,10 @@
             }
             return $scope.setActiveRoom(selected_room);
           });
-          $rootScope.$on("joinRoom", function(event, room_name) {
+          $rootScope.$on('joinRoom', function(event, room_name) {
             return joinRoom(room_name);
           });
-          return $rootScope.$on("room-created", function(event, room) {
+          return $rootScope.$on('room-created', function(event, room) {
             return $scope.rooms.push(room);
           });
         };
@@ -1214,7 +1215,7 @@
   app.directive('scrollLoadMore', ["$timeout", function($timeout) {
     return {
       scope: {
-        callback: "&scrollLoadMore"
+        callback: '&scrollLoadMore'
       },
       link: function($scope, element, attr) {
         var timeout;
@@ -1244,7 +1245,7 @@
     return {
       restrict: 'A',
       scope: {
-        focus: "=setFocus"
+        focus: '=setFocus'
       },
       link: function($scope, elem, attr) {
         return $scope.$watch('focus', function() {
@@ -1282,11 +1283,11 @@
 
   app.directive('signup', ["api", "accountData", function(api, accountData) {
     return {
-      templateUrl: "directives/chat/signup.html",
+      templateUrl: 'directives/chat/signup.html',
       restrict: 'E',
       link: function($scope, element, attrs) {
         $scope.username = api.getUsername();
-        api.socket.on("signup_error", function(error) {
+        api.socket.on('signup_error', function(error) {
           $scope.signup_in_progress = false;
           return $scope.errors = error;
         });
@@ -1327,20 +1328,20 @@
 
   app = angular.module('app');
 
-  app.directive("titleNotifier", ["$rootScope", "tabActive", "beep", function($rootScope, tabActive, beep) {
+  app.directive('titleNotifier', ["$rootScope", "tabActive", "beep", function($rootScope, tabActive, beep) {
     return {
       link: function($scope) {
         var tabVisible, unreadMessages;
         tabVisible = true;
         unreadMessages = 0;
         tabActive.check(function(status) {
-          tabVisible = status !== "hidden";
+          tabVisible = status !== 'hidden';
           if (tabVisible) {
             unreadMessages = 0;
-            return $rootScope.page_title = "Chat";
+            return $rootScope.page_title = 'Chat';
           }
         });
-        $rootScope.$on("tab-beep", function() {
+        $rootScope.$on('tab-beep', function() {
           if (!tabVisible) {
             beep.create(4500);
             beep.create(400);
@@ -1348,7 +1349,7 @@
             return beep.create(1200);
           }
         });
-        return $rootScope.$on("message-notification", function(event, room_id) {
+        return $rootScope.$on('message-notification', function(event, room_id) {
           if (!tabVisible) {
             unreadMessages++;
             return $rootScope.page_title = "(" + unreadMessages + ") Chat";
@@ -1391,20 +1392,20 @@
 
   app = angular.module('app');
 
-  app.filter("newlines", function() {
+  app.filter('newlines', ["$sce", function($sce) {
     return function(text) {
-      return text.replace(/\n/g, "<br>");
+      return $sce.trustAsHtml(text.replace(/(\n|&#10;)/g, '<br>'));
     };
-  });
+  }]);
 
 }).call(this);
 
 (function() {
   var app;
 
-  app = angular.module("app");
+  app = angular.module('app');
 
-  app.service("accountData", function() {
+  app.service('accountData', function() {
     return {
       account: false
     };
@@ -1415,11 +1416,11 @@
 (function() {
   var app;
 
-  app = angular.module("app");
+  app = angular.module('app');
 
-  app.service("animals", function() {
+  app.service('animals', function() {
     var animals;
-    animals = ["Abyssinian", "Affenpinscher", "Akbash", "Akita", "Albatross", "Alligator", "Angelfish", "Ant", "Anteater", "Antelope", "Armadillo", "Avocet", "Axolotl", "Baboon", "Badger", "Balinese", "Bandicoot", "Barb", "Barnacle", "Barracuda", "Bat", "Beagle", "Bear", "Beaver", "Beetle", "Binturong", "Bird", "Birman", "Bison", "Bloodhound", "Bobcat", "Bombay", "Bongo", "Bonobo", "Booby", "Budgerigar", "Buffalo", "Bulldog", "Bullfrog", "Burmese", "Butterfly", "Caiman", "Camel", "Capybara", "Caracal", "Cassowary", "Cat", "Caterpillar", "Catfish", "Centipede", "Chameleon", "Chamois", "Cheetah", "Chicken", "Chihuahua", "Chimpanzee", "Chinchilla", "Chinook", "Chipmunk", "Cichlid", "Coati", "Cockroach", "Collie", "Coral", "Cougar", "Cow", "Coyote", "Crab", "Crane", "Crocodile", "Cuscus", "Cuttlefish", "Dachshund", "Dalmatian", "Deer", "Dhole", "Dingo", "Discus", "Dodo", "Dog", "Dolphin", "Donkey", "Dormouse", "Dragonfly", "Drever", "Duck", "Dugong", "Dunker", "Eagle", "Earwig", "Echidna", "Elephant", "Emu", "Falcon", "Ferret", "Fish", "Flamingo", "Flounder", "Fly", "Fossa", "Fox", "Frigatebird", "Frog", "Gar", "Gecko", "Gerbil", "Gharial", "Gibbon", "Giraffe", "Goat", "Goose", "Gopher", "Gorilla", "Grasshopper", "Eater", "Greyhound", "Grouse", "Guppy", "Hamster", "Hare", "Harrier", "Havanese", "Hedgehog", "Heron", "Himalayan", "Hippopotamus", "Horse", "Human", "Hummingbird", "Hyena", "Ibis", "Iguana", "Impala", "Indri", "Insect", "Jackal", "Jaguar", "Javanese", "Jellyfish", "Kakapo", "Kangaroo", "Kingfisher", "Kiwi", "Koala", "Kudu", "Labradoodle", "Ladybird", "Lemming", "Lemur", "Leopard", "Liger", "Lion", "Lionfish", "Lizard", "Llama", "Lobster", "Lynx", "Macaw", "Magpie", "Maltese", "Manatee", "Mandrill", "Markhor", "Mastiff", "Mayfly", "Meerkat", "Millipede", "Mole", "Molly", "Mongoose", "Mongrel", "Monkey", "Moorhen", "Moose", "Moth", "Mouse", "Mule", "Neanderthal", "Newfoundland", "Newt", "Nightingale", "Numbat", "Ocelot", "Octopus", "Okapi", "Olm", "Opossum", "utan", "Ostrich", "Otter", "Oyster", "Pademelon", "Panther", "Parrot", "Peacock", "Pekingese", "Pelican", "Penguin", "Persian", "Pheasant", "Pig", "Pika", "Pike", "Piranha", "Platypus", "Pointer", "Poodle", "Porcupine", "Possum", "Prawn", "Puffin", "Pug", "Puma", "Quail", "Quetzal", "Quokka", "Quoll", "Rabbit", "Raccoon", "Ragdoll", "Rat", "Rattlesnake", "Reindeer", "Rhinoceros", "Robin", "Rottweiler", "Salamander", "Saola", "Scorpion", "Seahorse", "Seal", "Serval", "Sheep", "Shrimp", "Skunk", "Sloth", "Snail", "Snake", "Snowshoe", "Sparrow", "Sponge", "Squid", "Squirrel", "Starfish", "Stingray", "Stoat", "Swan", "Tang", "Tapir", "Tarsier", "Termite", "Tetra", "Tiffany", "Tiger", "Tortoise", "Toucan", "Tropicbird", "Tuatara", "Turkey", "Uakari", "Uguisu", "Umbrellabird", "Vulture", "Wallaby", "Walrus", "Warthog", "Wasp", "Weasel", "Whippet", "Wildebeest", "Wolf", "Wolverine", "Wombat", "Woodlouse", "Woodpecker", "Wrasse", "Yak", "Zebra", "Zebu", "Zonkey", "Zorse"];
+    animals = ['Abyssinian', 'Affenpinscher', 'Akbash', 'Akita', 'Albatross', 'Alligator', 'Angelfish', 'Ant', 'Anteater', 'Antelope', 'Armadillo', 'Avocet', 'Axolotl', 'Baboon', 'Badger', 'Balinese', 'Bandicoot', 'Barb', 'Barnacle', 'Barracuda', 'Bat', 'Beagle', 'Bear', 'Beaver', 'Beetle', 'Binturong', 'Bird', 'Birman', 'Bison', 'Bloodhound', 'Bobcat', 'Bombay', 'Bongo', 'Bonobo', 'Booby', 'Budgerigar', 'Buffalo', 'Bulldog', 'Bullfrog', 'Burmese', 'Butterfly', 'Caiman', 'Camel', 'Capybara', 'Caracal', 'Cassowary', 'Cat', 'Caterpillar', 'Catfish', 'Centipede', 'Chameleon', 'Chamois', 'Cheetah', 'Chicken', 'Chihuahua', 'Chimpanzee', 'Chinchilla', 'Chinook', 'Chipmunk', 'Cichlid', 'Coati', 'Cockroach', 'Collie', 'Coral', 'Cougar', 'Cow', 'Coyote', 'Crab', 'Crane', 'Crocodile', 'Cuscus', 'Cuttlefish', 'Dachshund', 'Dalmatian', 'Deer', 'Dhole', 'Dingo', 'Discus', 'Dodo', 'Dog', 'Dolphin', 'Donkey', 'Dormouse', 'Dragonfly', 'Drever', 'Duck', 'Dugong', 'Dunker', 'Eagle', 'Earwig', 'Echidna', 'Elephant', 'Emu', 'Falcon', 'Ferret', 'Fish', 'Flamingo', 'Flounder', 'Fly', 'Fossa', 'Fox', 'Frigatebird', 'Frog', 'Gar', 'Gecko', 'Gerbil', 'Gharial', 'Gibbon', 'Giraffe', 'Goat', 'Goose', 'Gopher', 'Gorilla', 'Grasshopper', 'Eater', 'Greyhound', 'Grouse', 'Guppy', 'Hamster', 'Hare', 'Harrier', 'Havanese', 'Hedgehog', 'Heron', 'Himalayan', 'Hippopotamus', 'Horse', 'Human', 'Hummingbird', 'Hyena', 'Ibis', 'Iguana', 'Impala', 'Indri', 'Insect', 'Jackal', 'Jaguar', 'Javanese', 'Jellyfish', 'Kakapo', 'Kangaroo', 'Kingfisher', 'Kiwi', 'Koala', 'Kudu', 'Labradoodle', 'Ladybird', 'Lemming', 'Lemur', 'Leopard', 'Liger', 'Lion', 'Lionfish', 'Lizard', 'Llama', 'Lobster', 'Lynx', 'Macaw', 'Magpie', 'Maltese', 'Manatee', 'Mandrill', 'Markhor', 'Mastiff', 'Mayfly', 'Meerkat', 'Millipede', 'Mole', 'Molly', 'Mongoose', 'Mongrel', 'Monkey', 'Moorhen', 'Moose', 'Moth', 'Mouse', 'Mule', 'Neanderthal', 'Newfoundland', 'Newt', 'Nightingale', 'Numbat', 'Ocelot', 'Octopus', 'Okapi', 'Olm', 'Opossum', 'utan', 'Ostrich', 'Otter', 'Oyster', 'Pademelon', 'Panther', 'Parrot', 'Peacock', 'Pekingese', 'Pelican', 'Penguin', 'Persian', 'Pheasant', 'Pig', 'Pika', 'Pike', 'Piranha', 'Platypus', 'Pointer', 'Poodle', 'Porcupine', 'Possum', 'Prawn', 'Puffin', 'Pug', 'Puma', 'Quail', 'Quetzal', 'Quokka', 'Quoll', 'Rabbit', 'Raccoon', 'Ragdoll', 'Rat', 'Rattlesnake', 'Reindeer', 'Rhinoceros', 'Robin', 'Rottweiler', 'Salamander', 'Saola', 'Scorpion', 'Seahorse', 'Seal', 'Serval', 'Sheep', 'Shrimp', 'Skunk', 'Sloth', 'Snail', 'Snake', 'Snowshoe', 'Sparrow', 'Sponge', 'Squid', 'Squirrel', 'Starfish', 'Stingray', 'Stoat', 'Swan', 'Tang', 'Tapir', 'Tarsier', 'Termite', 'Tetra', 'Tiffany', 'Tiger', 'Tortoise', 'Toucan', 'Tropicbird', 'Tuatara', 'Turkey', 'Uakari', 'Uguisu', 'Umbrellabird', 'Vulture', 'Wallaby', 'Walrus', 'Warthog', 'Wasp', 'Weasel', 'Whippet', 'Wildebeest', 'Wolf', 'Wolverine', 'Wombat', 'Woodlouse', 'Woodpecker', 'Wrasse', 'Yak', 'Zebra', 'Zebu', 'Zonkey', 'Zorse'];
     return {
       getRandom: function() {
         return animals[Math.floor(Math.random() * animals.length)];
@@ -1474,13 +1475,13 @@
         return cameraSupported;
       },
       saveImgurData: function(data) {
-        return socket.emit("save_imgur", data);
+        return socket.emit('save_imgur', data);
       },
       getUsername: function() {
-        var name;
-        name = (typeof localStorage !== "undefined" && localStorage !== null ? localStorage.getItem("name") : void 0) || ((animals.getRandom()) + "-" + (Math.ceil(Math.random() * 100)));
+        var name, ref;
+        name = (ref = typeof localStorage !== "undefined" && localStorage !== null ? localStorage.getItem('name') : void 0) != null ? ref : (animals.getRandom()) + "-" + (Math.ceil(Math.random() * 100));
         if (typeof localStorage !== "undefined" && localStorage !== null) {
-          localStorage.setItem("name", name);
+          localStorage.setItem('name', name);
         }
         ga('send', 'event', 'usernames', 'randomName', name);
         return name;
@@ -1512,47 +1513,47 @@
         return deferred.promise;
       },
       i_am_typing: function(data) {
-        return socket.emit("i_am_typing", data);
+        return socket.emit('i_am_typing', data);
       },
       api_stats: function() {
-        socket.emit("api_stats");
-        return this.on("api_stats");
+        socket.emit('api_stats');
+        return this.on('api_stats');
       },
       get_topic: function(arg) {
         var chat_id, room_id;
         chat_id = arg.chat_id, room_id = arg.room_id;
-        socket.emit("load_topic", {
+        socket.emit('load_topic', {
           chat_id: chat_id,
           room_id: room_id
         });
-        return this.on("topic");
+        return this.on('topic');
       },
       set_topic: function(data) {
-        return socket.emit("save_topic", data);
+        return socket.emit('save_topic', data);
       },
       create_room: function(data) {
-        socket.emit("create_room", data);
-        return this.on("room_created");
+        socket.emit('create_room', data);
+        return this.on('room_created');
       },
       load_rooms: function(data) {
-        socket.emit("load_rooms", data);
-        return this.on("rooms");
+        socket.emit('load_rooms', data);
+        return this.on('rooms');
       },
       get_online_count: function(data) {
-        socket.emit("get_online_count", data);
-        return this.on("get_online_count");
+        socket.emit('get_online_count', data);
+        return this.on('get_online_count');
       },
       load_chat_messages_for_room: function(data) {
-        socket.emit("load_chat_messages_for_room", data);
-        return this.on("load_chat_messages_for_room");
+        socket.emit('load_chat_messages_for_room', data);
+        return this.on('load_chat_messages_for_room');
       },
       save_chat_messages: function(data) {
-        socket.emit("save_chat_message", data);
-        return this.on("save_chat_message");
+        socket.emit('save_chat_message', data);
+        return this.on('save_chat_message');
       },
       update_platform: function() {
-        socket.emit("update_platform");
-        return this.on("update_platform");
+        socket.emit('update_platform');
+        return this.on('update_platform');
       },
       hasYoutubeUrl: function(url) {
         return getYoutubeUrls(url) != null;
@@ -1562,16 +1563,16 @@
         return youtubeEmbedUtils.getIdFromURL((ref = getYoutubeUrls(url)) != null ? ref[0] : void 0);
       },
       upload_to_imgur: function(file, options) {
-        imgurUpload.setClientId("3631cecbf2bf2cf");
+        imgurUpload.setClientId('3631cecbf2bf2cf');
         return imgurUpload.upload(file, options);
       },
       signup: function(data) {
-        socket.emit("signup", data);
-        return this.on("signup");
+        socket.emit('signup', data);
+        return this.on('signup');
       },
       login: function(data) {
-        socket.emit("login", data);
-        return this.on("login");
+        socket.emit('login', data);
+        return this.on('login');
       },
       userIsSender: function(sid, userid) {
         return sid === yolosid;
@@ -1629,11 +1630,7 @@
         if ((typeof webkitAudioContext === "undefined" || webkitAudioContext === null) && (typeof AudioContext === "undefined" || AudioContext === null)) {
           return;
         }
-        if (AudioContext) {
-          audioContextFunction = AudioContext;
-        } else {
-          audioContextFunction = webkitAudioContext;
-        }
+        audioContextFunction = AudioContext ? AudioContext : webkitAudioContext;
         window.beepAudioContext = window.beepAudioContext || new audioContextFunction();
         oscillator = window.beepAudioContext.createOscillator();
         oscillator.connect(window.beepAudioContext.destination);
@@ -1703,38 +1700,38 @@
     check = function(data) {
       var command, content, message;
       message = data.message;
-      if (message[0] !== "/") {
+      if (message[0] !== '/') {
         return false;
       }
-      content = message.split(" ");
-      command = content[0].replace("/", "");
-      if (command === "topic") {
-        setTopic(content.slice(1).join(" "), data.chat_id, data.room_id);
+      content = message.split(' ');
+      command = content[0].replace('/', '');
+      if (command === 'topic') {
+        setTopic(content.slice(1).join(' '), data.chat_id, data.room_id);
         return true;
       }
-      if (command === "join" || command === "j") {
-        $rootScope.$broadcast("joinRoom", content.slice(1).join(" "));
+      if (command === 'join' || command === 'j') {
+        $rootScope.$broadcast('joinRoom', content.slice(1).join(' '));
         return true;
       }
-      if (command === "create") {
-        create_room(content.slice(1).join(" "), data.chat_id, data.from);
+      if (command === 'create') {
+        create_room(content.slice(1).join(' '), data.chat_id, data.from);
         return true;
       }
-      if (command === "help") {
+      if (command === 'help') {
         $mdDialog.show({
           templateUrl: 'directives/chat/help.html',
           controller: 'simpleDialog'
         });
         return true;
       }
-      if (command === "register" || command === "signup") {
+      if (command === 'register' || command === 'signup') {
         $mdDialog.show({
           templateUrl: 'directives/chat/signup-dialog.html',
           controller: 'simpleDialog'
         });
         return true;
       }
-      if (command === "login" || command === "signin") {
+      if (command === 'login' || command === 'signin') {
         $mdDialog.show({
           templateUrl: 'directives/chat/login-dialog.html',
           controller: 'simpleDialog'
@@ -1753,13 +1750,13 @@
 (function() {
   var app;
 
-  app = angular.module("app");
+  app = angular.module('app');
 
-  app.factory("messageHistory", function() {
+  app.factory('messageHistory', function() {
     var down, getMessageHistory, globalHistory, historyLocation, last, saveMessageHistory, up;
     getMessageHistory = function() {
       var history;
-      history = localStorage.getItem("message-history");
+      history = localStorage.getItem('message-history');
       if (!history) {
         return [];
       }
@@ -1775,7 +1772,7 @@
       if (!localStorage) {
         return;
       }
-      history = localStorage.getItem("message-history") || "[]";
+      history = localStorage.getItem('message-history') || '[]';
       history = JSON.parse(history);
       if (last(history) === message) {
         return false;
@@ -1783,7 +1780,7 @@
       history.push(message);
       globalHistory = history;
       historyLocation = history.length;
-      return localStorage.setItem("message-history", JSON.stringify(history));
+      return localStorage.setItem('message-history', JSON.stringify(history));
     };
     up = function(room_id) {
       if (historyLocation < 0) {
@@ -1979,7 +1976,7 @@
           var cols, columnLength, dataRows, day, i, j, name, results, row, rows, stat;
           $scope.stats = stats.reduce(function(memo, stat) {
             var base, day, name1;
-            day = moment(stat.created_at).format("YYYYMMDD");
+            day = moment(stat.created_at).format('YYYYMMDD');
             if (memo[day] == null) {
               memo[day] = {};
             }

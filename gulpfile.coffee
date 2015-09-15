@@ -185,6 +185,9 @@ gulp.task 'bower', ->
     .pipe(bowerTags(options));
 
 
+gulp.task 'build', ['bower', 'less', 'autoprefixer', 'partials', 'public-coffee', 'coffee']
+
+
 gulp.task 'watch', ->
   gulp.watch 'bower.json', ['bower']
   gulp.watch 'less/**/*.less', ['less']

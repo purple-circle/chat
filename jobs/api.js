@@ -5,34 +5,34 @@
 
   mongoose = require('mongoose');
 
-  kue = require("kue");
+  kue = require('kue');
 
   jobs = kue.createQueue();
 
-  settings = require("../settings");
+  settings = require('../settings');
 
-  require("../mongo")(settings);
+  require('../mongo')(settings);
 
   twitter = require('twitter-text');
 
-  request = require("request");
+  request = require('request');
 
-  Q = require("q");
+  Q = require('q');
 
   twitter_text_options = {
-    usernameUrlBase: "/profile/",
-    hashtagUrlBase: "/tag/",
+    usernameUrlBase: '/profile/',
+    hashtagUrlBase: '/tag/',
     targetBlank: true
   };
 
-  console.log("api worker running");
+  console.log('api worker running');
 
   selectUserFields = '-salt -hash';
 
   getOpenGraphData = function(url) {
     var Tags;
     Tags = mongoose.model('open_graph_tags');
-    return Tags.findOne().where('url').equals(url).sort("-created_at").exec();
+    return Tags.findOne().where('url').equals(url).sort('-created_at').exec();
   };
 
   getUrlDataRetry = function(url, done, retry_count) {
@@ -76,7 +76,7 @@
     return deferred.promise;
   };
 
-  jobs.process("stats.save_api_log", function(job, done) {
+  jobs.process('stats.save_api_log', function(job, done) {
     var Log, data, log;
     Log = mongoose.model('api_logs');
     data = {
@@ -92,15 +92,15 @@
     });
   });
 
-  jobs.process("api.api_stats", function(job, done) {
+  jobs.process('api.api_stats', function(job, done) {
     var Log;
     Log = mongoose.model('api_logs');
-    return Log.find().limit(300).sort("-created_at").exec().then(function(result) {
+    return Log.find().limit(300).sort('-created_at').exec().then(function(result) {
       return done(null, result);
     }, done);
   });
 
-  jobs.process("api.save_imgur", function(job, done) {
+  jobs.process('api.save_imgur', function(job, done) {
     var Imgur, imgur, imgurData;
     imgurData = job.data.data;
     imgurData.chat_id = job.data.chat_id;
@@ -117,15 +117,15 @@
     });
   });
 
-  jobs.process("api.load_topic", function(job, done) {
+  jobs.process('api.load_topic', function(job, done) {
     var Topics;
     Topics = mongoose.model('topics');
-    return Topics.findOne().where('chat_id').equals(job.data.chat_id).where('room_id').equals(job.data.room_id).limit(1).sort("-created_at").exec().then(function(result) {
+    return Topics.findOne().where('chat_id').equals(job.data.chat_id).where('room_id').equals(job.data.room_id).limit(1).sort('-created_at').exec().then(function(result) {
       return done(null, result);
     }, done);
   });
 
-  jobs.process("api.save_topic", function(job, done) {
+  jobs.process('api.save_topic', function(job, done) {
     var Topics, topic;
     Topics = mongoose.model('topics');
     topic = new Topics(job.data);
@@ -138,12 +138,12 @@
     });
   });
 
-  jobs.process("api.load_chat_messages_for_room", function(job, done) {
+  jobs.process('api.load_chat_messages_for_room', function(job, done) {
     var ChatMessages, limit, page;
     limit = 10;
     page = job.data.page || 0;
     ChatMessages = mongoose.model('chat_messages');
-    return ChatMessages.find().where('chat_id').equals(job.data.chat_id).where('room_id').equals(job.data.room_id).limit(limit).skip(page * limit).sort("-created_at").exec().then(function(result) {
+    return ChatMessages.find().where('chat_id').equals(job.data.chat_id).where('room_id').equals(job.data.room_id).limit(limit).skip(page * limit).sort('-created_at').exec().then(function(result) {
       return done(null, result);
     }, done);
   });
@@ -166,13 +166,13 @@
     return Object.keys(obj).length;
   };
 
-  jobs.process("api.store_twitter_tags", function(job, done) {
+  jobs.process('api.store_twitter_tags', function(job, done) {
     var Tags, data, tag, tags, twitterTags;
     twitterTags = require('twitter-tag-scraper');
     tags = twitterTags.parseHtml(job.data.content);
     if (!objectLength(tags)) {
       done({
-        error: "No tags"
+        error: 'No tags'
       });
       return;
     }
@@ -191,13 +191,13 @@
     });
   });
 
-  jobs.process("api.store_open_graph_tags", function(job, done) {
+  jobs.process('api.store_open_graph_tags', function(job, done) {
     var Tags, data, ogTags, tag, tags;
     ogTags = require('open-graph-tag-scraper');
     tags = ogTags.parseHtml(job.data.content);
     if (!objectLength(tags)) {
       done({
-        error: "No tags"
+        error: 'No tags'
       });
       return;
     }
@@ -216,12 +216,12 @@
     });
   });
 
-  jobs.process("api.process_urls_from_message", function(job, done) {
+  jobs.process('api.process_urls_from_message', function(job, done) {
     var i, len, ref, results, url, urls;
     urls = (ref = job.data.metadata) != null ? ref.urls : void 0;
     if (!urls.length) {
       done({
-        error: "No urls"
+        error: 'No urls'
       });
       return;
     }
@@ -243,17 +243,17 @@
     return results;
   });
 
-  jobs.process("api.getOpenGraphData", function(job, done) {
+  jobs.process('api.getOpenGraphData', function(job, done) {
     return getOpenGraphData(job.data).then(function(result) {
       return done(null, result);
     }, done);
   });
 
-  jobs.process("api.getUrlDataRetry", function(job, done) {
+  jobs.process('api.getUrlDataRetry', function(job, done) {
     return getUrlDataRetry(job.data, done, 0);
   });
 
-  jobs.process("api.save_chat_message", function(job, done) {
+  jobs.process('api.save_chat_message', function(job, done) {
     var ChatMessages, hashtags, message, urls, user_mentions;
     user_mentions = twitter.extractMentions(job.data.message);
     hashtags = twitter.extractHashtags(job.data.message);
@@ -286,7 +286,7 @@
     });
   });
 
-  jobs.process("api.create_room", function(job, done) {
+  jobs.process('api.create_room', function(job, done) {
     var Rooms, room;
     Rooms = mongoose.model('rooms');
     room = new Rooms(job.data);
@@ -299,7 +299,7 @@
     });
   });
 
-  jobs.process("api.get_rooms", function(job, done) {
+  jobs.process('api.get_rooms', function(job, done) {
     var Rooms;
     Rooms = mongoose.model('rooms');
     return Rooms.find().where('chat_id').equals(job.data.chat_id).exec().then(function(result) {
@@ -307,7 +307,7 @@
     }, done);
   });
 
-  jobs.process("api.check_username", function(job, done) {
+  jobs.process('api.check_username', function(job, done) {
     var Users;
     Users = mongoose.model('users');
     return Users.findOne({
@@ -317,7 +317,7 @@
     }, done);
   });
 
-  jobs.process("api.localSignupUser", function(job, done) {
+  jobs.process('api.localSignupUser', function(job, done) {
     var User;
     User = mongoose.model('users');
     return User.register(new User({
@@ -331,7 +331,7 @@
     });
   });
 
-  jobs.process("api.create_profile_picture_album", function(job, done) {
+  jobs.process('api.create_profile_picture_album', function(job, done) {
     var ProfilePictureAlbum, album;
     ProfilePictureAlbum = mongoose.model('profile_picture_albums');
     album = new ProfilePictureAlbum(job.data);
@@ -344,7 +344,7 @@
     });
   });
 
-  jobs.process("api.get_profile_picture_albums", function(job, done) {
+  jobs.process('api.get_profile_picture_albums', function(job, done) {
     var Albums;
     Albums = mongoose.model('profile_picture_albums');
     return Albums.find({
@@ -354,7 +354,7 @@
     }, done);
   });
 
-  jobs.process("api.saveFacebookData", function(job, done) {
+  jobs.process('api.saveFacebookData', function(job, done) {
     var Facebook, facebook;
     Facebook = mongoose.model('facebook_user_data');
     facebook = new Facebook(job.data);
@@ -367,7 +367,7 @@
     });
   });
 
-  jobs.process("api.saveGoogleData", function(job, done) {
+  jobs.process('api.saveGoogleData', function(job, done) {
     var Google, google;
     Google = mongoose.model('google_user_data');
     google = new Google(job.data);
@@ -380,7 +380,7 @@
     });
   });
 
-  jobs.process("api.saveInstagramData", function(job, done) {
+  jobs.process('api.saveInstagramData', function(job, done) {
     var Instagram, instagram;
     Instagram = mongoose.model('instagram_user_data');
     instagram = new Instagram(job.data);
@@ -391,6 +391,10 @@
         return done(null, instagram);
       }
     });
+  });
+
+  jobs.on('error', function(error) {
+    return console.log('error', error);
   });
 
 }).call(this);

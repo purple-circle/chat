@@ -367,3 +367,7 @@ jobs.process 'api.saveInstagramData', (job, done) ->
     else
       done null, instagram
 
+
+jobs.on 'error', (error) ->
+  console.log 'error', error
+
