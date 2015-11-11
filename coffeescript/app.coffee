@@ -16,8 +16,14 @@ RedisStore = require('connect-redis')(session)
 app = express()
 longCookieIsLong = 302400000000 # about ten years or something
 
+redisOptions =
+  if process.env.REDIS_PORT
+    {port: process.env.REDIS_PORT}
+  else
+    {}
+
 sessionStore = session
-  store: new RedisStore()
+  store: new RedisStore(redisOptions)
   secret: settings.cookie_secret
   resave: true
   saveUninitialized: true

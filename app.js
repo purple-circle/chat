@@ -1,5 +1,5 @@
 (function() {
-  var RedisStore, app, bodyParser, cookieParser, express, favicon, longCookieIsLong, passport, path, routes, server, session, sessionStore, settings;
+  var RedisStore, app, bodyParser, cookieParser, express, favicon, longCookieIsLong, passport, path, redisOptions, routes, server, session, sessionStore, settings;
 
   require('newrelic');
 
@@ -29,8 +29,12 @@
 
   longCookieIsLong = 302400000000;
 
+  redisOptions = process.env.REDIS_PORT ? {
+    port: process.env.REDIS_PORT
+  } : {};
+
   sessionStore = session({
-    store: new RedisStore(),
+    store: new RedisStore(redisOptions),
     secret: settings.cookie_secret,
     resave: true,
     saveUninitialized: true,
