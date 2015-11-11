@@ -169,7 +169,7 @@ gulp.task 'bower', ->
     bowerDirectory: 'public/bower_components'
     relativeBowerDirectory: '/bower_components'
     destinationFile: 'views/bower-include.ejs'
-    priority: ['moment', 'angular'],
+    priority: ['moment', 'angular', 'angular-aria', 'angular-animate'],
     overwrite:
       moment: 'min/moment.min.js'
       angular: 'angular.min.js'

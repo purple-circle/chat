@@ -9,7 +9,6 @@ kueOptions =
         port: process.env.REDIS_PORT
       }
     }
-
   else
     {}
 

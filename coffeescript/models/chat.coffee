@@ -14,7 +14,6 @@ chat.load_topic = ({chat_id, room_id}) ->
 chat.save_topic = (data) ->
   api.createQueue('api.save_topic', data)
 
-# TODO: rename to getUrlDataRetry etc
 chat.getUrlDataRetry = (url) ->
   api.createQueue('api.getUrlDataRetry', url)
 
