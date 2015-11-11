@@ -1,5 +1,5 @@
 (function() {
-  var Q, getOpenGraphData, getUrlContent, getUrlDataRetry, jobs, kue, mongoose, objectLength, request, selectUserFields, settings, twitter, twitter_text_options, unique;
+  var Q, getOpenGraphData, getUrlContent, getUrlDataRetry, jobs, kue, kueOptions, mongoose, objectLength, request, selectUserFields, settings, twitter, twitter_text_options, unique;
 
   require('newrelic');
 
@@ -7,7 +7,13 @@
 
   kue = require('kue');
 
-  jobs = kue.createQueue();
+  kueOptions = process.env.REDIS_PORT ? {
+    redis: {
+      port: process.env.REDIS_PORT
+    }
+  } : {};
+
+  jobs = kue.createQueue(kueOptions);
 
   settings = require('../settings');
 

@@ -2,9 +2,19 @@ Q = require('q')
 kue = require('kue')
 api = {}
 
+kueOptions =
+  if process.env.REDIS_PORT
+    {
+      redis: {
+        port: process.env.REDIS_PORT
+      }
+    }
+  else
+    {}
+
 api.createQueue = (name, data) ->
   deferred = Q.defer()
-  jobs = kue.createQueue()
+  jobs = kue.createQueue(kueOptions)
   job = jobs
     .create(name, data)
     .save()

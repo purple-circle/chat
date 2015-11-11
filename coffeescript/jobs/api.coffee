@@ -1,7 +1,20 @@
 require('newrelic')
 mongoose = require('mongoose')
 kue = require('kue')
-jobs = kue.createQueue()
+
+kueOptions =
+  if process.env.REDIS_PORT
+    {
+      redis: {
+        port: process.env.REDIS_PORT
+      }
+    }
+
+  else
+    {}
+
+
+jobs = kue.createQueue(kueOptions)
 
 settings = require('../settings')
 require('../mongo')(settings)
