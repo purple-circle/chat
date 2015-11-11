@@ -13,16 +13,16 @@
   "dependencies": {
     "angular": "1.4.2",
     "angular-material": "0.10.0",
-    "angular-scroll-glue": "~2.0.5",
-    "angular-ui-router": "~0.2.15",
-    "angular-youtube-mb": "~1.0.2",
-    "angular-sanitize": "~1.4.0",
-    "angular-battery-directive": "~0.0.2",
-    "fontawesome": "~4.3.0",
-    "angular-moment": "~0.10.1",
-    "angular-vimeo-embed": "~0.1.2",
-    "angular-imgur-upload": "~0.0.1",
-    "ngmap": "~1.7.11",
-    "angular-google-chart": "~0.0.11"
+    "angular-scroll-glue": "2.0.5",
+    "angular-ui-router": "0.2.15",
+    "angular-youtube-mb": "1.0.2",
+    "angular-sanitize": "1.4.0",
+    "angular-battery-directive": "0.0.2",
+    "fontawesome": "4.3.0",
+    "angular-moment": "0.10.1",
+    "angular-vimeo-embed": "0.1.2",
+    "angular-imgur-upload": "0.0.1",
+    "ngmap": "1.7.11",
+    "angular-google-chart": "0.0.11"
   }
 }
