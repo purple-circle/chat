@@ -134,9 +134,7 @@
   app = angular.module('app');
 
   app.controller('simpleDialog', ["$scope", "$mdDialog", function($scope, $mdDialog) {
-    return $scope.close = function() {
-      return $mdDialog.cancel();
-    };
+    return $scope.close = $mdDialog.cancel;
   }]);
 
 }).call(this);

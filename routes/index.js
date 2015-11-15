@@ -11,9 +11,9 @@
   indexPage = function(req, res) {
     var cssBuildModified, cssBuildStats, fs, jsBuildModified, jsBuildStats;
     fs = require('fs');
-    jsBuildStats = fs.statSync('public/js/build.js');
+    jsBuildStats = fs.statSync(path.join(__dirname, 'public/js/build.js'));
     jsBuildModified = new Date(jsBuildStats.mtime).getTime();
-    cssBuildStats = fs.statSync('public/css/chat.css');
+    cssBuildStats = fs.statSync(path.join(__dirname, 'public/css/chat.css'));
     cssBuildModified = new Date(cssBuildStats.mtime).getTime();
     return res.render('index', {
       sid: req.sessionID,
