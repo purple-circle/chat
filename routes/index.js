@@ -1,10 +1,12 @@
 (function() {
   'use strict';
-  var express, indexPage, router, settings;
+  var express, indexPage, path, router, settings;
 
   express = require('express');
 
   settings = require('../settings.js');
+
+  path = require('path');
 
   router = express.Router();
 

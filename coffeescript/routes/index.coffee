@@ -1,6 +1,7 @@
 'use strict'
 express = require('express')
 settings = require('../settings.js')
+path = require('path')
 
 router = express.Router()
 
